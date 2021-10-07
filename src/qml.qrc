@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/ScoreViewer.qml</file>
+        <file>qml/image/collapse.png</file>
+        <file>qml/image/expand.png</file>
+        <file>qml/image/add.png</file>
+        <file>qml/ui/Score/MusicListView.qml</file>
+        <file>qml/ui/Score/ScoreChartView.qml</file>
+        <file>qml/ui/Style/StyledComboBox.qml</file>
+    </qresource>
+</RCC>

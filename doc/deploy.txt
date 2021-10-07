@@ -1,0 +1,1 @@
+windeployqt --qmldir E:\projects\score2dx-gui\src\qml D:\build\score2dx-gui\qtc-Release\src

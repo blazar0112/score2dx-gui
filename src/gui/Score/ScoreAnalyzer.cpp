@@ -1,0 +1,423 @@
+#include "gui/Score/ScoreAnalyzer.hpp"
+
+#include <functional>
+#include <iostream>
+
+#include <QDateTime>
+#include <QDebug>
+#include <QtCharts/QLegendMarker>
+
+#include "icl_s2/Common/IntegralRangeUsing.hpp"
+#include "icl_s2/String/RecursiveReplace.hpp"
+
+#include "score2dx/Iidx/Version.hpp"
+#include "score2dx/Score/ScoreLevel.hpp"
+
+namespace
+{
+
+QDateTime
+ToQDateTime(const std::string &dateTime)
+{
+    auto tokens = icl_s2::SplitString("- :", dateTime, 5);
+
+    QDateTime qDateTime;
+    qDateTime.setDate({std::stoi(tokens[0]), std::stoi(tokens[1]), std::stoi(tokens[2])});
+    qDateTime.setTime({std::stoi(tokens[3]), std::stoi(tokens[4])});
+
+    return qDateTime;
+}
+
+}
+
+namespace gui
+{
+
+ScoreAnalyzer::
+ScoreAnalyzer(const score2dx::Core &core, QObject *parent)
+:   QObject(parent),
+    mCore(core)
+{
+}
+
+void
+ScoreAnalyzer::
+setup(QtCharts::QLegend* legend,
+      QtCharts::QAbstractSeries* scoreSeries,
+      QtCharts::QAbstractAxis* dateTimeAxis,
+      QtCharts::QAbstractAxis* scoreAxis,
+      QtCharts::QAbstractAxis* versionCategoryAxis,
+      QtCharts::QAbstractSeries* scatterSeriesScoreLevel,
+      QtCharts::QAbstractAxis* scoreLevelAxis)
+{
+    mLegend = legend;
+
+    mScoreSeries = static_cast<QtCharts::QXYSeries*>(scoreSeries);
+    mDateTimeAxis = static_cast<QtCharts::QDateTimeAxis*>(dateTimeAxis);
+    mScoreAxis = static_cast<QtCharts::QValueAxis*>(scoreAxis);
+
+    mVersionCategoryAxis = static_cast<QtCharts::QCategoryAxis*>(versionCategoryAxis);
+
+    mScatterSeriesScoreLevel = static_cast<QtCharts::QScatterSeries*>(scatterSeriesScoreLevel);
+    mScoreLevelAxis = static_cast<QtCharts::QValueAxis*>(scoreLevelAxis);
+
+    InitializeChart();
+}
+
+void
+ScoreAnalyzer::
+updatePlayerScore(const QString &iidxIdQStr,
+                  const QString &playStyleQStr,
+                  int musicId,
+                  const QString &difficultyQStr)
+{
+    if (iidxIdQStr.isEmpty()||playStyleQStr.isEmpty()||difficultyQStr.isEmpty())
+    {
+        return;
+    }
+
+    if (!mScoreSeries||!mScoreAxis||!mScatterSeriesScoreLevel||!mScoreLevelAxis)
+    {
+        return;
+    }
+
+    auto &series = *mScoreSeries;
+    series.clear();
+
+    auto &scoreAxis = *mScoreAxis;
+    scoreAxis.setMin(0);
+    scoreAxis.setMax(20);
+
+    auto &scoreLevelSeries = *mScatterSeriesScoreLevel;
+    scoreLevelSeries.clear();
+
+    auto &scoreLevelAxis = *mScoreLevelAxis;
+    scoreLevelAxis.setMin(0);
+    scoreLevelAxis.setMax(20);
+
+    auto &playerScore = mCore.GetPlayerScores().at(iidxIdQStr.toStdString());
+    auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
+    auto difficulty = score2dx::ToDifficulty(difficultyQStr.toStdString());
+    auto chartScores = playerScore.GetChartScores(musicId, playStyle, difficulty);
+
+    auto info = mCore.GetMusicInfo(musicId);
+    auto chartInfo = info.FindChartInfo(playStyle, difficulty);
+    if (!chartInfo)
+    {
+        std::cout << "Cannot find chart info of Music [" << musicId
+                  << "]["+ToString(playStyle)+"]["+ToString(difficulty)+"]"
+                  << std::endl;
+        return;
+    }
+
+    auto note = chartInfo->Note;
+    auto maxScore = 2*note;
+
+    scoreAxis.setMin(0);
+    scoreAxis.setMax(maxScore);
+    scoreLevelAxis.setMin(0);
+    scoreLevelAxis.setMax(maxScore);
+
+    std::vector<QPointF> scoreLevelPointList;
+    scoreLevelPointList.reserve(score2dx::ScoreLevelSmartEnum::Size()+1);
+
+    //'' need both series and list model 1-1 'duplicate' data.
+    //'' series to have point in chart to know position in chart.
+    //'' list model to drive qml repeater.
+    for (auto scoreLevel : score2dx::ScoreLevelSmartEnum::ToRange())
+    {
+        auto keyScore = score2dx::FindKeyScore(note, scoreLevel);
+        scoreLevelSeries.append(1, keyScore);
+        scoreLevelPointList.emplace_back(QPointF(1, keyScore));
+    }
+    auto halfKeyScore = score2dx::FindHalfKeyScore(note, score2dx::ScoreLevel::Max);
+    scoreLevelSeries.append(1, halfKeyScore);
+    scoreLevelPointList.emplace_back(QPointF(1, halfKeyScore));
+    mScoreLevelListModel.ResetList(scoreLevelPointList);
+
+    std::vector<ScoreAnalysisData> analysisList;
+    analysisList.reserve(chartScores.size());
+
+    //'' chartScore may be empty, because no difficulty is played.
+    //'' if any difficulty is played, then a ChartScore is created.
+    //'' but looking difficulty may not be played yet, so 0 ExScore.
+    auto isFirst = true;
+    ScoreAnalysisData bestRecordData;
+
+    //! @brief Map of {AnalysisType, IsBetter(AnalysisType, currentData)}.
+    std::map<AnalysisType, std::function<bool(AnalysisType, const ScoreAnalysisData &)>> compareBestFunctions
+    {
+        {   AnalysisType::Clear,
+            [&bestRecordData](AnalysisType analysisType, const ScoreAnalysisData &currentData) -> bool
+            {
+                auto &previousRecord = bestRecordData.GetRecord(analysisType).Record;
+                if (previousRecord.isEmpty())
+                {
+                    return true;
+                }
+
+                auto previousClear = score2dx::ToClearType(previousRecord.toStdString());
+                auto &currentRecord = currentData.GetRecord(analysisType).Record;
+                auto currentClear = score2dx::ToClearType(currentRecord.toStdString());
+
+                return static_cast<int>(currentClear)>static_cast<int>(previousClear);
+            }
+        },
+        {   AnalysisType::Score,
+            [&bestRecordData](AnalysisType analysisType, const ScoreAnalysisData &currentData) -> bool
+            {
+                auto &previousRecord = bestRecordData.GetRecord(analysisType).Record;
+                if (previousRecord.isEmpty())
+                {
+                    return true;
+                }
+
+                auto previousScore = previousRecord.toInt();
+                auto &currentRecord = currentData.GetRecord(analysisType).Record;
+                auto currentScore = currentRecord.toInt();
+
+                return currentScore>previousScore;
+            }
+        },
+        {   AnalysisType::DjLevel,
+            [&bestRecordData](AnalysisType analysisType, const ScoreAnalysisData &currentData) -> bool
+            {
+                auto &previousRecord = bestRecordData.GetRecord(analysisType).Record;
+                if (previousRecord.isEmpty())
+                {
+                    return true;
+                }
+
+                auto previousDjLevel = score2dx::ToDjLevel(previousRecord.toStdString());
+                auto &currentRecord = currentData.GetRecord(analysisType).Record;
+                auto currentDjLevel = score2dx::ToDjLevel(currentRecord.toStdString());
+
+                return static_cast<int>(currentDjLevel)>static_cast<int>(previousDjLevel);
+            }
+        },
+        {   AnalysisType::MissCount,
+            [&bestRecordData](AnalysisType analysisType, const ScoreAnalysisData &currentData) -> bool
+            {
+                auto &previousRecord = bestRecordData.GetRecord(analysisType).Record;
+                auto &currentRecord = currentData.GetRecord(analysisType).Record;
+
+                if (previousRecord.isEmpty()&&!currentRecord.isEmpty())
+                {
+                    return true;
+                }
+
+                if (currentRecord.isEmpty())
+                {
+                    return false;
+                }
+
+                auto previousMiss = previousRecord.toInt();
+                auto currentMiss = currentRecord.toInt();
+
+                return previousMiss>currentMiss;
+            }
+        }
+    };
+
+    for (auto &[dateTime, chartScorePtr] : chartScores)
+    {
+        auto &chartScore = *chartScorePtr;
+
+        //'' always record first unless it's NO PLAY.
+        if (isFirst&&chartScore.ClearType==score2dx::ClearType::NO_PLAY)
+        {
+            continue;
+        }
+
+        //'' skip non-first 0 score entry.
+        if (!isFirst&&chartScore.ExScore==0)
+        {
+            continue;
+        }
+
+        auto qDateTime = ToQDateTime(dateTime);
+        series.append(qDateTime.toMSecsSinceEpoch(), chartScore.ExScore);
+
+        analysisList.emplace_back();
+        auto &analysisData = analysisList.back();
+
+        analysisData.ScoreLevelRangeDiff = score2dx::ToScoreLevelRangeDiffString(note, chartScore.ExScore).c_str();
+
+        //'' note: to compare clear type, record here is not space separated
+        //'' convert to space separated after all data constructed.
+        analysisData.GetRecord(AnalysisType::Clear).Record = ToString(chartScore.ClearType).c_str();
+        analysisData.GetRecord(AnalysisType::Score).Record = std::to_string(chartScore.ExScore).c_str();
+        analysisData.GetRecord(AnalysisType::DjLevel).Record = ToString(chartScore.DjLevel).c_str();
+        if (chartScore.MissCount)
+        {
+            analysisData.GetRecord(AnalysisType::MissCount).Record = std::to_string(chartScore.MissCount.value()).c_str();
+        }
+
+        for (auto analysisType : AnalysisTypeSmartEnum::ToRange())
+        {
+            auto &compareFunction = compareBestFunctions[analysisType];
+            if (compareFunction(analysisType, analysisData))
+            {
+                auto &currentRecord = analysisData.GetRecord(analysisType);
+                auto &bestRecord = bestRecordData.GetRecord(analysisType);
+
+                currentRecord.PreviousRecord = bestRecord.Record;
+                bestRecord.Record = currentRecord.Record;
+                currentRecord.NewRecord = true;
+            }
+        }
+
+        isFirst = false;
+    }
+
+    for (auto &analysisData : analysisList)
+    {
+        auto &clearRecord = analysisData.GetRecord(AnalysisType::Clear);
+        if (!clearRecord.Record.isEmpty())
+        {
+            auto underscoreStr = clearRecord.Record.toStdString();
+            auto spaceSeparated = ToSpaceSeparated(score2dx::ToClearType(underscoreStr));
+            icl_s2::RecursiveReplace(spaceSeparated, " CLEAR", "");
+            clearRecord.Record = spaceSeparated.c_str();
+        }
+        if (!clearRecord.PreviousRecord.isEmpty())
+        {
+            auto underscoreStr = clearRecord.PreviousRecord.toStdString();
+            auto spaceSeparated = ToSpaceSeparated(score2dx::ToClearType(underscoreStr));
+            icl_s2::RecursiveReplace(spaceSeparated, " CLEAR", "");
+            clearRecord.PreviousRecord = spaceSeparated.c_str();
+        }
+    }
+
+    //'' always nodify last element.
+    if (!analysisList.empty())
+    {
+        auto &back = analysisList.back();
+        for (auto analysisType : AnalysisTypeSmartEnum::ToRange())
+        {
+            back.GetRecord(analysisType).NewRecord = true;
+        }
+    }
+
+    mAnalysisListModel.ResetList(analysisList);
+}
+
+void
+ScoreAnalyzer::
+InitializeChart()
+{
+    QDateTime beginYear;
+    beginYear.setDate({2012, 01, 01});
+    beginYear.setTime({0, 0});
+
+    QDateTime endYear;
+    endYear.setDate({2022, 01, 01});
+    endYear.setTime({0, 0});
+
+    if (mLegend)
+    {
+        auto &legend = mLegend;
+        auto markers = legend->markers();
+        markers[1]->setVisible(false);
+    }
+
+    if (mScoreSeries)
+    {
+        auto &scoreSeries = *mScoreSeries;
+        scoreSeries.setPointLabelsVisible(true);
+        scoreSeries.setPointLabelsFormat("@yPoint");
+    }
+
+    if (mScatterSeriesScoreLevel)
+    {
+        auto &scoreLevelSeries = *mScatterSeriesScoreLevel;
+        scoreLevelSeries.setVisible(false);
+    }
+
+    if (mScoreAxis)
+    {
+        auto &scoreAxis = *mScoreAxis;
+        scoreAxis.setGridLineVisible(false);
+        scoreAxis.setLineVisible(false);
+        //scoreAxis.setLabelFormat("%d");
+        scoreAxis.setMin(0);
+        scoreAxis.setMax(4000);
+        scoreAxis.setTickCount(2);
+        scoreAxis.setLabelsVisible(false);
+    }
+
+    if (mScoreLevelAxis)
+    {
+        auto &scoreLevelAxis = *mScoreLevelAxis;
+        scoreLevelAxis.setGridLineVisible(false);
+        scoreLevelAxis.setLineVisible(false);
+        scoreLevelAxis.setMin(0);
+        scoreLevelAxis.setMax(4000);
+        scoreLevelAxis.setTickCount(2);
+        scoreLevelAxis.setLabelsVisible(false);
+    }
+
+    if (mDateTimeAxis)
+    {
+        auto &dateTimeAxis = *mDateTimeAxis;
+        dateTimeAxis.setMin(beginYear);
+        dateTimeAxis.setMax(endYear);
+        dateTimeAxis.setFormat("yyyy");
+        //dateTimeAxis.setTitleText("DateTime");
+        dateTimeAxis.setTickCount(10);
+        dateTimeAxis.setGridLineVisible(false);
+        dateTimeAxis.setLineVisible(false);
+    }
+
+    if (mVersionCategoryAxis)
+    {
+        auto &versionAxis = *mVersionCategoryAxis;
+        versionAxis.setMin(beginYear.toMSecsSinceEpoch());
+        versionAxis.setMax(endYear.toMSecsSinceEpoch());
+        //versionAxis.setTitleText("Version");
+        versionAxis.setGridLineColor({"cyan"});
+        versionAxis.setLineVisible(false);
+        versionAxis.setLabelsColor({"cyan"});
+
+        for (auto versionIndex : IndexRange{0, score2dx::VersionNames.size()})
+        {
+            auto versionDateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
+            if (versionDateTimeRange.empty())
+            {
+                continue;
+            }
+
+            auto qVersionEndDateTime = endYear;
+            auto &versionEndDateTime = versionDateTimeRange.at(icl_s2::RangeSide::End);
+            if (!versionEndDateTime.empty())
+            {
+                qVersionEndDateTime = ToQDateTime(versionEndDateTime);
+            }
+
+            if (qVersionEndDateTime<beginYear)
+            {
+                continue;
+            }
+
+            auto &versionName = score2dx::VersionNames[versionIndex];
+
+            versionAxis.append(versionName.c_str(), qVersionEndDateTime.toMSecsSinceEpoch());
+        }
+    }
+}
+
+ScoreAnalysisListModel &
+ScoreAnalyzer::
+GetAnalysisListModel()
+{
+    return mAnalysisListModel;
+}
+
+ScoreLevelListModel &
+ScoreAnalyzer::
+GetScoreLevelListModel()
+{
+    return mScoreLevelListModel;
+}
+
+}
