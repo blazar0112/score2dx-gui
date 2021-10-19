@@ -100,7 +100,7 @@ updatePlayerScore(const QString &iidxIdQStr,
     auto difficulty = score2dx::ToDifficulty(difficultyQStr.toStdString());
     auto chartScores = playerScore.GetChartScores(musicId, playStyle, difficulty);
 
-    auto info = mCore.GetMusicInfo(musicId);
+    auto info = mCore.GetMusicDatabase().GetLatestMusicInfo(musicId);
     auto chartInfo = info.FindChartInfo(playStyle, difficulty);
     if (!chartInfo)
     {
@@ -311,7 +311,7 @@ InitializeChart()
     beginYear.setTime({0, 0});
 
     QDateTime endYear;
-    endYear.setDate({2022, 01, 01});
+    endYear.setDate({2023, 01, 01});
     endYear.setTime({0, 0});
 
     if (mLegend)

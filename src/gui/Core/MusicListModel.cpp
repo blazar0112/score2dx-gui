@@ -13,9 +13,10 @@ MusicListModel(const score2dx::Core &core, QObject* parent)
     mCore(core)
 {
     std::size_t musicCount = 0;
+    auto &allTimeMusics = mCore.GetMusicDatabase().GetAllTimeMusics();
     for (auto versionIndex : IndexRange{0, score2dx::VersionNames.size()})
     {
-        auto &versionMusics = mCore.GetVersionMusics(versionIndex);
+        auto &versionMusics = allTimeMusics.at(versionIndex);
         musicCount += versionMusics.size();
     }
 
@@ -26,11 +27,11 @@ MusicListModel(const score2dx::Core &core, QObject* parent)
     std::size_t rowIndex = 0;
     for (auto versionIndex : ReverseIndexRange{0, score2dx::VersionNames.size()})
     {
-        auto &versionMusics = mCore.GetVersionMusics(versionIndex);
+        auto &versionMusics = allTimeMusics.at(versionIndex);
         for (auto musicIndex : IndexRange{0, versionMusics.size()})
         {
             auto musicId = score2dx::ToMusicId(versionIndex, musicIndex);
-            auto musicInfo = mCore.GetMusicInfo(musicId);
+            auto musicInfo = mCore.GetMusicDatabase().GetLatestMusicInfo(musicId);
             auto &data = mMusicList[rowIndex];
             data.Id = musicId;
             data.Title = musicInfo.GetField(score2dx::MusicInfoField::Title).c_str();
