@@ -304,15 +304,82 @@ updatePlayerScore(const QString &iidxIdQStr,
 
 void
 ScoreAnalyzer::
+updateTimelineBeginVersion(const QString &timelineBeginVersion)
+{
+    auto findVersionIndex = score2dx::FindVersionIndex(timelineBeginVersion.toStdString());
+    if (!findVersionIndex)
+    {
+        qDebug() << "cannot find version index of " << timelineBeginVersion;
+        return;
+    }
+
+    auto versionIndex = findVersionIndex.value();
+    auto versionDateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
+    auto versionBeginDateTime = ToQDateTime(versionDateTimeRange.at(icl_s2::RangeSide::Begin));
+
+    if (mDateTimeAxis)
+    {
+        auto &dateTimeAxis = *mDateTimeAxis;
+        dateTimeAxis.setMin(versionBeginDateTime);
+    }
+
+    if (mVersionCategoryAxis)
+    {
+        auto &versionAxis = *mVersionCategoryAxis;
+        versionAxis.setMin(versionBeginDateTime.toMSecsSinceEpoch());
+        for (auto &versionName : score2dx::VersionNames)
+        {
+            versionAxis.remove(versionName.c_str());
+        }
+
+        for (auto versionIndex : IndexRange{versionIndex, score2dx::VersionNames.size()})
+        {
+            auto &versionName = score2dx::VersionNames[versionIndex];
+
+            auto versionDateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
+            if (versionDateTimeRange.empty())
+            {
+                continue;
+            }
+
+            auto &versionEndDateTime = versionDateTimeRange.at(icl_s2::RangeSide::End);
+            auto endMSecs = versionAxis.max();
+            if (!versionEndDateTime.empty())
+            {
+                auto qVersionEndDateTime = ToQDateTime(versionEndDateTime);
+
+                if (qVersionEndDateTime<versionBeginDateTime)
+                {
+                    continue;
+                }
+
+                endMSecs = qVersionEndDateTime.toMSecsSinceEpoch();
+            }
+
+            versionAxis.append(versionName.c_str(), endMSecs);
+        }
+
+        qDebug() << "updateTimelineBeginVersion versionAxis count " << versionAxis.count();
+    }
+}
+
+void
+ScoreAnalyzer::
 InitializeChart()
 {
-    QDateTime beginYear;
-    beginYear.setDate({2012, 01, 01});
-    beginYear.setTime({0, 0});
+    auto findBeginVersionIndex = score2dx::FindVersionIndex("copula");
+    if (!findBeginVersionIndex)
+    {
+        qDebug() << "InitializeChart(): not findBeginVersionIndex";
+        return;
+    }
+    auto beginVersionIndex = findBeginVersionIndex.value();
+    auto beginVersionDateTimeRange = score2dx::GetVersionDateTimeRange(beginVersionIndex);
+    auto beginDateTime = ToQDateTime(beginVersionDateTimeRange.at(icl_s2::RangeSide::Begin));
 
-    QDateTime endYear;
-    endYear.setDate({2023, 01, 01});
-    endYear.setTime({0, 0});
+    auto latestVersionDateTimeRange = score2dx::GetVersionDateTimeRange(score2dx::GetLatestVersionIndex());
+    auto latestVersionBeginDateTime = ToQDateTime(latestVersionDateTimeRange.at(icl_s2::RangeSide::Begin));
+    auto endDateTime = latestVersionBeginDateTime.addYears(1);
 
     if (mLegend)
     {
@@ -360,9 +427,9 @@ InitializeChart()
     if (mDateTimeAxis)
     {
         auto &dateTimeAxis = *mDateTimeAxis;
-        dateTimeAxis.setMin(beginYear);
-        dateTimeAxis.setMax(endYear);
-        dateTimeAxis.setFormat("yyyy");
+        dateTimeAxis.setMin(beginDateTime);
+        dateTimeAxis.setMax(endDateTime);
+        dateTimeAxis.setFormat("yyyy-MM");
         //dateTimeAxis.setTitleText("DateTime");
         dateTimeAxis.setTickCount(10);
         dateTimeAxis.setGridLineVisible(false);
@@ -372,8 +439,8 @@ InitializeChart()
     if (mVersionCategoryAxis)
     {
         auto &versionAxis = *mVersionCategoryAxis;
-        versionAxis.setMin(beginYear.toMSecsSinceEpoch());
-        versionAxis.setMax(endYear.toMSecsSinceEpoch());
+        versionAxis.setMin(beginDateTime.toMSecsSinceEpoch());
+        versionAxis.setMax(endDateTime.toMSecsSinceEpoch());
         //versionAxis.setTitleText("Version");
         versionAxis.setGridLineColor({"cyan"});
         versionAxis.setLineVisible(false);
@@ -387,14 +454,14 @@ InitializeChart()
                 continue;
             }
 
-            auto qVersionEndDateTime = endYear;
+            auto qVersionEndDateTime = endDateTime;
             auto &versionEndDateTime = versionDateTimeRange.at(icl_s2::RangeSide::End);
             if (!versionEndDateTime.empty())
             {
                 qVersionEndDateTime = ToQDateTime(versionEndDateTime);
             }
 
-            if (qVersionEndDateTime<beginYear)
+            if (qVersionEndDateTime<beginDateTime)
             {
                 continue;
             }
@@ -403,6 +470,8 @@ InitializeChart()
 
             versionAxis.append(versionName.c_str(), qVersionEndDateTime.toMSecsSinceEpoch());
         }
+
+        qDebug() << "InitializeChart versionAxis count " << versionAxis.count();
     }
 }
 

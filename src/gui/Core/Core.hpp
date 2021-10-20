@@ -15,6 +15,7 @@ class Core : public QObject
     Q_PROPERTY(QStringList playerList READ getPlayerList NOTIFY playerListChanged)
     Q_PROPERTY(QStringList playStyleList READ getPlayStyleList CONSTANT)
     Q_PROPERTY(QStringList versionNameList READ getVersionNameList CONSTANT)
+    Q_PROPERTY(QStringList timelineBeginVersionList READ getTimelineBeginVersionList CONSTANT)
     Q_PROPERTY(bool isDownloadingIst MEMBER mIsDownloadingIst NOTIFY isDownloadingIstChanged)
 
 public:
@@ -50,7 +51,8 @@ public:
 
         const QStringList & getPlayerList() const { return mPlayerList; }
         const QStringList & getPlayStyleList() const { return mPlayStyleList; }
-        const QStringList & getVersionNameList() const { return mVersionNames; }
+        const QStringList & getVersionNameList() const { return mVersionNameList; }
+        const QStringList & getTimelineBeginVersionList() const { return mTimelineBeginVersionList; }
 
         const score2dx::Core &
         GetScore2dxCore()
@@ -74,7 +76,8 @@ private:
     QStringList mPlayStyleList;
     QStringListModel mDifficultyListModel;
 
-    QStringList mVersionNames;
+    QStringList mVersionNameList;
+    QStringList mTimelineBeginVersionList;
     QStandardItemModel mCsvTableModel;
     QtCharts::QXYSeries* mSeries{nullptr};
 

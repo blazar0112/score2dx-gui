@@ -349,6 +349,11 @@ ChartView
         let position = chartView.mapToPosition(point, lineSeriesScore)
         item.x = position.x - item.width/2
         item.y = position.y - item.height/2 + 2
+        item.visible = true
+        if (point.x<categoryAxisVersion.min)
+        {
+            item.visible = false
+        }
     }
 
     function adjustScoreLevelPosition(item, index)
@@ -358,5 +363,10 @@ ChartView
         let position = chartView.mapToPosition(point, scatterSeriesScoreLevel)
         item.x = position.x + 5
         item.y = position.y - item.height/2
+        item.visible = true
+        if (point.x<categoryAxisVersion.min)
+        {
+            item.visible = false
+        }
     }
 }
