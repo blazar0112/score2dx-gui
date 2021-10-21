@@ -1,3 +1,7 @@
+<p align="center">
+  <a href="/doc/README_zh-TW.md">繁體中文 (Taiwanese Mandarin)</a>
+</p>
+
 # Score2dx GUI
 
 - Score2dx GUI is a GUI project utilize [score2dx](https://github.com/blazar0112/score2dx) library and visualize player's IIDX score.
