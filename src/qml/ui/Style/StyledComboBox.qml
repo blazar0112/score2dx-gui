@@ -53,6 +53,8 @@ Row {
                     currentIndex = i
                 }
             }
+            //console.log('StyledComboBox onCompleted set to', currentText)
+            activated(currentIndex)
         }
     }
 }

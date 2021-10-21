@@ -43,6 +43,10 @@ public:
                           int musicId,
                           const QString &difficultyQStr);
 
+        Q_INVOKABLE
+        void
+        updateTimelineBeginVersion(const QString &timelineBeginVersion);
+
         ScoreAnalysisListModel &
         GetAnalysisListModel();
 

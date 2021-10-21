@@ -367,9 +367,15 @@ ApplicationWindow
 
                 currentIndex: tabBar.currentIndex
 
-                RowLayout {
+                GridLayout {
+                    columns: 6
+                    rows: 3
+
                     MusicListView {
                         id: musicListView
+
+                        Layout.column: 0
+                        Layout.rowSpan: 3
                         Layout.preferredWidth: 300
                         Layout.fillHeight: true
 
@@ -385,8 +391,54 @@ ApplicationWindow
                         }
                     }
 
+                    Rectangle {
+                        Layout.row: 0
+                        Layout.column: 1
+                        Layout.preferredWidth: 10
+                    }
+
+                    Text {
+                        Layout.row: 0
+                        Layout.column: 2
+                        Layout.columnSpan: 2
+                        Layout.alignment: Qt.AlignVCenter
+
+                        text: 'Timeline begin'
+                        font: fontMetrics.font
+                    }
+
+                    StyledComboBox {
+                        id: comboBoxTimeline
+
+                        Layout.row: 0
+                        Layout.column: 4
+                        Layout.columnSpan: 1
+                        Layout.preferredWidth: 200
+                        Layout.preferredHeight: 50
+                        initialText: 'copula'
+
+                        model: core.timelineBeginVersionList
+
+                        onActivated: {
+                            //console.log('comboBoxTimeline onActivated', currentText)
+                            analyzer.updateTimelineBeginVersion(currentText);
+                            triggerScoreChartViewUpdate()
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.row: 0
+                        Layout.column: 5
+                        Layout.fillWidth: true
+                    }
+
                     ScoreChartView {
                         id: scoreChartView
+
+                        Layout.row: 1
+                        Layout.column: 1
+                        Layout.rowSpan: 2
+                        Layout.columnSpan: 6
                         Layout.fillWidth: true
                         Layout.fillHeight: true
 
@@ -444,6 +496,11 @@ ApplicationWindow
             comboBoxDifficulty.currentText
         )
 
+        triggerScoreChartViewUpdate()
+    }
+
+    function triggerScoreChartViewUpdate()
+    {
         //'' workaround to trigger width update to adjust position.
         scoreChartView.width += 1
         scoreChartView.width -= 1

@@ -40,9 +40,15 @@ Core(QObject *parent)
     {
         mPlayStyleList.append(ToString(playStyle).c_str());
     }
-    for (auto &versionName : score2dx::VersionNames)
+
+    IndexRange timelineBeginVersionRange{17, score2dx::GetLatestVersionIndex()};
+    for (auto versionIndex : IndexRange{0, score2dx::VersionNames.size()})
     {
-        mVersionNames << versionName.c_str();
+        mVersionNameList << score2dx::VersionNames.at(versionIndex).c_str();
+        if (timelineBeginVersionRange.IsInRange(versionIndex))
+        {
+            mTimelineBeginVersionList << score2dx::VersionNames.at(versionIndex).c_str();
+        }
     }
 
     QStringList difficultyList;
