@@ -420,7 +420,7 @@ ApplicationWindow
                         model: core.timelineBeginVersionList
 
                         onActivated: {
-                            console.log('comboBoxTimeline onActivated', currentText)
+                            //console.log('comboBoxTimeline onActivated', currentText)
                             analyzer.updateTimelineBeginVersion(currentText);
                             triggerScoreChartViewUpdate()
                         }

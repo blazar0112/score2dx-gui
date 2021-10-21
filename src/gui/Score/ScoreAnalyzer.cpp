@@ -359,7 +359,7 @@ updateTimelineBeginVersion(const QString &timelineBeginVersion)
             versionAxis.append(versionName.c_str(), endMSecs);
         }
 
-        qDebug() << "updateTimelineBeginVersion versionAxis count " << versionAxis.count();
+        //qDebug() << "updateTimelineBeginVersion versionAxis count " << versionAxis.count();
     }
 }
 
@@ -471,7 +471,7 @@ InitializeChart()
             versionAxis.append(versionName.c_str(), qVersionEndDateTime.toMSecsSinceEpoch());
         }
 
-        qDebug() << "InitializeChart versionAxis count " << versionAxis.count();
+        //qDebug() << "InitializeChart versionAxis count " << versionAxis.count();
     }
 }
 

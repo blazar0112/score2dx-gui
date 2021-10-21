@@ -363,10 +363,5 @@ ChartView
         let position = chartView.mapToPosition(point, scatterSeriesScoreLevel)
         item.x = position.x + 5
         item.y = position.y - item.height/2
-        item.visible = true
-        if (point.x<categoryAxisVersion.min)
-        {
-            item.visible = false
-        }
     }
 }
