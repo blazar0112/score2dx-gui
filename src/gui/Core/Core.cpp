@@ -199,12 +199,30 @@ downloadIst(const QString &iidxId,
     process->start(command, args);
 }
 
+void
+Core::
+setActiveVersion(const QString &iidxId,
+                 const QString &activeVersionIndex)
+{
+    if (iidxId.isEmpty()||activeVersionIndex.isEmpty()) { return; }
+
+    mCore.SetActiveVersionIndex(activeVersionIndex.toULongLong());
+    mCore.Analyze(iidxId.toStdString());
+}
+
 const score2dx::Core &
 Core::
 GetScore2dxCore()
 const
 {
     return mCore;
+}
+
+QStringListModel &
+Core::
+GetDifficultyListModel()
+{
+    return mDifficultyListModel;
 }
 
 void

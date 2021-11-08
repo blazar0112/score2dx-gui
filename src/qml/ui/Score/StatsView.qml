@@ -14,6 +14,8 @@ import '../Style'
 //'' create grid buttons below.
 //'' inside Statistics, select column: clear type, djlevel, score level.
 Item {
+    property alias tableView: tableView
+
     ColumnLayout {
         width: parent.width
         height: parent.height
@@ -48,36 +50,37 @@ Item {
             }
         }
 
-        GridLayout {
-            id: grid
-            columns: 2
-            rowSpacing: 5
-            columnSpacing: 5
-            anchors.margins: 5
-            // example models
-            property var titles: [ "title1", "title2", "title3", "title4", "title5" ]
-            property var values: [ "value1", "value2", "value3", "value4", "value5" ]
+        Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredHeight: 400
 
-            Repeater {
-                model: grid.titles
-                Label {
-                    Layout.row: index
-                    Layout.column: 0
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    text: modelData
+            TableView {
+                id: tableView
+
+                topMargin: horizontalHeader.implicitHeight
+                leftMargin: verticalHeader.implicitWidth
+                anchors.fill: parent
+
+                delegate: Rectangle {
+                    implicitWidth: 100
+                    implicitHeight: 50
+                    Text {
+                        text: display
+                    }
                 }
             }
 
-            Repeater {
-                model: grid.values
-                TextArea {
-                    Layout.row: index
-                    Layout.column: 1
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    text: modelData
-                }
+            HorizontalHeaderView {
+                id: horizontalHeader
+                syncView: tableView
+                anchors.left: tableView.left
+            }
+
+            VerticalHeaderView {
+                id: verticalHeader
+                syncView: tableView
+                anchors.top: tableView.top
             }
         }
     }

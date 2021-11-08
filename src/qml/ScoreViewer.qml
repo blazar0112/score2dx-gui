@@ -33,7 +33,7 @@ ApplicationWindow
 
         GridLayout {
             columns: 6
-            rows: 7
+            rows: 10
             Layout.maximumWidth: 300
             Layout.alignment: Qt.AlignTop
 
@@ -302,6 +302,40 @@ ApplicationWindow
                     updateMusicScore()
                 }
             }
+
+            Text {
+                Layout.row: 8
+                Layout.columnSpan: 2
+                Layout.alignment: Qt.AlignVCenter
+
+                text: 'Active Version'
+                font: fontMetrics.font
+            }
+
+            StyledComboBox {
+                id: comboBoxActiveVersion
+
+                Layout.row: 8
+                Layout.column: 2
+                Layout.columnSpan: 4
+                Layout.fillWidth: true
+                Layout.preferredHeight: 50
+
+                model: statisticsManager.activeVersionList
+
+                onActivated: {
+                    console.log('comboBoxActiveVersion actived')
+                    core.setActiveVersion(comboBoxPlayer.currentText, comboBoxActiveVersion.currentText)
+                    statisticsManager.updateStatsTable(
+                        comboBoxPlayer.currentText,
+                        comboBoxPlayStyle.currentText,
+                        "AllDifficulty",
+                        "29",
+                        "Clear",
+                        "Count"
+                    )
+                }
+            }
         }
 
         ColumnLayout {
@@ -458,7 +492,7 @@ ApplicationWindow
                 }
 
                 StatsView {
-
+                    tableView.model: statsTableModel
                 }
 
                 Rectangle {
@@ -471,10 +505,10 @@ ApplicationWindow
     FileDialog {
         id: fileDialog
         title: 'Select directory'
-        //folder: 'file:///E:/project_document/score2dx'
+        folder: 'file:///E:/project_document/score2dx'
         selectFolder: true
         onAccepted: {
-            core.loadDirectory(fileDialog.fileUrl);
+            core.loadDirectory(fileDialog.fileUrl)
             updatePlayer()
         }
     }

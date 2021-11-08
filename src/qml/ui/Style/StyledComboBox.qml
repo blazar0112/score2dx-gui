@@ -47,6 +47,7 @@ Row {
         Component.onCompleted: {
             if (model)
             {
+                //console.log('try find initial', initialText)
                 var i = find(initialText)
                 if (i!==-1)
                 {

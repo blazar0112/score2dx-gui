@@ -40,6 +40,12 @@ public:
                     const QString &styles,
                     bool runInPowerShell);
 
+    //! @brief Set active version and re-analyze ScoreAnalysis for player with iidxId.
+        Q_INVOKABLE
+        void
+        setActiveVersion(const QString &iidxId,
+                         const QString &activeVersionIndex);
+
         const QStringList & getPlayerList() const { return mPlayerList; }
         const QStringList & getPlayStyleList() const { return mPlayStyleList; }
         const QStringList & getVersionNameList() const { return mVersionNameList; }
@@ -49,8 +55,7 @@ public:
         const;
 
         QStringListModel &
-        GetDifficultyListModel()
-        { return mDifficultyListModel; };
+        GetDifficultyListModel();
 
 signals:
         void playerListChanged();
