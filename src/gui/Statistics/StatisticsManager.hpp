@@ -32,32 +32,40 @@ class StatisticsManager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QStringList activeVersionList READ getActiveVersionList CONSTANT)
-    //Q_PROPERTY(QStandardItemModel statsTableModel READ getStatsTableModel NOTIFY statsTableModelChanged)
+    Q_PROPERTY(QStringList difficultyVersionList READ getDifficultyVersionList NOTIFY difficultyVersionListChanged)
 
 public:
         explicit StatisticsManager(const score2dx::Core &core, QObject* parent=nullptr);
+
+        Q_INVOKABLE
+        void
+        updateDifficultyVersionList();
 
     //! @brief Update stats table from iidxId's previous analyzed ScoreAnalysis.
         Q_INVOKABLE
         void
         updateStatsTable(const QString &iidxId,
                          const QString &playStyleQStr,
-                         const QString &tableType,
-                         const QString &version,
+                         const QString &tableTypeQStr,
+                         const QString &versionQStr,
                          const QString &columnTypeQStr,
-                         const QString &valueType);
+                         const QString &valueTypeQStr);
 
         const QStringList & getActiveVersionList() const { return mActiveVersionList; }
+        const QStringList & getDifficultyVersionList() const { return mDifficultyVersionList; }
 
         QStandardItemModel &
         GetStatsTableModel();
 
 signals:
-        void statsTableModelChanged();
+        void difficultyVersionListChanged();
 
 private:
     const score2dx::Core &mCore;
+    //'' Selectable active version list, [22, 29].
     QStringList mActiveVersionList;
+    //'' Selectable versions of stats by difficulty, [0, activeVersion].
+    QStringList mDifficultyVersionList;
     QStandardItemModel mStatsTableModel;
 };
 

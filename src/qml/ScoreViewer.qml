@@ -89,6 +89,7 @@ ApplicationWindow
                     if (succeeded)
                     {
                         text = ''
+                        generateScoreAnalysis()
                     }
                 }
             }
@@ -325,15 +326,7 @@ ApplicationWindow
 
                 onActivated: {
                     console.log('comboBoxActiveVersion actived')
-                    core.setActiveVersion(comboBoxPlayer.currentText, comboBoxActiveVersion.currentText)
-                    statisticsManager.updateStatsTable(
-                        comboBoxPlayer.currentText,
-                        comboBoxPlayStyle.currentText,
-                        "AllDifficulty",
-                        "29",
-                        "Clear",
-                        "Count"
-                    )
+                    generateScoreAnalysis()
                 }
             }
         }
@@ -492,7 +485,13 @@ ApplicationWindow
                 }
 
                 StatsView {
+                    id: statsView
                     tableView.model: statsTableModel
+                    comboBoxDifficultyVersion.model: statisticsManager.difficultyVersionList
+
+                    onOptionChanged: {
+                        updateStatsTable()
+                    }
                 }
 
                 Rectangle {
@@ -516,6 +515,7 @@ ApplicationWindow
     function updatePlayer()
     {
         updateMusicScore()
+        generateScoreAnalysis()
     }
 
     function updateMusicScore()
@@ -537,16 +537,24 @@ ApplicationWindow
         scoreChartView.width -= 1
     }
 
-    /*
-    FpsCounter {
-        anchors {
-            bottom: parent.bottom
-            left: parent.left
-        }
+    function generateScoreAnalysis()
+    {
+        console.log('generateScoreAnalysis')
+        core.setActiveVersion(comboBoxPlayer.currentText, comboBoxActiveVersion.currentText)
+        statisticsManager.updateDifficultyVersionList()
+        updateStatsTable()
     }
-    */
 
-    Component.onCompleted: {
-        //console.log('window', width, height)
+    function updateStatsTable()
+    {
+        console.log('updateStatsTable')
+        statisticsManager.updateStatsTable(
+            comboBoxPlayer.currentText,
+            comboBoxPlayStyle.currentText,
+            statsView.tableType,
+            statsView.comboBoxDifficultyVersion.currentText,
+            statsView.columnType,
+            statsView.valueType
+        )
     }
 }

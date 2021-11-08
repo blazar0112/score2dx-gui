@@ -15,6 +15,12 @@ import '../Style'
 //'' inside Statistics, select column: clear type, djlevel, score level.
 Item {
     property alias tableView: tableView
+    property alias comboBoxDifficultyVersion: comboBoxDifficultyVersion
+    property string tableType: 'Level'
+    property string columnType: 'Clear'
+    property string valueType: 'Count'
+
+    signal optionChanged()
 
     ColumnLayout {
         width: parent.width
@@ -24,16 +30,45 @@ Item {
             RadioButton {
                 checked: true
                 text: 'Level'
+
+                onCheckedChanged: {
+                    if (checked)
+                    {
+                        tableType = text
+                        optionChanged()
+                    }
+                }
             }
             RadioButton {
-                text: 'All version difficulty'
+                text: 'All Difficulty'
+
+                onCheckedChanged: {
+                    if (checked)
+                    {
+                        tableType = 'AllDifficulty'
+                        optionChanged()
+                    }
+                }
             }
             RadioButton {
-                text: 'Difficulty by version'
+                text: 'Difficulty by Version'
+
+                onCheckedChanged: {
+                    if (checked)
+                    {
+                        tableType = 'VersionDifficulty'
+                        optionChanged()
+                    }
+                }
             }
             StyledComboBox {
-                Layout.preferredWidth: 200
+                id: comboBoxDifficultyVersion
+                Layout.preferredWidth: 100
                 Layout.preferredHeight: 50
+
+                onActivated: {
+                    optionChanged()
+                }
             }
         }
 
@@ -41,12 +76,62 @@ Item {
             RadioButton {
                 checked: true
                 text: 'Clear'
+
+                onCheckedChanged: {
+                    if (checked)
+                    {
+                        columnType = text
+                        optionChanged()
+                    }
+                }
             }
             RadioButton {
                 text: 'DJ Level'
+
+                onCheckedChanged: {
+                    if (checked)
+                    {
+                        columnType = 'DjLevel'
+                        optionChanged()
+                    }
+                }
             }
             RadioButton {
                 text: 'Score Level'
+
+                onCheckedChanged: {
+                    if (checked)
+                    {
+                        columnType = 'ScoreLevel'
+                        optionChanged()
+                    }
+                }
+            }
+        }
+
+        RowLayout {
+            RadioButton {
+                checked: true
+                text: 'Count'
+
+                onCheckedChanged: {
+                    if (checked)
+                    {
+                        valueType = text
+                        optionChanged()
+                    }
+                }
+            }
+            RadioButton {
+                text: 'Percentage'
+
+                onCheckedChanged: {
+                    if (checked)
+                    {
+                        valueType = text
+                        optionChanged()
+                    }
+                }
             }
         }
 
@@ -59,13 +144,14 @@ Item {
                 id: tableView
 
                 topMargin: horizontalHeader.implicitHeight
-                leftMargin: verticalHeader.implicitWidth
+                leftMargin: verticalHeader.implicitWidth+10
                 anchors.fill: parent
 
                 delegate: Rectangle {
-                    implicitWidth: 100
-                    implicitHeight: 50
+                    implicitWidth: 70
+                    implicitHeight: 30
                     Text {
+                        anchors.centerIn: parent
                         text: display
                     }
                 }
@@ -81,9 +167,9 @@ Item {
                 id: verticalHeader
                 syncView: tableView
                 anchors.top: tableView.top
+
+                implicitWidth: 30
             }
         }
     }
 }
-
-

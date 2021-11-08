@@ -1,10 +1,14 @@
 #include "gui/Statistics/StatisticsManager.hpp"
 
-#include <ranges>
+#include <vector>
 
 #include <QDebug>
 
 #include "icl_s2/Common/IntegralRangeUsing.hpp"
+
+#include "fmt/format.h"
+
+#include "score2dx/Iidx/Version.hpp"
 
 namespace gui
 {
@@ -15,23 +19,37 @@ StatisticsManager(const score2dx::Core &core, QObject *parent)
     mCore(core)
 {
     auto &activeVersions = mCore.GetMusicDatabase().GetActiveVersions();
-    for (auto &[activeVersionIndex, activeVersion] : activeVersions | std::views::reverse)
+    auto firstActiveVersionIndex = activeVersions.begin()->first;
+
+    for (auto versionIndex : ReverseIndexRange{firstActiveVersionIndex, mCore.GetActiveVersionIndex()+1})
     {
-        mActiveVersionList << QString::number(activeVersionIndex);
+        mActiveVersionList << score2dx::ToVersionString(versionIndex).c_str();
     }
+}
+
+void
+StatisticsManager::
+updateDifficultyVersionList()
+{
+    mDifficultyVersionList.clear();
+    for (auto versionIndex : ReverseIndexRange{0, mCore.GetActiveVersionIndex()+1})
+    {
+        mDifficultyVersionList << score2dx::ToVersionString(versionIndex).c_str();
+    }
+    emit difficultyVersionListChanged();
 }
 
 void
 StatisticsManager::
 updateStatsTable(const QString &iidxId,
                  const QString &playStyleQStr,
-                 const QString &tableType,
-                 const QString &version,
+                 const QString &tableTypeQStr,
+                 const QString &versionQStr,
                  const QString &columnTypeQStr,
-                 const QString &valueType)
+                 const QString &valueTypeQStr)
 {
-    if (iidxId.isEmpty()||playStyleQStr.isEmpty()||tableType.isEmpty()
-        ||version.isEmpty()||columnTypeQStr.isEmpty()||valueType.isEmpty())
+    if (iidxId.isEmpty()||playStyleQStr.isEmpty()||tableTypeQStr.isEmpty()
+        ||versionQStr.isEmpty()||columnTypeQStr.isEmpty()||valueTypeQStr.isEmpty())
     {
         return;
     }
@@ -43,12 +61,13 @@ updateStatsTable(const QString &iidxId,
         return;
     }
 
-    //auto &scoreAnalysis = *scoreAnalysisPtr;
+    auto &scoreAnalysis = *scoreAnalysisPtr;
 
     mStatsTableModel.clear();
     auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
+    auto tableType = ToStatsTableType(tableTypeQStr.toStdString());
 
-    if (tableType==ToString(StatsTableType::Level).c_str())
+    if (tableType==StatsTableType::Level)
     {
         mStatsTableModel.setRowCount(score2dx::MaxLevel+1);
         for (auto row : IntRange{0, score2dx::MaxLevel})
@@ -80,7 +99,7 @@ updateStatsTable(const QString &iidxId,
             mStatsTableModel.setColumnCount(score2dx::ClearTypeSmartEnum::Size()+1);
             for (auto clear : score2dx::ClearTypeSmartEnum::ToRange())
             {
-                mStatsTableModel.setHorizontalHeaderItem(static_cast<int>(clear), new QStandardItem(ToString(clear).c_str()));
+                mStatsTableModel.setHorizontalHeaderItem(static_cast<int>(clear), new QStandardItem(ToPrettyString(clear).c_str()));
             }
             mStatsTableModel.setHorizontalHeaderItem(score2dx::ClearTypeSmartEnum::Size(), new QStandardItem("Total"));
             break;
@@ -109,16 +128,115 @@ updateStatsTable(const QString &iidxId,
 
     qDebug() << "mStatsTableModel row " << mStatsTableModel.rowCount() << ", column " << mStatsTableModel.columnCount();
 
-    //'' placeholder: fill N/A
-    //'' ToDo: fill data from score analysis.
-    for (auto row : IntRange{0, mStatsTableModel.rowCount()})
+    //'' column of rowSums and total sum (the rightest column) alwasy display count.
+    //'' value in each cell and rowSums can choose count or percentage.
+    //! @brief Sum of each row, display at right side, size = rowCount-1 (exclude row of columnSums).
+    std::vector<std::size_t> rowSums(mStatsTableModel.rowCount()-1, 0);
+    //! @brief Sum of each column, display at bottom side, size = columnCount-1 (exclude column of rowSums).
+    std::vector<std::size_t> columnSums(mStatsTableModel.columnCount()-1, 0);
+    std::size_t totalSum = 0;
+
+    auto versionIndex = versionQStr.toULongLong();
+    auto valueType = ToStatsValueType(valueTypeQStr.toStdString());
+
+    for (auto row : IntRange{0, mStatsTableModel.rowCount()-1})
     {
-        for (auto column : IntRange{0, mStatsTableModel.columnCount()})
+        const score2dx::Statistics* statisticsPtr = nullptr;
+        switch (tableType)
         {
-            auto item = new QStandardItem("N/A");
+            case StatsTableType::Level:
+            {
+                statisticsPtr = &scoreAnalysis.StatisticsByStyleLevel.at(playStyle)[row+1];
+                break;
+            }
+            case StatsTableType::AllDifficulty:
+            {
+                auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, static_cast<score2dx::Difficulty>(row+1));
+                statisticsPtr = &scoreAnalysis.StatisticsByStyleDifficulty.at(styleDifficulty);
+                break;
+            }
+            case StatsTableType::VersionDifficulty:
+            {
+                auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, static_cast<score2dx::Difficulty>(row+1));
+                statisticsPtr = &scoreAnalysis.StatisticsByVersionStyleDifficulty.at(versionIndex).at(styleDifficulty);
+                break;
+            }
+        }
+
+        if (!statisticsPtr)
+        {
+            throw std::runtime_error("statisticsPtr is nullptr.");
+        }
+
+        auto &statistics = *statisticsPtr;
+        rowSums[row] = statistics.ChartIdList.size();
+        totalSum += rowSums[row];
+
+        for (auto column : IntRange{0, mStatsTableModel.columnCount()-1})
+        {
+            std::size_t count = 0;
+
+            switch (statsColumnType)
+            {
+                case StatsColumnType::Clear:
+                {
+                    count = statistics.ChartIdListByClearType.at(static_cast<score2dx::ClearType>(column)).size();
+                    break;
+                }
+                case StatsColumnType::DjLevel:
+                {
+                    count = statistics.ChartIdListByDjLevel.at(static_cast<score2dx::DjLevel>(column)).size();
+                    break;
+                }
+                case StatsColumnType::ScoreLevel:
+                {
+                    count = statistics.ChartIdListByScoreLevelRange.at(static_cast<score2dx::StatisticScoreLevelRange>(column)).size();
+                    break;
+                }
+            }
+
+            columnSums[column] += count;
+
+            double percentage = 0.0;
+            if (rowSums[row]!=0)
+            {
+                percentage = static_cast<double>(count)*100/rowSums[row];
+            }
+            auto text = QString::number(count);
+            if (valueType==StatsValueType::Percentage)
+            {
+                text = fmt::format("{:.2f}%", percentage).c_str();
+            }
+            auto item = new QStandardItem(text);
             mStatsTableModel.setItem(row, column, item);
         }
+
+        auto item = new QStandardItem(QString::number(rowSums[row]));
+        mStatsTableModel.setItem(row, mStatsTableModel.columnCount()-1, item);
     }
+
+    for (auto column : IntRange{0, mStatsTableModel.columnCount()-1})
+    {
+        auto count = columnSums[column];
+        double percentage = 0.0;
+        if (totalSum!=0)
+        {
+            percentage = static_cast<double>(count)*100/totalSum;
+        }
+        auto text = QString::number(count);
+        if (valueType==StatsValueType::Percentage)
+        {
+            text = fmt::format("{:.2f}%", percentage).c_str();
+        }
+        auto item = new QStandardItem(text);
+        mStatsTableModel.setItem(mStatsTableModel.rowCount()-1, column, item);
+    }
+
+    mStatsTableModel.setItem(
+        mStatsTableModel.rowCount()-1,
+        mStatsTableModel.columnCount()-1,
+        new QStandardItem(QString::number(totalSum))
+    );
 }
 
 QStandardItemModel &

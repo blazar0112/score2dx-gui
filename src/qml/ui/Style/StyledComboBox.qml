@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Styles 1.4
 
 Row {
     //'' must set property, alias for convenience.
@@ -37,6 +38,27 @@ Row {
 
             background: Rectangle {
                 color: parent.hovered ? '#32CD30' : '#B2D2A4'
+            }
+        }
+
+        popup: Popup {
+            y: comboBox.height - 1
+            width: comboBox.width
+            implicitHeight: Math.min(300, contentItem.implicitHeight)
+            padding: 1
+
+            contentItem: ListView {
+                clip: true
+                implicitHeight: contentHeight
+                model: comboBox.popup.visible ? comboBox.delegateModel : null
+                currentIndex: comboBox.highlightedIndex
+
+                ScrollIndicator.vertical: ScrollIndicator { }
+            }
+
+            background: Rectangle {
+                border.color: "#21be2b"
+                radius: 2
             }
         }
 
