@@ -16,57 +16,57 @@ namespace gui
 //! Score: int, EX Score
 //! DjLevel: string format <AAA|AA|A|B|...|F>.
 //! MissCount: int, can be empty.
-ICL_S2_SMART_ENUM(AnalysisType,
+ICL_S2_SMART_ENUM(GraphAnalysisType,
     Clear,
     Score,
     DjLevel,
     MissCount
 );
 
-ICL_S2_SMART_ENUM(AnalysisRecordField,
+ICL_S2_SMART_ENUM(GraphAnalysisRecordField,
     Record,
     PreviousRecord,
     NewRecord
 );
 
-struct AnalysisRecord
+struct GraphAnalysisRecord
 {
     QString Record;
     QString PreviousRecord;
     bool NewRecord{false};
 
         QVariant
-        GetField(AnalysisRecordField field)
+        GetField(GraphAnalysisRecordField field)
         const;
 };
 
-struct ScoreAnalysisData
+struct GraphAnalysisData
 {
     //'' role: 0~11
-    std::array<AnalysisRecord, AnalysisTypeSmartEnum::Size()> Records;
+    std::array<GraphAnalysisRecord, GraphAnalysisTypeSmartEnum::Size()> Records;
 
     //'' role: 12
     //! @brief ScoreLevelRangeDiff string in form of 'MAX+0', 'MAX-20', 'AAA+20', 'AAA+0', 'AAA-1', etc.
     QString ScoreLevelRangeDiff;
 
-        AnalysisRecord &
-        GetRecord(AnalysisType analysisType);
+        GraphAnalysisRecord &
+        GetRecord(GraphAnalysisType analysisType);
 
-        const AnalysisRecord &
-        GetRecord(AnalysisType analysisType)
+        const GraphAnalysisRecord &
+        GetRecord(GraphAnalysisType analysisType)
         const;
 };
 
-//! @brief ScoreAnalysisListModel: additional data provided through ListModel.
-//! ScoreAnalyezer can set Chart points directly, but to generate other gui need those extra infomation.
+//! @brief GraphAnalysisListModel: additional data provided through ListModel.
+//! GraphManager can set Chart points directly, but to generate other gui need those extra infomation.
 //! @todo Code is almost same as MusicListModel, but need to abstract out data() to generalize.
-class ScoreAnalysisListModel : public QAbstractListModel
+class GraphAnalysisListModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ getCount CONSTANT)
 
 public:
-        explicit ScoreAnalysisListModel(QObject* parent=nullptr);
+        explicit GraphAnalysisListModel(QObject* parent=nullptr);
 
         int
         rowCount(const QModelIndex &parent=QModelIndex{})
@@ -79,7 +79,7 @@ public:
         override;
 
         void
-        ResetList(const std::vector<ScoreAnalysisData> &dataList);
+        ResetList(const std::vector<GraphAnalysisData> &dataList);
 
         int
         getCount()
@@ -98,8 +98,8 @@ protected:
         override;
 
 private:
-    //! @brief Vector of ScoreAnalysisData, index is rowIndex.
-    std::vector<ScoreAnalysisData> mDataList;
+    //! @brief Vector of {Index=rowIndex, GraphAnalysisData}.
+    std::vector<GraphAnalysisData> mDataList;
 };
 
 }

@@ -41,14 +41,9 @@ Core(QObject *parent)
         mPlayStyleList.append(ToString(playStyle).c_str());
     }
 
-    IndexRange timelineBeginVersionRange{17, score2dx::GetLatestVersionIndex()};
     for (auto versionIndex : IndexRange{0, score2dx::VersionNames.size()})
     {
         mVersionNameList << score2dx::VersionNames.at(versionIndex).c_str();
-        if (timelineBeginVersionRange.IsInRange(versionIndex))
-        {
-            mTimelineBeginVersionList << score2dx::VersionNames.at(versionIndex).c_str();
-        }
     }
 
     QStringList difficultyList;
@@ -204,113 +199,12 @@ downloadIst(const QString &iidxId,
     process->start(command, args);
 }
 
-void
-Core::
-updatePlayerScore(const QString &iidxId, const QString &playStyle)
-{
-    if (iidxId.isEmpty()||playStyle.isEmpty())
-    {
-        return;
-    }
-
-    auto findPlayerScore = icl_s2::Find(mCore.GetPlayerScores(), iidxId.toStdString());
-    if (!findPlayerScore)
-    {
-        return;
-    }
-
-    mCsvTableModel.clear();
-    mCsvTableModel.setColumnCount(CsvTableColumnSmartEnum::Size());
-    for (auto column : CsvTableColumnSmartEnum::ToRange())
-    {
-        mCsvTableModel.setHorizontalHeaderItem(static_cast<int>(column), new QStandardItem{ToString(column).c_str()});
-    }
-
-    auto csvs = mCore.GetCsvs(iidxId.toStdString(), score2dx::ToPlayStyle(playStyle.toStdString()));
-
-    auto rowCount = static_cast<int>(csvs.size());
-    mCsvTableModel.setRowCount(rowCount);
-    for (auto row : IntRange{0, rowCount, icl_s2::EmptyPolicy::Allow})
-    {
-        mCsvTableModel.setVerticalHeaderItem(row, new QStandardItem{std::to_string(row).c_str()});
-    }
-
-    int row = 0;
-    for (auto &[dateTime, csvPtr] : csvs)
-    {
-        auto &csv = *csvPtr;
-        QString text;
-        for (auto column : CsvTableColumnSmartEnum::ToRange())
-        {
-            switch (column)
-            {
-                case CsvTableColumn::DateTime:
-                    text = dateTime.c_str();
-                    break;
-                case CsvTableColumn::Filename:
-                    text = csv.GetFilename().substr(score2dx::MinCsvFilenameSize-4).c_str();
-                    break;
-                case CsvTableColumn::Version:
-                    text = csv.GetVersion().c_str();
-                    break;
-                case CsvTableColumn::TotalPlayCount:
-                    text = QString::number(csv.GetTotalPlayCount());
-                    break;
-            }
-
-            auto item = new QStandardItem{text};
-            mCsvTableModel.setItem(row, static_cast<int>(column), item);
-        }
-
-        ++row;
-    }
-
-    UpdateChart(csvs);
-}
-
-void
-Core::
-setSeries(QtCharts::QAbstractSeries* series)
-{
-    mSeries = static_cast<QtCharts::QXYSeries*>(series);
-}
-
 const score2dx::Core &
 Core::
 GetScore2dxCore()
 const
 {
     return mCore;
-}
-
-void
-Core::
-UpdateChart(const std::map<std::string, const score2dx::Csv*> &csvs)
-{
-    if (!mSeries)
-    {
-        return;
-    }
-
-    auto &series = *mSeries;
-    series.clear();
-
-    for (auto &[dateTime, csvPtr] : csvs)
-    {
-        auto &csv = *csvPtr;
-        //'' format: 2021-03-13 18:27
-        auto tokens = icl_s2::SplitString("- :", dateTime, 5);
-        if (tokens.size()!=5)
-        {
-            continue;
-        }
-
-        QDateTime xValue;
-        xValue.setDate({std::stoi(tokens[0]), std::stoi(tokens[1]), std::stoi(tokens[2])});
-        xValue.setTime({std::stoi(tokens[3]), std::stoi(tokens[4])});
-        auto playCount = static_cast<double>(csv.GetTotalPlayCount());
-        series.append(xValue.toMSecsSinceEpoch(), playCount);
-    }
 }
 
 void

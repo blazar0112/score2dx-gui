@@ -8,8 +8,8 @@ get_property(SOURCES GLOBAL PROPERTY PROP_SOURCES)
 set_property(GLOBAL PROPERTY
     PROP_SOURCES
     ${SOURCES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/ScoreAnalysisListModel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/ScoreAnalyzer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/GraphAnalysisListModel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/GraphManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ScoreLevelListModel.cpp
 )
 

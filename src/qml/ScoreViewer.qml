@@ -336,8 +336,6 @@ ApplicationWindow
                     text: qsTr('Statistics')
                     font: fontMetrics.font
 
-                    enabled: false
-
                     background: Rectangle {
                         color: tabBar.currentIndex==1 ? '#F1C40F' : '#616A6B'
                         radius: 5
@@ -417,11 +415,11 @@ ApplicationWindow
                         Layout.preferredHeight: 50
                         initialText: 'copula'
 
-                        model: core.timelineBeginVersionList
+                        model: graphManager.timelineBeginVersionList
 
                         onActivated: {
                             //console.log('comboBoxTimeline onActivated', currentText)
-                            analyzer.updateTimelineBeginVersion(currentText);
+                            graphManager.updateTimelineBeginVersion(currentText);
                             triggerScoreChartViewUpdate()
                         }
                     }
@@ -442,11 +440,11 @@ ApplicationWindow
                         Layout.fillWidth: true
                         Layout.fillHeight: true
 
-                        repeaterScoreAnalysis.model: analysisListModel
+                        repeaterScoreAnalysis.model: graphAnalysisListModel
                         repeaterScoreLevel.model: scoreLevelListModel
 
                         Component.onCompleted: {
-                            analyzer.setup(
+                            graphManager.setup(
                                 scoreChartView.legend,
                                 scoreChartView.lineSeriesScore,
                                 scoreChartView.dateTimeAxis,
@@ -459,8 +457,8 @@ ApplicationWindow
                     }
                 }
 
-                Rectangle {
-                    color: 'plum'
+                StatsView {
+
                 }
 
                 Rectangle {
@@ -483,13 +481,12 @@ ApplicationWindow
 
     function updatePlayer()
     {
-        core.updatePlayerScore(comboBoxPlayer.currentText, comboBoxPlayStyle.currentText)
         updateMusicScore()
     }
 
     function updateMusicScore()
     {
-        analyzer.updatePlayerScore(
+        graphManager.updatePlayerScore(
             comboBoxPlayer.currentText,
             comboBoxPlayStyle.currentText,
             musicListView.musicId,

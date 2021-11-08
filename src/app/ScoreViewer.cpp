@@ -5,7 +5,7 @@
 
 #include "gui/Core/Core.hpp"
 #include "gui/Core/MusicListModel.hpp"
-#include "gui/Score/ScoreAnalyzer.hpp"
+#include "gui/Graph/GraphManager.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -17,19 +17,17 @@ int main(int argc, char *argv[])
 
     gui::Core core;
     gui::MusicListModel musicListModel{core.GetScore2dxCore()};
-    gui::ScoreAnalyzer analyzer{core.GetScore2dxCore()};
+    gui::GraphManager graphManager{core.GetScore2dxCore()};
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("core", &core);
     engine.rootContext()->setContextProperty("difficultyListModel", &core.GetDifficultyListModel());
 
-    engine.rootContext()->setContextProperty("csvTableModel", &core.GetCsvTableModel());
-
     engine.rootContext()->setContextProperty("musicListModel", &musicListModel);
 
-    engine.rootContext()->setContextProperty("analyzer", &analyzer);
-    engine.rootContext()->setContextProperty("analysisListModel", &analyzer.GetAnalysisListModel());
-    engine.rootContext()->setContextProperty("scoreLevelListModel", &analyzer.GetScoreLevelListModel());
+    engine.rootContext()->setContextProperty("graphManager", &graphManager);
+    engine.rootContext()->setContextProperty("graphAnalysisListModel", &graphManager.GetGraphAnalysisListModel());
+    engine.rootContext()->setContextProperty("scoreLevelListModel", &graphManager.GetScoreLevelListModel());
     engine.load(QUrl("qrc:/qml/ScoreViewer.qml"));
 
     if (engine.rootObjects().isEmpty())

@@ -1,4 +1,4 @@
-#include "gui/Score/ScoreAnalyzer.hpp"
+#include "gui/Graph/GraphManager.hpp"
 
 #include <functional>
 #include <iostream>
@@ -33,15 +33,19 @@ ToQDateTime(const std::string &dateTime)
 namespace gui
 {
 
-ScoreAnalyzer::
-ScoreAnalyzer(const score2dx::Core &core, QObject *parent)
+GraphManager::
+GraphManager(const score2dx::Core &core, QObject *parent)
 :   QObject(parent),
     mCore(core)
 {
+    for (auto versionIndex : IndexRange{17, score2dx::GetLatestVersionIndex()})
+    {
+        mTimelineBeginVersionList << score2dx::VersionNames.at(versionIndex).c_str();
+    }
 }
 
 void
-ScoreAnalyzer::
+GraphManager::
 setup(QtCharts::QLegend* legend,
       QtCharts::QAbstractSeries* scoreSeries,
       QtCharts::QAbstractAxis* dateTimeAxis,
@@ -65,7 +69,7 @@ setup(QtCharts::QLegend* legend,
 }
 
 void
-ScoreAnalyzer::
+GraphManager::
 updatePlayerScore(const QString &iidxIdQStr,
                   const QString &playStyleQStr,
                   int musicId,
@@ -135,20 +139,20 @@ updatePlayerScore(const QString &iidxIdQStr,
     scoreLevelPointList.emplace_back(QPointF(1, halfKeyScore));
     mScoreLevelListModel.ResetList(scoreLevelPointList);
 
-    std::vector<ScoreAnalysisData> analysisList;
+    std::vector<GraphAnalysisData> analysisList;
     analysisList.reserve(chartScores.size());
 
     //'' chartScore may be empty, because no difficulty is played.
     //'' if any difficulty is played, then a ChartScore is created.
     //'' but looking difficulty may not be played yet, so 0 ExScore.
     auto isFirst = true;
-    ScoreAnalysisData bestRecordData;
+    GraphAnalysisData bestRecordData;
 
-    //! @brief Map of {AnalysisType, IsBetter(AnalysisType, currentData)}.
-    std::map<AnalysisType, std::function<bool(AnalysisType, const ScoreAnalysisData &)>> compareBestFunctions
+    //! @brief Map of {GraphAnalysisType, IsBetter(GraphAnalysisType, currentData)}.
+    std::map<GraphAnalysisType, std::function<bool(GraphAnalysisType, const GraphAnalysisData &)>> compareBestFunctions
     {
-        {   AnalysisType::Clear,
-            [&bestRecordData](AnalysisType analysisType, const ScoreAnalysisData &currentData) -> bool
+        {   GraphAnalysisType::Clear,
+            [&bestRecordData](GraphAnalysisType analysisType, const GraphAnalysisData &currentData) -> bool
             {
                 auto &previousRecord = bestRecordData.GetRecord(analysisType).Record;
                 if (previousRecord.isEmpty())
@@ -163,8 +167,8 @@ updatePlayerScore(const QString &iidxIdQStr,
                 return static_cast<int>(currentClear)>static_cast<int>(previousClear);
             }
         },
-        {   AnalysisType::Score,
-            [&bestRecordData](AnalysisType analysisType, const ScoreAnalysisData &currentData) -> bool
+        {   GraphAnalysisType::Score,
+            [&bestRecordData](GraphAnalysisType analysisType, const GraphAnalysisData &currentData) -> bool
             {
                 auto &previousRecord = bestRecordData.GetRecord(analysisType).Record;
                 if (previousRecord.isEmpty())
@@ -179,8 +183,8 @@ updatePlayerScore(const QString &iidxIdQStr,
                 return currentScore>previousScore;
             }
         },
-        {   AnalysisType::DjLevel,
-            [&bestRecordData](AnalysisType analysisType, const ScoreAnalysisData &currentData) -> bool
+        {   GraphAnalysisType::DjLevel,
+            [&bestRecordData](GraphAnalysisType analysisType, const GraphAnalysisData &currentData) -> bool
             {
                 auto &previousRecord = bestRecordData.GetRecord(analysisType).Record;
                 if (previousRecord.isEmpty())
@@ -195,8 +199,8 @@ updatePlayerScore(const QString &iidxIdQStr,
                 return static_cast<int>(currentDjLevel)>static_cast<int>(previousDjLevel);
             }
         },
-        {   AnalysisType::MissCount,
-            [&bestRecordData](AnalysisType analysisType, const ScoreAnalysisData &currentData) -> bool
+        {   GraphAnalysisType::MissCount,
+            [&bestRecordData](GraphAnalysisType analysisType, const GraphAnalysisData &currentData) -> bool
             {
                 auto &previousRecord = bestRecordData.GetRecord(analysisType).Record;
                 auto &currentRecord = currentData.GetRecord(analysisType).Record;
@@ -245,15 +249,15 @@ updatePlayerScore(const QString &iidxIdQStr,
 
         //'' note: to compare clear type, record here is not space separated
         //'' convert to space separated after all data constructed.
-        analysisData.GetRecord(AnalysisType::Clear).Record = ToString(chartScore.ClearType).c_str();
-        analysisData.GetRecord(AnalysisType::Score).Record = std::to_string(chartScore.ExScore).c_str();
-        analysisData.GetRecord(AnalysisType::DjLevel).Record = ToString(chartScore.DjLevel).c_str();
+        analysisData.GetRecord(GraphAnalysisType::Clear).Record = ToString(chartScore.ClearType).c_str();
+        analysisData.GetRecord(GraphAnalysisType::Score).Record = std::to_string(chartScore.ExScore).c_str();
+        analysisData.GetRecord(GraphAnalysisType::DjLevel).Record = ToString(chartScore.DjLevel).c_str();
         if (chartScore.MissCount)
         {
-            analysisData.GetRecord(AnalysisType::MissCount).Record = std::to_string(chartScore.MissCount.value()).c_str();
+            analysisData.GetRecord(GraphAnalysisType::MissCount).Record = std::to_string(chartScore.MissCount.value()).c_str();
         }
 
-        for (auto analysisType : AnalysisTypeSmartEnum::ToRange())
+        for (auto analysisType : GraphAnalysisTypeSmartEnum::ToRange())
         {
             auto &compareFunction = compareBestFunctions[analysisType];
             if (compareFunction(analysisType, analysisData))
@@ -272,7 +276,7 @@ updatePlayerScore(const QString &iidxIdQStr,
 
     for (auto &analysisData : analysisList)
     {
-        auto &clearRecord = analysisData.GetRecord(AnalysisType::Clear);
+        auto &clearRecord = analysisData.GetRecord(GraphAnalysisType::Clear);
         if (!clearRecord.Record.isEmpty())
         {
             auto underscoreStr = clearRecord.Record.toStdString();
@@ -293,17 +297,17 @@ updatePlayerScore(const QString &iidxIdQStr,
     if (!analysisList.empty())
     {
         auto &back = analysisList.back();
-        for (auto analysisType : AnalysisTypeSmartEnum::ToRange())
+        for (auto analysisType : GraphAnalysisTypeSmartEnum::ToRange())
         {
             back.GetRecord(analysisType).NewRecord = true;
         }
     }
 
-    mAnalysisListModel.ResetList(analysisList);
+    mGraphAnalysisListModel.ResetList(analysisList);
 }
 
 void
-ScoreAnalyzer::
+GraphManager::
 updateTimelineBeginVersion(const QString &timelineBeginVersion)
 {
     auto findVersionIndex = score2dx::FindVersionIndex(timelineBeginVersion.toStdString());
@@ -364,7 +368,7 @@ updateTimelineBeginVersion(const QString &timelineBeginVersion)
 }
 
 void
-ScoreAnalyzer::
+GraphManager::
 InitializeChart()
 {
     auto findBeginVersionIndex = score2dx::FindVersionIndex("copula");
@@ -475,15 +479,15 @@ InitializeChart()
     }
 }
 
-ScoreAnalysisListModel &
-ScoreAnalyzer::
-GetAnalysisListModel()
+GraphAnalysisListModel &
+GraphManager::
+GetGraphAnalysisListModel()
 {
-    return mAnalysisListModel;
+    return mGraphAnalysisListModel;
 }
 
 ScoreLevelListModel &
-ScoreAnalyzer::
+GraphManager::
 GetScoreLevelListModel()
 {
     return mScoreLevelListModel;
