@@ -1,4 +1,6 @@
 #include <QApplication>
+#include <QDebug>
+#include <QImageReader>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlDebuggingEnabler>
@@ -11,8 +13,9 @@
 int main(int argc, char *argv[])
 {
     QApplication app{argc, argv};
-    app.setOrganizationName("somename");
-    app.setOrganizationDomain("somename");
+    QCoreApplication::setOrganizationName("ScoreViewer");
+    QCoreApplication::setOrganizationDomain("ScoreViewer.app");
+    QGuiApplication::setWindowIcon(QIcon(":/qml/image/icon.png"));
 
     //QQmlDebuggingEnabler enabler;
 
