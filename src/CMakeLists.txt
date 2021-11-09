@@ -46,7 +46,7 @@ add_executable(ScoreViewer WIN32
     app/ScoreViewer.cpp
     qml.qrc
 )
-target_compile_options(ScoreViewer PRIVATE -std=c++20 -pedantic -Wall -Wextra -Werror -g -fPIC -DFMT_HEADER_ONLY)
+target_compile_options(ScoreViewer PRIVATE -std=c++20 -pedantic -Wall -Wextra -Werror -g -DFMT_HEADER_ONLY)
 target_include_directories(ScoreViewer SYSTEM PUBLIC
     ${FMT_INCLUDE_DIRS}
     ${JSON_INCLUDE_DIRS}

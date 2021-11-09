@@ -67,6 +67,7 @@ updateStatsTable(const QString &iidxId,
     auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
     auto tableType = ToStatsTableType(tableTypeQStr.toStdString());
 
+    //'' Table Rows: rows from tableType's target enum, plus ColSum row.
     if (tableType==StatsTableType::Level)
     {
         mStatsTableModel.setRowCount(score2dx::MaxLevel+1);
@@ -74,67 +75,66 @@ updateStatsTable(const QString &iidxId,
         {
             mStatsTableModel.setVerticalHeaderItem(row, new QStandardItem(QString::number(row+1)));
         }
-        mStatsTableModel.setVerticalHeaderItem(score2dx::MaxLevel, new QStandardItem("Total"));
     }
     else
     {
-        //'' exclude Beginner, but add Total.
-        mStatsTableModel.setRowCount(score2dx::DifficultySmartEnum::Size());
-        int row = 0;
+        //'' exclude Beginner.
+        mStatsTableModel.setRowCount(score2dx::DifficultySmartEnum::Size()-1+1);
         for (auto difficulty : score2dx::DifficultySmartEnum::ToRange())
         {
             if (difficulty==score2dx::Difficulty::Beginner) { continue; }
             auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
-            mStatsTableModel.setVerticalHeaderItem(row, new QStandardItem(ToString(styleDifficulty).c_str()));
-            ++row;
+            mStatsTableModel.setVerticalHeaderItem(static_cast<int>(difficulty)-1, new QStandardItem(ToString(styleDifficulty).c_str()));
         }
-        mStatsTableModel.setVerticalHeaderItem(row, new QStandardItem("Total"));
     }
+    mStatsTableModel.setVerticalHeaderItem(mStatsTableModel.rowCount()-1, new QStandardItem("ColSum"));
 
+    //'' Table Columnss: columns from columnType's target enum, plus RowSum and Total columns.
     auto statsColumnType = ToStatsColumnType(columnTypeQStr.toStdString());
     switch (statsColumnType)
     {
         case StatsColumnType::Clear:
         {
-            mStatsTableModel.setColumnCount(score2dx::ClearTypeSmartEnum::Size()+1);
+            mStatsTableModel.setColumnCount(score2dx::ClearTypeSmartEnum::Size()+2);
             for (auto clear : score2dx::ClearTypeSmartEnum::ToRange())
             {
                 mStatsTableModel.setHorizontalHeaderItem(static_cast<int>(clear), new QStandardItem(ToPrettyString(clear).c_str()));
             }
-            mStatsTableModel.setHorizontalHeaderItem(score2dx::ClearTypeSmartEnum::Size(), new QStandardItem("Total"));
             break;
         }
         case StatsColumnType::DjLevel:
         {
-            mStatsTableModel.setColumnCount(score2dx::DjLevelSmartEnum::Size()+1);
+            mStatsTableModel.setColumnCount(score2dx::DjLevelSmartEnum::Size()+2);
             for (auto djLevel : score2dx::DjLevelSmartEnum::ToRange())
             {
                 mStatsTableModel.setHorizontalHeaderItem(static_cast<int>(djLevel), new QStandardItem(ToString(djLevel).c_str()));
             }
-            mStatsTableModel.setHorizontalHeaderItem(score2dx::DjLevelSmartEnum::Size(), new QStandardItem("Total"));
             break;
         }
         case StatsColumnType::ScoreLevel:
         {
-            mStatsTableModel.setColumnCount(score2dx::StatisticScoreLevelRangeSmartEnum::Size()+1);
+            mStatsTableModel.setColumnCount(score2dx::StatisticScoreLevelRangeSmartEnum::Size()+2);
             for (auto scoreLevel : score2dx::StatisticScoreLevelRangeSmartEnum::ToRange())
             {
                 mStatsTableModel.setHorizontalHeaderItem(static_cast<int>(scoreLevel), new QStandardItem(ToPrettyString(scoreLevel).c_str()));
             }
-            mStatsTableModel.setHorizontalHeaderItem(score2dx::StatisticScoreLevelRangeSmartEnum::Size(), new QStandardItem("Total"));
             break;
         }
     }
+    mStatsTableModel.setHorizontalHeaderItem(mStatsTableModel.columnCount()-2, new QStandardItem("RolSum"));
+    mStatsTableModel.setHorizontalHeaderItem(mStatsTableModel.columnCount()-1, new QStandardItem("Total"));
 
     qDebug() << "mStatsTableModel row " << mStatsTableModel.rowCount() << ", column " << mStatsTableModel.columnCount();
 
-    //'' column of rowSums and total sum (the rightest column) alwasy display count.
-    //'' value in each cell and rowSums can choose count or percentage.
-    //! @brief Sum of each row, display at right side, size = rowCount-1 (exclude row of columnSums).
+    //'' Total column (the rightest column) alwasy display count.
+    //'' value in each cell and sums can choose count or percentage.
+    //! @brief Sum of each row cell value, display at right side, size = rowCount-1 (exclude ColSum row).
     std::vector<std::size_t> rowSums(mStatsTableModel.rowCount()-1, 0);
-    //! @brief Sum of each column, display at bottom side, size = columnCount-1 (exclude column of rowSums).
+    //! @brief Total of each row cell count, display at right side, size = rowCount-1 (exclude ColSum row).
+    std::vector<std::size_t> rowTotalCounts(mStatsTableModel.rowCount()-1, 0);
+    //! @brief Sum of each column cell value, display at bottom side, size = columnCount-1.
+    //! (include RowSum column, exclude Total column)
     std::vector<std::size_t> columnSums(mStatsTableModel.columnCount()-1, 0);
-    std::size_t totalSum = 0;
 
     auto versionIndex = versionQStr.toULongLong();
     auto valueType = ToStatsValueType(valueTypeQStr.toStdString());
@@ -169,40 +169,40 @@ updateStatsTable(const QString &iidxId,
         }
 
         auto &statistics = *statisticsPtr;
-        rowSums[row] = statistics.ChartIdList.size();
-        totalSum += rowSums[row];
+        rowTotalCounts[row] = statistics.ChartIdList.size();
 
-        for (auto column : IntRange{0, mStatsTableModel.columnCount()-1})
+        for (auto column : IntRange{0, mStatsTableModel.columnCount()-2})
         {
-            std::size_t count = 0;
+            std::size_t value = 0;
 
             switch (statsColumnType)
             {
                 case StatsColumnType::Clear:
                 {
-                    count = statistics.ChartIdListByClearType.at(static_cast<score2dx::ClearType>(column)).size();
+                    value = statistics.ChartIdListByClearType.at(static_cast<score2dx::ClearType>(column)).size();
                     break;
                 }
                 case StatsColumnType::DjLevel:
                 {
-                    count = statistics.ChartIdListByDjLevel.at(static_cast<score2dx::DjLevel>(column)).size();
+                    value = statistics.ChartIdListByDjLevel.at(static_cast<score2dx::DjLevel>(column)).size();
                     break;
                 }
                 case StatsColumnType::ScoreLevel:
                 {
-                    count = statistics.ChartIdListByScoreLevelRange.at(static_cast<score2dx::StatisticScoreLevelRange>(column)).size();
+                    value = statistics.ChartIdListByScoreLevelRange.at(static_cast<score2dx::StatisticScoreLevelRange>(column)).size();
                     break;
                 }
             }
 
-            columnSums[column] += count;
+            columnSums[column] += value;
+            rowSums[row] += value;
 
             double percentage = 0.0;
-            if (rowSums[row]!=0)
+            if (rowTotalCounts[row]!=0)
             {
-                percentage = static_cast<double>(count)*100/rowSums[row];
+                percentage = static_cast<double>(value)*100/rowTotalCounts[row];
             }
-            auto text = QString::number(count);
+            auto text = QString::number(value);
             if (valueType==StatsValueType::Percentage)
             {
                 text = fmt::format("{:.2f}%", percentage).c_str();
@@ -211,19 +211,37 @@ updateStatsTable(const QString &iidxId,
             mStatsTableModel.setItem(row, column, item);
         }
 
-        auto item = new QStandardItem(QString::number(rowSums[row]));
-        mStatsTableModel.setItem(row, mStatsTableModel.columnCount()-1, item);
+        auto value = rowSums[row];
+        columnSums[mStatsTableModel.columnCount()-2] += value;
+
+        double percentage = 0.0;
+        if (rowTotalCounts[row]!=0)
+        {
+            percentage = static_cast<double>(value)*100/rowTotalCounts[row];
+        }
+        auto text = QString::number(value);
+        if (valueType==StatsValueType::Percentage)
+        {
+            text = fmt::format("{:.2f}%", percentage).c_str();
+        }
+        auto rowSumItem = new QStandardItem(text);
+        mStatsTableModel.setItem(row, mStatsTableModel.columnCount()-2, rowSumItem);
+
+        auto rowCountItem = new QStandardItem(QString::number(rowTotalCounts[row]));
+        mStatsTableModel.setItem(row, mStatsTableModel.columnCount()-1, rowCountItem);
     }
+
+    auto totalCount = std::accumulate(rowTotalCounts.begin(), rowTotalCounts.end(), std::size_t{0});
 
     for (auto column : IntRange{0, mStatsTableModel.columnCount()-1})
     {
-        auto count = columnSums[column];
+        auto value = columnSums[column];
         double percentage = 0.0;
-        if (totalSum!=0)
+        if (totalCount!=0)
         {
-            percentage = static_cast<double>(count)*100/totalSum;
+            percentage = static_cast<double>(value)*100/totalCount;
         }
-        auto text = QString::number(count);
+        auto text = QString::number(value);
         if (valueType==StatsValueType::Percentage)
         {
             text = fmt::format("{:.2f}%", percentage).c_str();
@@ -235,7 +253,7 @@ updateStatsTable(const QString &iidxId,
     mStatsTableModel.setItem(
         mStatsTableModel.rowCount()-1,
         mStatsTableModel.columnCount()-1,
-        new QStandardItem(QString::number(totalSum))
+        new QStandardItem(QString::number(totalCount))
     );
 }
 

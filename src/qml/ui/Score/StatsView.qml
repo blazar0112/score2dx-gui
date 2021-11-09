@@ -144,7 +144,7 @@ Item {
                 id: tableView
 
                 topMargin: horizontalHeader.implicitHeight
-                leftMargin: verticalHeader.implicitWidth+10
+                leftMargin: verticalHeader.implicitWidth+25
                 anchors.fill: parent
 
                 delegate: Rectangle {
