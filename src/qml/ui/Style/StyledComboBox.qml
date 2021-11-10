@@ -24,11 +24,13 @@ Row {
 
         background: Rectangle {
             color: '#B2D2A4'
-            radius: 5
+            //border.color: 'black'
+            //border.width: 1
         }
 
         delegate: ItemDelegate {
             width: comboBox.width
+            height: comboBox.height
             text: comboBox.textRole ? (Array.isArray(comboBox.model) ? modelData[comboBox.textRole] : model[comboBox.textRole]) : modelData
             font.family: comboBox.font.family
             font.pointSize: comboBox.font.pointSize
