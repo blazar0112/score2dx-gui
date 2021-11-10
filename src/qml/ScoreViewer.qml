@@ -487,6 +487,8 @@ ApplicationWindow
                 StatsView {
                     id: statsView
                     tableView.model: statsTableModel
+                    horizontalHeaderView.model: statsHorizontalHeaderModel
+                    verticalHeaderView.model: statsVerticalHeaderModel
                     comboBoxDifficultyVersion.model: statisticsManager.difficultyVersionList
 
                     onOptionChanged: {

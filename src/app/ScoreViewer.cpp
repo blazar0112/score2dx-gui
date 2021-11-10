@@ -36,7 +36,9 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("scoreLevelListModel", &graphManager.GetScoreLevelListModel());
 
     engine.rootContext()->setContextProperty("statisticsManager", &statisticsManager);
-    engine.rootContext()->setContextProperty("statsTableModel", &statisticsManager.GetStatsTableModel());
+    engine.rootContext()->setContextProperty("statsTableModel", &statisticsManager.GetTableModel());
+    engine.rootContext()->setContextProperty("statsHorizontalHeaderModel", &statisticsManager.GetHorizontalHeaderModel());
+    engine.rootContext()->setContextProperty("statsVerticalHeaderModel", &statisticsManager.GetVerticalHeaderModel());
 
     engine.load(QUrl("qrc:/qml/ScoreViewer.qml"));
 

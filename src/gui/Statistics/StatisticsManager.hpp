@@ -8,6 +8,8 @@
 
 #include "score2dx/Core/Core.hpp"
 
+#include "gui/Statistics/StatsTableModel.hpp"
+
 namespace gui
 {
 
@@ -54,8 +56,14 @@ public:
         const QStringList & getActiveVersionList() const { return mActiveVersionList; }
         const QStringList & getDifficultyVersionList() const { return mDifficultyVersionList; }
 
-        QStandardItemModel &
-        GetStatsTableModel();
+        StatsTableModel &
+        GetTableModel();
+
+        StatsTableModel &
+        GetHorizontalHeaderModel();
+
+        StatsTableModel &
+        GetVerticalHeaderModel();
 
 signals:
         void difficultyVersionListChanged();
@@ -66,7 +74,13 @@ private:
     QStringList mActiveVersionList;
     //'' Selectable versions of stats by difficulty, [0, activeVersion].
     QStringList mDifficultyVersionList;
-    QStandardItemModel mStatsTableModel;
+
+    //'' Because default Horizontal/VerticalHeaderView cannot customize roles, use 3 table models.
+    //! @brief 1 x ColumnCount size TableModel use as horizontal header.
+    StatsTableModel mHorizontalHeaderModel;
+    //! @brief RowCount x 1 size TableModel use as vertical header.
+    StatsTableModel mVerticalHeaderModel;
+    StatsTableModel mTableModel;
 };
 
 }

@@ -10,6 +10,109 @@
 
 #include "score2dx/Iidx/Version.hpp"
 
+namespace
+{
+
+//! @brief Return {Foreground, Background} color code.
+std::pair<QString, QString>
+GetColors(score2dx::Difficulty difficulty)
+{
+    switch (difficulty)
+    {
+        case score2dx::Difficulty::Beginner:
+            return {"white", "#93ff00"};
+        case score2dx::Difficulty::Normal:
+            return {"white", "#86cfff"};
+        case score2dx::Difficulty::Hyper:
+            return {"white", "#ffb746"};
+        case score2dx::Difficulty::Another:
+            return {"white", "#fa5758"};
+        case score2dx::Difficulty::Leggendaria:
+            return {"white", "#f500ff"};
+    }
+
+    return {"black", "white"};
+}
+
+//! @brief Return {Foreground, Background} color code.
+std::pair<QString, QString>
+GetColors(score2dx::ClearType clearType)
+{
+    switch (clearType)
+    {
+        case score2dx::ClearType::NO_PLAY:
+            return {"gray", "black"};
+        case score2dx::ClearType::FAILED:
+            return {"red", "black"};
+        case score2dx::ClearType::ASSIST_CLEAR:
+            return {"white", "purple"};
+        case score2dx::ClearType::EASY_CLEAR:
+            return {"white", "green"};
+        case score2dx::ClearType::CLEAR:
+            return {"white", "dodgerblue"};
+        case score2dx::ClearType::HARD_CLEAR:
+            return {"white", "red"};
+        case score2dx::ClearType::EX_HARD_CLEAR:
+            return {"red", "yellow"};
+        case score2dx::ClearType::FULLCOMBO_CLEAR:
+            return {"gray", "cyan"};
+    }
+
+    return {"black", "white"};
+}
+
+//! @brief Return {Foreground, Background} color code.
+std::pair<QString, QString>
+GetColors(score2dx::DjLevel djLevel)
+{
+    switch (djLevel)
+    {
+        case score2dx::DjLevel::F:
+        case score2dx::DjLevel::E:
+        case score2dx::DjLevel::D:
+        case score2dx::DjLevel::C:
+        case score2dx::DjLevel::B:
+            return {"black", "white"};
+        case score2dx::DjLevel::A:
+            return {"white", "#16A085"};
+        case score2dx::DjLevel::AA:
+            return {"black", "#E6E6E6"};
+        case score2dx::DjLevel::AAA:
+            return {"white", "#F5B041"};
+    }
+
+    return {"black", "white"};
+}
+
+//! @brief Return {Foreground, Background} color code.
+std::pair<QString, QString>
+GetColors(score2dx::StatisticScoreLevelRange scoreLevel)
+{
+    switch (scoreLevel)
+    {
+        case score2dx::StatisticScoreLevelRange::AMinus:
+            return {"black", "white"};
+        case score2dx::StatisticScoreLevelRange::AEqPlus:
+            return {"white", "#16A085"};
+        case score2dx::StatisticScoreLevelRange::AAMinus:
+            return {"white", "#57E1C6"};
+        case score2dx::StatisticScoreLevelRange::AAEqPlus:
+            return {"black", "#E6E6E6"};
+        case score2dx::StatisticScoreLevelRange::AAAMinus:
+            return {"white", "#CDC17B"};
+        case score2dx::StatisticScoreLevelRange::AAAEqPlus:
+            return {"white", "#F5B041"};
+        case score2dx::StatisticScoreLevelRange::MaxMinus:
+            return {"white", "red"};
+        case score2dx::StatisticScoreLevelRange::Max:
+            return {"gray", "cyan"};
+    }
+
+    return {"black", "white"};
+}
+
+}
+
 namespace gui
 {
 
@@ -63,83 +166,165 @@ updateStatsTable(const QString &iidxId,
 
     auto &scoreAnalysis = *scoreAnalysisPtr;
 
-    mStatsTableModel.clear();
     auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
     auto tableType = ToStatsTableType(tableTypeQStr.toStdString());
+
+    std::size_t rowCount = 0;
+    std::size_t columnCount = 0;
 
     //'' Table Rows: rows from tableType's target enum, plus ColSum row.
     if (tableType==StatsTableType::Level)
     {
-        mStatsTableModel.setRowCount(score2dx::MaxLevel+1);
-        for (auto row : IntRange{0, score2dx::MaxLevel})
-        {
-            mStatsTableModel.setVerticalHeaderItem(row, new QStandardItem(QString::number(row+1)));
-        }
+        rowCount = static_cast<std::size_t>(score2dx::MaxLevel+1);
     }
     else
     {
         //'' exclude Beginner.
-        mStatsTableModel.setRowCount(score2dx::DifficultySmartEnum::Size()-1+1);
-        for (auto difficulty : score2dx::DifficultySmartEnum::ToRange())
-        {
-            if (difficulty==score2dx::Difficulty::Beginner) { continue; }
-            auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
-            mStatsTableModel.setVerticalHeaderItem(static_cast<int>(difficulty)-1, new QStandardItem(ToString(styleDifficulty).c_str()));
-        }
+        rowCount = score2dx::DifficultySmartEnum::Size()-1+1;
     }
-    mStatsTableModel.setVerticalHeaderItem(mStatsTableModel.rowCount()-1, new QStandardItem("ColSum"));
 
-    //'' Table Columnss: columns from columnType's target enum, plus RowSum and Total columns.
+    //'' Table Columns: columns from columnType's target enum, plus RowSum and Total columns.
     auto statsColumnType = ToStatsColumnType(columnTypeQStr.toStdString());
     switch (statsColumnType)
     {
         case StatsColumnType::Clear:
         {
-            mStatsTableModel.setColumnCount(score2dx::ClearTypeSmartEnum::Size()+2);
+            columnCount = score2dx::ClearTypeSmartEnum::Size()+2;
+            break;
+        }
+        case StatsColumnType::DjLevel:
+        {
+            columnCount = score2dx::DjLevelSmartEnum::Size()+2;
+            break;
+        }
+        case StatsColumnType::ScoreLevel:
+        {
+            columnCount = score2dx::StatisticScoreLevelRangeSmartEnum::Size()+2;
+            break;
+        }
+    }
+
+    std::vector<std::vector<StatsTableData>> horizontalHeader(1, std::vector<StatsTableData>(columnCount));
+    std::vector<std::vector<StatsTableData>> verticalHeader(rowCount, std::vector<StatsTableData>(1));
+    std::vector<std::vector<StatsTableData>> table(rowCount, std::vector<StatsTableData>(columnCount));
+
+    //'' Setup vertical header for each row.
+    if (tableType==StatsTableType::Level)
+    {
+        for (auto row : IndexRange{0, score2dx::MaxLevel})
+        {
+            auto &data = verticalHeader[row][0].Data;
+            data[static_cast<int>(StatsTableDataRole::display)] = QString::number(row+1);
+            data[static_cast<int>(StatsTableDataRole::foreground)] = "black";
+            data[static_cast<int>(StatsTableDataRole::background)] = "#85C1E9";
+        }
+    }
+    else
+    {
+        for (auto difficulty : score2dx::DifficultySmartEnum::ToRange())
+        {
+            if (difficulty==score2dx::Difficulty::Beginner) { continue; }
+            auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
+            auto [foregroundColor, backgroundColor] = GetColors(difficulty);
+            auto row = static_cast<int>(difficulty)-1;
+
+            auto &data = verticalHeader[row][0].Data;
+            data[static_cast<int>(StatsTableDataRole::display)] = ToString(styleDifficulty).c_str();
+            data[static_cast<int>(StatsTableDataRole::foreground)] = foregroundColor;
+            data[static_cast<int>(StatsTableDataRole::background)] = backgroundColor;
+        }
+    }
+    verticalHeader[rowCount-1][0].Data[static_cast<int>(StatsTableDataRole::display)] = "ColSum";
+    verticalHeader[rowCount-1][0].Data[static_cast<int>(StatsTableDataRole::foreground)] = "white";
+    verticalHeader[rowCount-1][0].Data[static_cast<int>(StatsTableDataRole::background)] = "#5D6D7E";
+
+    //'' Setup horizontal header for each column.
+    switch (statsColumnType)
+    {
+        case StatsColumnType::Clear:
+        {
             for (auto clear : score2dx::ClearTypeSmartEnum::ToRange())
             {
-                mStatsTableModel.setHorizontalHeaderItem(static_cast<int>(clear), new QStandardItem(ToPrettyString(clear).c_str()));
+                auto column = static_cast<int>(clear);
+                auto [foregroundColor, backgroundColor] = GetColors(clear);
+
+                auto &data = horizontalHeader[0][column].Data;
+                data[static_cast<int>(StatsTableDataRole::display)] = ToPrettyString(clear).c_str();
+                data[static_cast<int>(StatsTableDataRole::foreground)] = foregroundColor;
+                data[static_cast<int>(StatsTableDataRole::background)] = backgroundColor;
             }
             break;
         }
         case StatsColumnType::DjLevel:
         {
-            mStatsTableModel.setColumnCount(score2dx::DjLevelSmartEnum::Size()+2);
             for (auto djLevel : score2dx::DjLevelSmartEnum::ToRange())
             {
-                mStatsTableModel.setHorizontalHeaderItem(static_cast<int>(djLevel), new QStandardItem(ToString(djLevel).c_str()));
+                auto column = static_cast<int>(djLevel);
+                auto [foregroundColor, backgroundColor] = GetColors(djLevel);
+
+                auto &data = horizontalHeader[0][column].Data;
+                data[static_cast<int>(StatsTableDataRole::display)] = ToString(djLevel).c_str();
+                data[static_cast<int>(StatsTableDataRole::foreground)] = foregroundColor;
+                data[static_cast<int>(StatsTableDataRole::background)] = backgroundColor;
             }
             break;
         }
         case StatsColumnType::ScoreLevel:
         {
-            mStatsTableModel.setColumnCount(score2dx::StatisticScoreLevelRangeSmartEnum::Size()+2);
             for (auto scoreLevel : score2dx::StatisticScoreLevelRangeSmartEnum::ToRange())
             {
-                mStatsTableModel.setHorizontalHeaderItem(static_cast<int>(scoreLevel), new QStandardItem(ToPrettyString(scoreLevel).c_str()));
+                auto column = static_cast<int>(scoreLevel);
+                auto [foregroundColor, backgroundColor] = GetColors(scoreLevel);
+
+                auto &data = horizontalHeader[0][column].Data;
+                data[static_cast<int>(StatsTableDataRole::display)] = ToPrettyString(scoreLevel).c_str();
+                data[static_cast<int>(StatsTableDataRole::foreground)] = foregroundColor;
+                data[static_cast<int>(StatsTableDataRole::background)] = backgroundColor;
             }
             break;
         }
     }
-    mStatsTableModel.setHorizontalHeaderItem(mStatsTableModel.columnCount()-2, new QStandardItem("RolSum"));
-    mStatsTableModel.setHorizontalHeaderItem(mStatsTableModel.columnCount()-1, new QStandardItem("Total"));
-
-    qDebug() << "mStatsTableModel row " << mStatsTableModel.rowCount() << ", column " << mStatsTableModel.columnCount();
+    //'' RolSum column:
+    horizontalHeader[0][columnCount-2].Data[static_cast<int>(StatsTableDataRole::display)] = "RolSum";
+    horizontalHeader[0][columnCount-2].Data[static_cast<int>(StatsTableDataRole::foreground)] = "white";
+    horizontalHeader[0][columnCount-2].Data[static_cast<int>(StatsTableDataRole::background)] = "#5D6D7E";
+    //'' Total column:
+    horizontalHeader[0][columnCount-1].Data[static_cast<int>(StatsTableDataRole::display)] = "Total";
+    horizontalHeader[0][columnCount-1].Data[static_cast<int>(StatsTableDataRole::foreground)] = "white";
+    horizontalHeader[0][columnCount-1].Data[static_cast<int>(StatsTableDataRole::background)] = "#0E6251";
 
     //'' Total column (the rightest column) alwasy display count.
     //'' value in each cell and sums can choose count or percentage.
     //! @brief Sum of each row cell value, display at right side, size = rowCount-1 (exclude ColSum row).
-    std::vector<std::size_t> rowSums(mStatsTableModel.rowCount()-1, 0);
+    std::vector<std::size_t> rowSums(rowCount-1, 0);
     //! @brief Total of each row cell count, display at right side, size = rowCount-1 (exclude ColSum row).
-    std::vector<std::size_t> rowTotalCounts(mStatsTableModel.rowCount()-1, 0);
+    std::vector<std::size_t> rowTotalCounts(rowCount-1, 0);
     //! @brief Sum of each column cell value, display at bottom side, size = columnCount-1.
     //! (include RowSum column, exclude Total column)
-    std::vector<std::size_t> columnSums(mStatsTableModel.columnCount()-1, 0);
+    std::vector<std::size_t> columnSums(columnCount-1, 0);
 
     auto versionIndex = versionQStr.toULongLong();
     auto valueType = ToStatsValueType(valueTypeQStr.toStdString());
 
-    for (auto row : IntRange{0, mStatsTableModel.rowCount()-1})
+    auto ToValueText = [](StatsValueType valueType, std::size_t value, std::size_t count)
+    -> QString
+    {
+        double percentage = 0.0;
+        if (count!=0)
+        {
+            percentage = static_cast<double>(value)*100/count;
+        }
+        auto text = QString::number(value);
+        if (valueType==StatsValueType::Percentage)
+        {
+            text = fmt::format("{:.2f}%", percentage).c_str();
+        }
+
+        return text;
+    };
+
+    //'' Setup table content:
+    for (auto row : IndexRange{0, rowCount-1})
     {
         const score2dx::Statistics* statisticsPtr = nullptr;
         switch (tableType)
@@ -171,7 +356,7 @@ updateStatsTable(const QString &iidxId,
         auto &statistics = *statisticsPtr;
         rowTotalCounts[row] = statistics.ChartIdList.size();
 
-        for (auto column : IntRange{0, mStatsTableModel.columnCount()-2})
+        for (auto column : IndexRange{0, columnCount-2})
         {
             std::size_t value = 0;
 
@@ -196,72 +381,71 @@ updateStatsTable(const QString &iidxId,
 
             columnSums[column] += value;
             rowSums[row] += value;
+            auto text = ToValueText(valueType, value, rowTotalCounts[row]);
 
-            double percentage = 0.0;
-            if (rowTotalCounts[row]!=0)
-            {
-                percentage = static_cast<double>(value)*100/rowTotalCounts[row];
-            }
-            auto text = QString::number(value);
-            if (valueType==StatsValueType::Percentage)
-            {
-                text = fmt::format("{:.2f}%", percentage).c_str();
-            }
-            auto item = new QStandardItem(text);
-            mStatsTableModel.setItem(row, column, item);
+            auto &data = table[row][column].Data;
+            data[static_cast<int>(StatsTableDataRole::display)] = text;
+            //data[static_cast<int>(StatsTableDataRole::foreground)] = foregroundColor;
+            //data[static_cast<int>(StatsTableDataRole::background)] = backgroundColor;
         }
 
         auto value = rowSums[row];
-        columnSums[mStatsTableModel.columnCount()-2] += value;
+        columnSums[columnCount-2] += value;
+        auto text = ToValueText(valueType, value, rowTotalCounts[row]);
 
-        double percentage = 0.0;
-        if (rowTotalCounts[row]!=0)
-        {
-            percentage = static_cast<double>(value)*100/rowTotalCounts[row];
-        }
-        auto text = QString::number(value);
-        if (valueType==StatsValueType::Percentage)
-        {
-            text = fmt::format("{:.2f}%", percentage).c_str();
-        }
-        auto rowSumItem = new QStandardItem(text);
-        mStatsTableModel.setItem(row, mStatsTableModel.columnCount()-2, rowSumItem);
+        auto &rowSumData = table[row][columnCount-2].Data;
+        rowSumData[static_cast<int>(StatsTableDataRole::display)] = text;
+        //rowSumData[static_cast<int>(StatsTableDataRole::foreground)] = foregroundColor;
+        //rowSumData[static_cast<int>(StatsTableDataRole::background)] = backgroundColor;
 
-        auto rowCountItem = new QStandardItem(QString::number(rowTotalCounts[row]));
-        mStatsTableModel.setItem(row, mStatsTableModel.columnCount()-1, rowCountItem);
+        auto &rowCountData = table[row][columnCount-1].Data;
+        rowCountData[static_cast<int>(StatsTableDataRole::display)] = QString::number(rowTotalCounts[row]);
+        //rowCountData[static_cast<int>(StatsTableDataRole::foreground)] = foregroundColor;
+        //rowCountData[static_cast<int>(StatsTableDataRole::background)] = backgroundColor;
     }
 
     auto totalCount = std::accumulate(rowTotalCounts.begin(), rowTotalCounts.end(), std::size_t{0});
 
-    for (auto column : IntRange{0, mStatsTableModel.columnCount()-1})
+    for (auto column : IndexRange{0, columnCount-1})
     {
         auto value = columnSums[column];
-        double percentage = 0.0;
-        if (totalCount!=0)
-        {
-            percentage = static_cast<double>(value)*100/totalCount;
-        }
-        auto text = QString::number(value);
-        if (valueType==StatsValueType::Percentage)
-        {
-            text = fmt::format("{:.2f}%", percentage).c_str();
-        }
-        auto item = new QStandardItem(text);
-        mStatsTableModel.setItem(mStatsTableModel.rowCount()-1, column, item);
+        auto text = ToValueText(valueType, value, totalCount);
+
+        auto &data = table[rowCount-1][column].Data;
+        data[static_cast<int>(StatsTableDataRole::display)] = text;
+        //data[static_cast<int>(StatsTableDataRole::foreground)] = foregroundColor;
+        //data[static_cast<int>(StatsTableDataRole::background)] = backgroundColor;
     }
 
-    mStatsTableModel.setItem(
-        mStatsTableModel.rowCount()-1,
-        mStatsTableModel.columnCount()-1,
-        new QStandardItem(QString::number(totalCount))
-    );
+    auto &data = table[rowCount-1][columnCount-1].Data;
+    data[static_cast<int>(StatsTableDataRole::display)] = QString::number(totalCount);
+    //data[static_cast<int>(StatsTableDataRole::foreground)] = foregroundColor;
+    //data[static_cast<int>(StatsTableDataRole::background)] = backgroundColor;
+
+    mHorizontalHeaderModel.ResetModel(std::move(horizontalHeader));
+    mVerticalHeaderModel.ResetModel(std::move(verticalHeader));
+    mTableModel.ResetModel(std::move(table));
 }
 
-QStandardItemModel &
+StatsTableModel &
 StatisticsManager::
-GetStatsTableModel()
+GetTableModel()
 {
-    return mStatsTableModel;
+    return mTableModel;
+}
+
+StatsTableModel &
+StatisticsManager::
+GetHorizontalHeaderModel()
+{
+    return mHorizontalHeaderModel;
+}
+
+StatsTableModel &
+StatisticsManager::
+GetVerticalHeaderModel()
+{
+    return mVerticalHeaderModel;
 }
 
 }

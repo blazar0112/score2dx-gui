@@ -14,6 +14,8 @@ import '../Style'
 //'' create grid buttons below.
 //'' inside Statistics, select column: clear type, djlevel, score level.
 Item {
+    property alias horizontalHeaderView: horizontalHeaderView
+    property alias verticalHeaderView: verticalHeaderView
     property alias tableView: tableView
     property alias comboBoxDifficultyVersion: comboBoxDifficultyVersion
     property string tableType: 'Level'
@@ -22,14 +24,40 @@ Item {
 
     signal optionChanged()
 
+    ButtonGroup { id: buttonGroupTableType }
+    ButtonGroup { id: buttonGroupColumnType }
+    ButtonGroup { id: buttonGroupValueType }
+
+    FontMetrics {
+        id: fontMetrics
+        font.family: 'Verdana'
+        font.pixelSize: 16
+    }
+
     ColumnLayout {
         width: parent.width
         height: parent.height
 
-        RowLayout {
+        GridLayout {
+            columns: 5
+            rows: 3
+
+            // row 0:
+
+            Text {
+                Layout.row: 0
+                Layout.column: 0
+                text: 'Table'
+                font: fontMetrics.font
+            }
+
             RadioButton {
+                Layout.row: 0
+                Layout.column: 1
                 checked: true
                 text: 'Level'
+                font: fontMetrics.font
+                ButtonGroup.group: buttonGroupTableType
 
                 onCheckedChanged: {
                     if (checked)
@@ -39,8 +67,13 @@ Item {
                     }
                 }
             }
+
             RadioButton {
+                Layout.row: 0
+                Layout.column: 2
                 text: 'All Difficulty'
+                font: fontMetrics.font
+                ButtonGroup.group: buttonGroupTableType
 
                 onCheckedChanged: {
                     if (checked)
@@ -50,8 +83,13 @@ Item {
                     }
                 }
             }
+
             RadioButton {
+                Layout.row: 0
+                Layout.column: 3
                 text: 'Difficulty by Version'
+                font: fontMetrics.font
+                ButtonGroup.group: buttonGroupTableType
 
                 onCheckedChanged: {
                     if (checked)
@@ -61,8 +99,12 @@ Item {
                     }
                 }
             }
+
             StyledComboBox {
                 id: comboBoxDifficultyVersion
+
+                Layout.row: 0
+                Layout.column: 4
                 Layout.preferredWidth: 100
                 Layout.preferredHeight: 50
 
@@ -70,12 +112,23 @@ Item {
                     optionChanged()
                 }
             }
-        }
 
-        RowLayout {
+            // row 1:
+
+            Text {
+                Layout.row: 1
+                Layout.column: 0
+                text: 'Column'
+                font: fontMetrics.font
+            }
+
             RadioButton {
+                Layout.row: 1
+                Layout.column: 1
                 checked: true
                 text: 'Clear'
+                font: fontMetrics.font
+                ButtonGroup.group: buttonGroupColumnType
 
                 onCheckedChanged: {
                     if (checked)
@@ -85,8 +138,13 @@ Item {
                     }
                 }
             }
+
             RadioButton {
+                Layout.row: 1
+                Layout.column: 2
                 text: 'DJ Level'
+                font: fontMetrics.font
+                ButtonGroup.group: buttonGroupColumnType
 
                 onCheckedChanged: {
                     if (checked)
@@ -96,8 +154,13 @@ Item {
                     }
                 }
             }
+
             RadioButton {
+                Layout.row: 1
+                Layout.column: 3
                 text: 'Score Level'
+                font: fontMetrics.font
+                ButtonGroup.group: buttonGroupColumnType
 
                 onCheckedChanged: {
                     if (checked)
@@ -107,12 +170,23 @@ Item {
                     }
                 }
             }
-        }
 
-        RowLayout {
+            // row 2:
+
+            Text {
+                Layout.row: 2
+                Layout.column: 0
+                text: 'Value'
+                font: fontMetrics.font
+            }
+
             RadioButton {
+                Layout.row: 2
+                Layout.column: 1
                 checked: true
                 text: 'Count'
+                font: fontMetrics.font
+                ButtonGroup.group: buttonGroupValueType
 
                 onCheckedChanged: {
                     if (checked)
@@ -122,8 +196,13 @@ Item {
                     }
                 }
             }
+
             RadioButton {
+                Layout.row: 2
+                Layout.column: 2
                 text: 'Percentage'
+                font: fontMetrics.font
+                ButtonGroup.group: buttonGroupValueType
 
                 onCheckedChanged: {
                     if (checked)
@@ -135,40 +214,80 @@ Item {
             }
         }
 
-        Item {
+        GridLayout {
+            rows: 2
+            columns: 2
+            rowSpacing: 1
+            columnSpacing: 1
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.preferredHeight: 400
+
+            Rectangle {
+                Layout.row: 0
+                Layout.column: 0
+            }
 
             TableView {
-                id: tableView
-
-                topMargin: horizontalHeader.implicitHeight
-                leftMargin: verticalHeader.implicitWidth+25
-                anchors.fill: parent
+                id: horizontalHeaderView
+                Layout.row: 0
+                Layout.column: 1
+                Layout.fillWidth: true
+                Layout.preferredHeight: 30
 
                 delegate: Rectangle {
-                    implicitWidth: 70
+                    implicitWidth: 80
                     implicitHeight: 30
+                    border.color: 'black'
+                    color: model.background
                     Text {
                         anchors.centerIn: parent
                         text: display
+                        font: fontMetrics.font
+                        color: model.foreground
                     }
                 }
             }
 
-            HorizontalHeaderView {
-                id: horizontalHeader
-                syncView: tableView
-                anchors.left: tableView.left
+            TableView {
+                id: verticalHeaderView
+                Layout.row: 1
+                Layout.column: 0
+                Layout.preferredWidth: 80
+                Layout.fillHeight: true
+
+                delegate: Rectangle {
+                    implicitWidth: 80
+                    implicitHeight: 30
+                    border.color: 'black'
+                    color: model.background
+                    Text {
+                        anchors.centerIn: parent
+                        text: display
+                        font: fontMetrics.font
+                        color: model.foreground
+                    }
+                }
             }
 
-            VerticalHeaderView {
-                id: verticalHeader
-                syncView: tableView
-                anchors.top: tableView.top
+            TableView {
+                id: tableView
+                Layout.row: 1
+                Layout.column: 1
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
-                implicitWidth: 30
+                delegate: Rectangle {
+                    implicitWidth: 80
+                    implicitHeight: 30
+                    border.color: 'black'
+                    color: model.background
+                    Text {
+                        anchors.centerIn: parent
+                        text: display
+                        font: fontMetrics.font
+                        color: model.foreground
+                    }
+                }
             }
         }
     }
