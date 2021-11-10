@@ -55,7 +55,7 @@ GetColors(score2dx::ClearType clearType)
         case score2dx::ClearType::EX_HARD_CLEAR:
             return {"red", "yellow"};
         case score2dx::ClearType::FULLCOMBO_CLEAR:
-            return {"gray", "cyan"};
+            return {"black", "cyan"};
     }
 
     return {"black", "white"};
@@ -105,7 +105,7 @@ GetColors(score2dx::StatisticScoreLevelRange scoreLevel)
         case score2dx::StatisticScoreLevelRange::MaxMinus:
             return {"white", "red"};
         case score2dx::StatisticScoreLevelRange::Max:
-            return {"gray", "cyan"};
+            return {"black", "cyan"};
     }
 
     return {"black", "white"};
@@ -290,8 +290,8 @@ updateStatsTable(const QString &iidxId,
     horizontalHeader[0][columnCount-2].Data[static_cast<int>(StatsTableDataRole::background)] = "#5D6D7E";
     //'' Total column:
     horizontalHeader[0][columnCount-1].Data[static_cast<int>(StatsTableDataRole::display)] = "Total";
-    horizontalHeader[0][columnCount-1].Data[static_cast<int>(StatsTableDataRole::foreground)] = "white";
-    horizontalHeader[0][columnCount-1].Data[static_cast<int>(StatsTableDataRole::background)] = "#0E6251";
+    horizontalHeader[0][columnCount-1].Data[static_cast<int>(StatsTableDataRole::foreground)] = "black";
+    horizontalHeader[0][columnCount-1].Data[static_cast<int>(StatsTableDataRole::background)] = "#F5B7B1";
 
     //'' Total column (the rightest column) alwasy display count.
     //'' value in each cell and sums can choose count or percentage.

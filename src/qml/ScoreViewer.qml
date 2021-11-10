@@ -541,7 +541,6 @@ ApplicationWindow
 
     function generateScoreAnalysis()
     {
-        console.log('generateScoreAnalysis')
         core.setActiveVersion(comboBoxPlayer.currentText, comboBoxActiveVersion.currentText)
         statisticsManager.updateDifficultyVersionList()
         updateStatsTable()
@@ -549,7 +548,6 @@ ApplicationWindow
 
     function updateStatsTable()
     {
-        console.log('updateStatsTable')
         statisticsManager.updateStatsTable(
             comboBoxPlayer.currentText,
             comboBoxPlayStyle.currentText,
