@@ -59,9 +59,10 @@ Core::
 getScore2dxVersion()
 const
 {
-    auto version =  "v"+QString::number(SCORE_2DX_GUI_VERSION_MAJOR)
-                    +"."+QString::number(SCORE_2DX_GUI_VERSION_MINOR)
-                    +"."+QString::number(SCORE_2DX_GUI_VERSION_PATCH);
+    auto version =
+        QString::number(SCORE_2DX_GUI_VERSION_MAJOR)
+        +"."+QString::number(SCORE_2DX_GUI_VERSION_MINOR)
+        +"."+QString::number(SCORE_2DX_GUI_VERSION_PATCH);
     return version;
 }
 

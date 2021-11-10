@@ -59,7 +59,6 @@ Rectangle {
             anchors.fill: parent
             onClicked: {
                 barSection.expanded = !barSection.expanded
-                console.log('root.implicitHeight', root.implicitHeight)
             }
         }
     }

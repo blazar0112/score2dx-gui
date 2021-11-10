@@ -16,7 +16,9 @@ ApplicationWindow
     width: 1200
     height: 900
     opacity: 1
-    title: 'Score Viewer '+core.getScore2dxVersion()
+    title: comboBoxPlayer.currentText
+           ? 'Score Viewer '+core.getScore2dxVersion()+' ['+comboBoxPlayer.currentText+']'
+           : 'Score Viewer '+core.getScore2dxVersion()
 
     FontMetrics {
         id: fontMetrics
@@ -316,6 +318,21 @@ ApplicationWindow
                     width: 150
                     height: parent.height
                     anchors.verticalCenter: parent.verticalCenter
+                    text: 'Browse'
+                    font: fontMetrics.font
+
+                    enabled: false
+
+                    background: Rectangle {
+                        color: tabBar.currentIndex==2 ? '#F1C40F' : '#616A6B'
+                        radius: 5
+                    }
+                }
+
+                TabButton {
+                    width: 150
+                    height: parent.height
+                    anchors.verticalCenter: parent.verticalCenter
                     text: qsTr('Recommend')
                     font: fontMetrics.font
 
@@ -331,19 +348,22 @@ ApplicationWindow
             StackLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                Layout.alignment: Qt.AlignBottom
 
                 currentIndex: tabBar.currentIndex
 
-                GridLayout {
-                    columns: 6
-                    rows: 3
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    Rectangle {
+                        width: 5
+                        height: 1
+                        color: 'transparent'
+                    }
 
                     MusicListView {
                         id: musicListView
 
-                        Layout.column: 0
-                        Layout.rowSpan: 3
                         Layout.preferredWidth: 300
                         Layout.fillHeight: true
 
@@ -360,83 +380,109 @@ ApplicationWindow
                     }
 
                     Rectangle {
-                        Layout.row: 0
-                        Layout.column: 1
-                        Layout.preferredWidth: 10
+                        width: 5
+                        height: 1
+                        color: 'transparent'
                     }
 
-                    Text {
-                        Layout.row: 0
-                        Layout.column: 2
-                        Layout.columnSpan: 2
-                        Layout.alignment: Qt.AlignVCenter
+                    ColumnLayout {
 
-                        text: 'Timeline begin'
-                        font: fontMetrics.font
-                    }
+                        RowLayout {
 
-                    StyledComboBox {
-                        id: comboBoxTimeline
+                            Text {
+                                Layout.row: 0
+                                Layout.column: 2
+                                Layout.columnSpan: 2
+                                Layout.alignment: Qt.AlignVCenter
 
-                        Layout.row: 0
-                        Layout.column: 4
-                        Layout.columnSpan: 1
-                        Layout.preferredWidth: 200
-                        Layout.preferredHeight: 50
-                        initialText: 'copula'
+                                text: 'Timeline begin'
+                                font: fontMetrics.font
+                            }
 
-                        model: graphManager.timelineBeginVersionList
+                            StyledComboBox {
+                                id: comboBoxTimeline
 
-                        onActivated: {
-                            //console.log('comboBoxTimeline onActivated', currentText)
-                            graphManager.updateTimelineBeginVersion(currentText);
-                            triggerScoreChartViewUpdate()
+                                Layout.row: 0
+                                Layout.column: 4
+                                Layout.columnSpan: 1
+                                Layout.preferredWidth: 200
+                                Layout.preferredHeight: 50
+                                initialText: 'copula'
+
+                                model: graphManager.timelineBeginVersionList
+
+                                onActivated: {
+                                    //console.log('comboBoxTimeline onActivated', currentText)
+                                    graphManager.updateTimelineBeginVersion(currentText);
+                                    triggerScoreChartViewUpdate()
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.row: 0
+                                Layout.column: 5
+                                Layout.fillWidth: true
+                            }
                         }
-                    }
 
-                    Rectangle {
-                        Layout.row: 0
-                        Layout.column: 5
-                        Layout.fillWidth: true
-                    }
+                        ScoreChartView {
+                            id: scoreChartView
 
-                    ScoreChartView {
-                        id: scoreChartView
+                            Layout.row: 1
+                            Layout.column: 1
+                            Layout.rowSpan: 2
+                            Layout.columnSpan: 6
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
 
-                        Layout.row: 1
-                        Layout.column: 1
-                        Layout.rowSpan: 2
-                        Layout.columnSpan: 6
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
+                            repeaterScoreAnalysis.model: graphAnalysisListModel
+                            repeaterScoreLevel.model: scoreLevelListModel
 
-                        repeaterScoreAnalysis.model: graphAnalysisListModel
-                        repeaterScoreLevel.model: scoreLevelListModel
-
-                        Component.onCompleted: {
-                            graphManager.setup(
-                                scoreChartView.legend,
-                                scoreChartView.lineSeriesScore,
-                                scoreChartView.dateTimeAxis,
-                                scoreChartView.valueAxisScore,
-                                scoreChartView.categoryAxisVersion,
-                                scoreChartView.scatterSeriesScoreLevel,
-                                scoreChartView.valueAxisScoreLevel
-                            )
+                            Component.onCompleted: {
+                                graphManager.setup(
+                                    scoreChartView.legend,
+                                    scoreChartView.lineSeriesScore,
+                                    scoreChartView.dateTimeAxis,
+                                    scoreChartView.valueAxisScore,
+                                    scoreChartView.categoryAxisVersion,
+                                    scoreChartView.scatterSeriesScoreLevel,
+                                    scoreChartView.valueAxisScoreLevel
+                                )
+                            }
                         }
                     }
                 }
 
-                StatsView {
-                    id: statsView
-                    tableView.model: statsTableModel
-                    horizontalHeaderView.model: statsHorizontalHeaderModel
-                    verticalHeaderView.model: statsVerticalHeaderModel
-                    comboBoxDifficultyVersion.model: statisticsManager.difficultyVersionList
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
 
-                    onOptionChanged: {
-                        updateStatsTable()
+                    Rectangle {
+                        width: 5
+                        height: 1
+                        color: 'transparent'
                     }
+
+                    StatsView {
+                        id: statsView
+
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.alignment: Qt.AlignHCenter
+
+                        tableView.model: statsTableModel
+                        horizontalHeaderView.model: statsHorizontalHeaderModel
+                        verticalHeaderView.model: statsVerticalHeaderModel
+                        comboBoxDifficultyVersion.model: statisticsManager.difficultyVersionList
+
+                        onOptionChanged: {
+                            updateStatsTable()
+                        }
+                    }
+                }
+
+                Rectangle {
+                    color: 'plum'
                 }
 
                 Rectangle {

@@ -39,8 +39,14 @@ Item {
         height: parent.height
 
         GridLayout {
+            Layout.preferredHeight: 90
+            Layout.alignment: Qt.AlignHCenter
+
             columns: 5
             rows: 3
+
+            columnSpacing: 0
+            rowSpacing: 0
 
             // row 0:
 
@@ -106,7 +112,7 @@ Item {
                 Layout.row: 0
                 Layout.column: 4
                 Layout.preferredWidth: 100
-                Layout.preferredHeight: 50
+                Layout.preferredHeight: 30
 
                 onActivated: {
                     optionChanged()
@@ -217,8 +223,8 @@ Item {
         GridLayout {
             rows: 2
             columns: 2
-            rowSpacing: 1
-            columnSpacing: 1
+            rowSpacing: 0
+            columnSpacing: 0
             Layout.fillWidth: true
             Layout.fillHeight: true
 
