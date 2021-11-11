@@ -10,12 +10,15 @@
 
 ## Screenshot
 
-![screenshot_v1.1.0](./doc/image/ScoreViewer-1.1.0.png "ScoreViewer v1.1.0")
+![screenshot_1.2.0_graph](./doc/image/ScoreViewer-1.2.0_graph.png "ScoreViewer 1.2.0 Graph")
+![screenshot_1.2.0_stats](./doc/image/ScoreViewer-1.2.0_stats_v29_diff29.png "ScoreViewer 1.2.0 Statistics")
 
 ## Requirement
+
 - Windows 10.
 
 ## How to use
+
 - If you have Konami CSV files downloaded:
     - Download CSV requires purchasing e-amusement premium course subscription.
     - [IIDX 29 CSV download link](https://p.eagate.573.jp/game/2dx/29/djdata/score_download.html).
@@ -42,7 +45,7 @@
         - Check [download from IST requirements](#Download-from-IST-requirements) before running script.
         - Input your IIDX ID in right side of **Add Player**, and press `Enter` to add to **IIDX ID** list.
         - Input versions and styles of your data, comma-separated.
-            - Default **Versions** is `27, 28`, you can modify versions showed in your IST user page.
+            - Default **Versions** is `28, 29`, you can modify versions showed in your IST user page.
                 - [Example User Page](https://score.iidx.app/users/5483-7391), in this case modify to `26, 27, 28`.
             - Default **Styles** is `SP, DP`, you can modify if you only want one style's data.
         - Click **Download from IST** to download current selected IIDX ID data from IST.
@@ -52,7 +55,7 @@
             - Takes about 1 minute to start the background download executable.
             - Take about 5 minutes per version-style to download data (intended delay to not be recognized as attacking IST).
                 - Faster if you have fewer data.
-                - For example: using default setting, `27, 28` and `SP, DP`, takes about 20 minutes to download.
+                - For example: using setting, `27, 28` and `SP, DP`, takes about 20 minutes to download.
             - After download you can view it in **Graph**.
             - Also export data to subdirectory `IST/<IIDX_ID>` as score2dx export Json format, named as `score2dx_export_SP_2021-09-14_IST_28.json`.
                 - You can just **Load Directory** that directory later, no need to download again.
@@ -76,11 +79,12 @@
     - Chrome browser installed in `C:\Program Files`.
     - Chrome browser version same as chromedriver.
         - `ist_scraper.exe` will check version for you, you can see if version mismatch in PowerShell mode.
-    - Current release bundle a v94 `chromedriver.exe`.
+    - Current release bundle a v95 `chromedriver.exe`.
         - Download chromedriver from [official download](https://chromedriver.chromium.org/downloads) and to match your Chrome version if needed, since Chrome may update or you did not update your Chome.
             - Replace matched `chromedriver.exe` with bundled one in same directory of `ScoreViewer.exe`.
 
 ## GUI Manual
+
 - Green background ComboBox: click and select items in dropdown menu.
     - **IIDX ID**
     - **Play Style**
@@ -101,6 +105,11 @@
         - CSV files, e.g. `5483-7391_dp_score_2020-11-21.csv`.
             - Any character between `_score` and `.csv` is ignored, so you can use this to annotate CSV.
         - Export files, e.g. `score2dx_export_SP_2021-09-14_IST_28.json`.
+- **View Setting**:
+    - Setting that affect multiple area:
+        - **ActiveVersion**: affect Statistics, selecting active version will have statistics calculated as time back at end date of that version.
+        - **Play Style**: affect Graph and Statistics.
+        - **Difficulty**: only affect Graph.
 - **Download from IST**:
     - Already covered in [How to use](#How-to-use).
 - **Graph**:
@@ -139,3 +148,53 @@
         - **Timeline begin**: select chartview begin version, so timeline matches your data properly.
             - Default version: `IIDX 23 copula`, earliest of CSV service.
             - Selectable range: `IIDX 17 SIRIUS` to `IIDX 28 BISTOVER`.
+- **Statistics**:
+![screenshot_1.2.0_stats_diff29](./doc/image/ScoreViewer-1.2.0_stats_v29_diff29.png "ScoreViewer 1.2.0 Statistics by difficulty and version")
+    - Show statistics table, which affected by
+        - ActiveVersion
+        - Table
+        - Column
+        - Value
+    - Table also sum up each row and column in addition.
+    - Total: count all available charts for each row.
+    - Active version: calculate statistics from data during that version.
+        - Not only lookup from player data, but also consider music/chart availability.
+    - Table: select row type and data source
+        - Level:
+            - Row is level 1 to level 12.
+        - All difficulty:
+            - Row is difficulty (excludes Beginner).
+        - Difficulty by Version:
+            - Row is difficulty (excludes Beginner).
+            - Table is filtered to only include music of selected version.
+    - Column: select column type
+        - By Clear:
+            - NO PLAY
+            - FAILED
+            - ASSIT
+            - EASY
+            - CLEAR
+            - HARD
+            - EX HARD
+            - FC
+        - By DJ Level:
+            - F
+            - E
+            - D
+            - C
+            - B
+            - A
+            - AA
+            - AAA
+        - By Score Level:
+            - A-
+            - A+
+            - AA-
+            - AA+
+            - AAA-
+            - AAA+
+            - MAX-
+            - MAX
+    - Value: table cell display type
+        - Count
+        - Percentage (divided by row total chart count)

@@ -1,4 +1,4 @@
-#include "gui/Score/ScoreLevelListModel.hpp"
+#include "gui/Graph/ScoreLevelListModel.hpp"
 
 #include "icl_s2/Common/IntegralRangeUsing.hpp"
 

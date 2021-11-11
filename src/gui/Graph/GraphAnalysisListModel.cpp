@@ -1,4 +1,4 @@
-#include "gui/Score/ScoreAnalysisListModel.hpp"
+#include "gui/Graph/GraphAnalysisListModel.hpp"
 
 #include <cctype>
 
@@ -10,46 +10,46 @@ namespace gui
 {
 
 QVariant
-AnalysisRecord::
-GetField(AnalysisRecordField field)
+GraphAnalysisRecord::
+GetField(GraphAnalysisRecordField field)
 const
 {
     switch (field)
     {
-        case AnalysisRecordField::Record:
+        case GraphAnalysisRecordField::Record:
             return Record;
-        case AnalysisRecordField::PreviousRecord:
+        case GraphAnalysisRecordField::PreviousRecord:
             return PreviousRecord;
-        case AnalysisRecordField::NewRecord:
+        case GraphAnalysisRecordField::NewRecord:
             return NewRecord;
     }
 
     return {};
 }
 
-AnalysisRecord &
-ScoreAnalysisData::
-GetRecord(AnalysisType analysisType)
+GraphAnalysisRecord &
+GraphAnalysisData::
+GetRecord(GraphAnalysisType analysisType)
 {
-    return const_cast<AnalysisRecord &>(std::as_const(*this).GetRecord(analysisType));
+    return const_cast<GraphAnalysisRecord &>(std::as_const(*this).GetRecord(analysisType));
 }
 
-const AnalysisRecord &
-ScoreAnalysisData::
-GetRecord(AnalysisType analysisType)
+const GraphAnalysisRecord &
+GraphAnalysisData::
+GetRecord(GraphAnalysisType analysisType)
 const
 {
     return Records[static_cast<std::size_t>(analysisType)];
 }
 
-ScoreAnalysisListModel::
-ScoreAnalysisListModel(QObject* parent)
+GraphAnalysisListModel::
+GraphAnalysisListModel(QObject* parent)
 :   QAbstractListModel(parent)
 {
 }
 
 int
-ScoreAnalysisListModel::
+GraphAnalysisListModel::
 rowCount(const QModelIndex &parent)
 const
 {
@@ -58,7 +58,7 @@ const
 }
 
 QVariant
-ScoreAnalysisListModel::
+GraphAnalysisListModel::
 data(const QModelIndex &index, int role)
 const
 {
@@ -83,15 +83,15 @@ const
         return analysisData.ScoreLevelRangeDiff;
     }
 
-    auto analysisType = static_cast<AnalysisType>(roleIndex/AnalysisRecordFieldSmartEnum::Size());
-    auto recordField = static_cast<AnalysisRecordField>(roleIndex%AnalysisRecordFieldSmartEnum::Size());
+    auto analysisType = static_cast<GraphAnalysisType>(roleIndex/GraphAnalysisRecordFieldSmartEnum::Size());
+    auto recordField = static_cast<GraphAnalysisRecordField>(roleIndex%GraphAnalysisRecordFieldSmartEnum::Size());
 
     return analysisData.GetRecord(analysisType).GetField(recordField);
 }
 
 void
-ScoreAnalysisListModel::
-ResetList(const std::vector<ScoreAnalysisData> &dataList)
+GraphAnalysisListModel::
+ResetList(const std::vector<GraphAnalysisData> &dataList)
 {
     mDataList = dataList;
 
@@ -104,12 +104,12 @@ ResetList(const std::vector<ScoreAnalysisData> &dataList)
 
         auto roleIndex = Qt::UserRole+1;
 
-        for (auto analysisType : AnalysisTypeSmartEnum::ToRange())
+        for (auto analysisType : GraphAnalysisTypeSmartEnum::ToRange())
         {
             auto i = static_cast<std::size_t>(analysisType);
             auto &record = data.Records[i];
 
-            for (auto recordField : AnalysisRecordFieldSmartEnum::ToRange())
+            for (auto recordField : GraphAnalysisRecordFieldSmartEnum::ToRange())
             {
                 setData(modelIndex, record.GetField(recordField), roleIndex);
                 roleIndex++;
@@ -121,7 +121,7 @@ ResetList(const std::vector<ScoreAnalysisData> &dataList)
 }
 
 int
-ScoreAnalysisListModel::
+GraphAnalysisListModel::
 getCount()
 const
 {
@@ -129,7 +129,7 @@ const
 }
 
 QVariantMap
-ScoreAnalysisListModel::
+GraphAnalysisListModel::
 get(int rowIndex)
 const
 {
@@ -151,19 +151,19 @@ const
 }
 
 QHash<int, QByteArray>
-ScoreAnalysisListModel::
+GraphAnalysisListModel::
 roleNames()
 const
 {
     QHash<int, QByteArray> roles;
     auto roleIndex = Qt::UserRole+1;
 
-    for (auto analysisType : AnalysisTypeSmartEnum::ToRange())
+    for (auto analysisType : GraphAnalysisTypeSmartEnum::ToRange())
     {
         auto rolePrefix = ToString(analysisType);
         rolePrefix[0] = tolower(rolePrefix[0]);
 
-        for (auto recordField : AnalysisRecordFieldSmartEnum::ToRange())
+        for (auto recordField : GraphAnalysisRecordFieldSmartEnum::ToRange())
         {
             auto roleRecord = rolePrefix+ToString(recordField);
             roles[roleIndex] = roleRecord.c_str();

@@ -41,17 +41,23 @@ get_property(SOURCES GLOBAL PROPERTY PROP_SOURCES)
 get_property(PUBLIC_HEADERS GLOBAL PROPERTY PROP_PUBLIC_HEADERS)
 get_property(TEST_SOURCES GLOBAL PROPERTY PROP_TEST_SOURCES)
 
-add_library(gui SHARED ${PUBLIC_HEADERS} ${HEADERS} ${SOURCES})
-target_compile_options(gui PRIVATE -std=c++20 -pedantic -Wall -Wextra -Werror -g -fPIC -DFMT_HEADER_ONLY)
-target_include_directories(gui SYSTEM PUBLIC
+set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/qml/ScoreViewer.rc")
+add_executable(ScoreViewer WIN32
+    ${PUBLIC_HEADERS} ${HEADERS} ${SOURCES}
+    app/ScoreViewer.cpp
+    qml.qrc
+    ${APP_ICON_RESOURCE_WINDOWS}
+)
+target_compile_options(ScoreViewer PRIVATE -std=c++20 -pedantic -Wall -Wextra -Werror -g -DFMT_HEADER_ONLY)
+target_include_directories(ScoreViewer SYSTEM PUBLIC
     ${FMT_INCLUDE_DIRS}
     ${JSON_INCLUDE_DIRS}
 )
-target_include_directories(gui PUBLIC
+target_include_directories(ScoreViewer PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}>
 )
-target_link_libraries(gui
+target_link_libraries(ScoreViewer
     stdc++fs
     icl_s2::icl_s2
     score2dx::score2dx
@@ -61,22 +67,11 @@ target_link_libraries(gui
     Qt5::Charts
 )
 
-add_custom_command(TARGET gui POST_BUILD
+add_custom_command(TARGET ScoreViewer POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${MINGW_LIBRARIES} $<TARGET_FILE:icl_s2::icl_s2> $<TARGET_FILE:score2dx::score2dx> ${GTEST_LIBRARY}
-        $<TARGET_FILE_DIR:gui>
+        $<TARGET_FILE_DIR:ScoreViewer>
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         $<TARGET_FILE_DIR:score2dx::score2dx>/../table
-        $<TARGET_FILE_DIR:gui>/table
-)
-
-add_executable(ScoreViewer WIN32 app/ScoreViewer.cpp qml.qrc)
-#add_executable(ScoreViewer app/ScoreViewer.cpp qml.qrc)
-target_compile_options(ScoreViewer PRIVATE -std=c++20 -pedantic -Wall -Wextra -Werror -g -fPIC -DFMT_HEADER_ONLY)
-target_link_libraries(ScoreViewer
-    gui
-    Qt5::Widgets
-    Qt5::Qml
-    Qt5::Quick
-    Qt5::Charts
+        $<TARGET_FILE_DIR:ScoreViewer>/table
 )

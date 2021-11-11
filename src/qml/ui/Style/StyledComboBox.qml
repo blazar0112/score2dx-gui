@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Controls.Styles 1.4
 
 Row {
     //'' must set property, alias for convenience.
@@ -23,11 +24,13 @@ Row {
 
         background: Rectangle {
             color: '#B2D2A4'
-            radius: 5
+            //border.color: 'black'
+            //border.width: 1
         }
 
         delegate: ItemDelegate {
             width: comboBox.width
+            height: comboBox.height
             text: comboBox.textRole ? (Array.isArray(comboBox.model) ? modelData[comboBox.textRole] : model[comboBox.textRole]) : modelData
             font.family: comboBox.font.family
             font.pointSize: comboBox.font.pointSize
@@ -40,6 +43,27 @@ Row {
             }
         }
 
+        popup: Popup {
+            y: comboBox.height - 1
+            width: comboBox.width
+            implicitHeight: Math.min(300, contentItem.implicitHeight)
+            padding: 1
+
+            contentItem: ListView {
+                clip: true
+                implicitHeight: contentHeight
+                model: comboBox.popup.visible ? comboBox.delegateModel : null
+                currentIndex: comboBox.highlightedIndex
+
+                ScrollIndicator.vertical: ScrollIndicator { }
+            }
+
+            background: Rectangle {
+                border.color: "#21be2b"
+                radius: 2
+            }
+        }
+
         onActivated: {
             parent.activated(index)
         }
@@ -47,6 +71,7 @@ Row {
         Component.onCompleted: {
             if (model)
             {
+                //console.log('try find initial', initialText)
                 var i = find(initialText)
                 if (i!==-1)
                 {

@@ -6,14 +6,17 @@
 
 ## 螢幕截圖
 
-![screenshot_v1.1.0](../doc/image/ScoreViewer-1.1.0.png "ScoreViewer v1.1.0")
+![screenshot_1.2.0_graph](../doc/image/ScoreViewer-1.2.0_graph.png "ScoreViewer 1.2.0 圖表")
+![screenshot_1.2.0_stats](../doc/image/ScoreViewer-1.2.0_stats_v29_diff29.png "ScoreViewer 1.2.0 統計")
 
 ## 需求
+
 - Windows 10。
 
 ## 使用方式
+
 - 如果你手邊已經有 Konami CSV 檔案：
-    - 下載 CSV 檔案需要購買 e-amusement 的白金會員(プレミアムコース)。
+    - 下載 CSV 檔案需要購買 e-amusement 的高級會員(プレミアムコース)。
     - [IIDX 29 CSV 下載頁面](https://p.eagate.573.jp/game/2dx/29/djdata/score_download.html)。
     - 將 CSV 檔案放在同一個資料夾。
         - 資料夾名稱必須跟 IIDX ID 一樣。
@@ -25,7 +28,7 @@
             - 例如：`5483-7391_dp_score_2020-11-21.csv`。
     - 點 **Load Directory** (讀取資料夾)按鈕並且選取上述資料夾。
         - **Graph** (圖表)會顯示你的分數折線圖。
-        - 請看 [GUI 操作手冊](#GUI-Manual) 了解更多使用細節。
+        - 請看 [GUI 操作手冊](#GUI-操作手冊) 了解更多使用細節。
     - 發布版本內有提供範例資料夾 `Example/5483-7391` 提供測試讀取資料夾功能。
 - 如果你沒有 CSV 檔案，也不想購買白金會員，有下面的替代方案：
     - 從 [IIDX Score Table (IST)](https://score.iidx.app/) 下載現有資料夾(如果你有在使用IST)。
@@ -35,10 +38,10 @@
             - 注意 IST 只會保留每個 IIDX 版本的最佳成績。
                 - 使用 CSV 的話則會保留版本中的變動。
     - 如何使用 ScoreViewer 從 IST 下載資料：
-        - 在執行腳本前先檢查滿足 [下載 IST 需求](#Download-from-IST-requirements)。
+        - 在執行腳本前先檢查滿足 [下載 IST 需求](#下載-IST-需求)。
         - 在 **Add Player** 的右方輸入你的 IIDX ID，然後按下 `Enter` 以加入至 **IIDX ID** 名單。
         - 設定下載的版本名單與遊玩風格名單，以逗號隔開。
-            - 預設 **Versions** (版本名單)為 `27, 28`，你可以編輯成 IST 使用者頁面中顯示有資料的版本名單。
+            - 預設 **Versions** (版本名單)為 `28, 29`，你可以編輯成 IST 使用者頁面中顯示有資料的版本名單。
                 - [範例使用者頁面](https://score.iidx.app/users/5483-7391)，在這例子中可以改為 `26, 27, 28`。
             - 預設 **Styles** (遊玩風格名單)為 `SP, DP`，如果你只想要其中一種，也可以編輯名單。
         - 點 **Download from IST** (從 IST 下載)按鈕，根據目前的 IIDX ID 玩家來從 IST 下載資料。
@@ -48,7 +51,7 @@
             - 需要大概 1 分鐘才能啟動背景下載腳本。
             - 每個 版本-遊玩風格 需要約 5 分鐘下載全部資料 (是為了避免被認為攻擊 IST 刻意加上的延遲)。
                 - 如果你的資料量沒那麼多的話當然會快一點。
-                - 例如：使用預設的 `27, 28` 與 `SP, DP` 設定，需要約 20 分鐘下載。
+                - 例如：使用 `27, 28` 與 `SP, DP` 設定，需要約 20 分鐘下載。
             - 下載完成後就可以馬上在 **Graph** 看到。
             - 也同時會匯出資料成 score2dx 匯出 Json 格式至 `IST/<IIDX_ID>` 子資料夾中，檔名如 `score2dx_export_SP_2021-09-14_IST_28.json`。
                 - 之後可以直接 **Load Directory** 該資料夾，不用再重新下載。
@@ -72,11 +75,12 @@
     - Chrome 瀏覽器安裝在 `C:\Program Files`。
     - Chrome 瀏覽器的版本必須跟 chromedriver 一致。
         - `ist_scraper.exe` 會幫你檢查版本有無一致，可在 PowerShell 模式中得知。
-    - 目前發布版本內附上 v94 的 `chromedriver.exe`.
+    - 目前發布版本內附上 v95 的 `chromedriver.exe`.
         - 如果你的版本不一致，從 [官方下載頁面](https://chromedriver.chromium.org/downloads) 下載版本一致的 chromedriver，因為 Chrome 可能日後會需要更新，或者你使用未更新的 Chrome 版本。
             - 將下載的 `chromedriver.exe` 取代至跟 `ScoreViewer.exe` 同資料夾中內附的 `chromedriver.exe`。
 
 ## GUI 操作手冊
+
 - 綠色背景的 ComboBox (下拉式組合方塊)： 點了後從下拉式選單中選取。
     - **IIDX ID**
     - **Play Style** (遊玩風格)
@@ -97,8 +101,13 @@
         - CSV 檔案，如 `5483-7391_dp_score_2020-11-21.csv`。
             - 任何在 `_score` 與 `.csv` 之間的字元均被忽略，所以可以用此來標註 CSV。
         - 匯出(Export)檔案，如 `score2dx_export_SP_2021-09-14_IST_28.json`。
+- **View Setting** (查看設定):
+    - 會影響多處的設定:
+        - **ActiveVersion** (啟用版本): 影響 Statistics(統計), 選擇啟用版本會從當時的歌曲資料中統計。
+        - **Play Style** (遊玩風格): 影響 Graph(圖表)與 Statistics(統計)。
+        - **Difficulty** (譜面難易度): 只影響 Graph(圖表)。
 - **Download from IST** (從 IST 下載)：
-    - 已在 [使用方式](#How-to-use) 中說明。
+    - 已在 [使用方式](#使用方式) 中說明。
 - **Graph** (圖表)：
     - 用左側的 **Play Style** (遊玩風格)與 **Difficulty** (譜面難易度)選擇對應的分數資料。
     - 選擇歌曲：
@@ -135,3 +144,53 @@
         - **Timeline begin** (時間軸起點)：選擇圖表時間開始的版本，可讓時間軸更契合你的資料：
             - 預設時間起點版本： `IIDX 23 copula`，最早有 CSV 服務的版本。
             - 可以選的起點版本範圍： `IIDX 17 SIRIUS` 至 `IIDX 28 BISTOVER`。
+- **Statistics** (統計)：
+![screenshot_1.2.0_stats_diff29](../doc/image/ScoreViewer-1.2.0_stats_v29_diff29.png "ScoreViewer 1.2.0 單版本難度統計")
+    - 呈現統計數字表，會由下列因素影響：
+        - ActiveVersion (啟用版本)
+        - Table (表格)
+        - Column (欄)
+        - Value (數值)
+    - 統計表格額外統計每列與每欄的總數 (RowSum 列總和/ ColSum 欄總和)
+    - Total (總數)欄列出總譜面數。
+    - Active version (啟用版本)：只從該版本的時間點統計資料。
+        - 同時考慮玩家資料時間點與該版本可玩的樂曲與譜面。
+    - Table (表格)：選擇每列分類與資料來源
+        - Level (等級)：
+            - 列從等級 1 至等級 12。
+        - All difficulty (全難易度)：
+            - 列為每個難易度(Beginner除外)。
+        - Difficulty by Version (各版本難易度)：
+            - 列為每個難易度(Beginner除外)。
+            - 表格只統計選擇版本的歌曲。
+    - Column (欄)：選擇每欄分類種類
+        - Clear (過關種類)：
+            - NO PLAY
+            - FAILED
+            - ASSIT
+            - EASY
+            - CLEAR
+            - HARD
+            - EX HARD
+            - FC
+        - DJ Level (官方DJ level)：
+            - F
+            - E
+            - D
+            - C
+            - B
+            - A
+            - AA
+            - AAA
+        - Score Level (分數等級):
+            - A-
+            - A+
+            - AA-
+            - AA+
+            - AAA-
+            - AAA+
+            - MAX-
+            - MAX
+    - Value (值)：選擇表格內值的類型
+        - Count (數量)
+        - Percentage 百分比(除以列總譜面數)

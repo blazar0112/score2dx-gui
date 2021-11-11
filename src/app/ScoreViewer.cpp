@@ -1,35 +1,45 @@
 #include <QApplication>
+#include <QDebug>
+#include <QImageReader>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlDebuggingEnabler>
 
 #include "gui/Core/Core.hpp"
 #include "gui/Core/MusicListModel.hpp"
-#include "gui/Score/ScoreAnalyzer.hpp"
+#include "gui/Graph/GraphManager.hpp"
+#include "gui/Statistics/StatisticsManager.hpp"
 
 int main(int argc, char *argv[])
 {
     QApplication app{argc, argv};
-    app.setOrganizationName("somename");
-    app.setOrganizationDomain("somename");
+    QCoreApplication::setOrganizationName("ScoreViewer");
+    QCoreApplication::setOrganizationDomain("ScoreViewer.app");
+    QGuiApplication::setWindowIcon(QIcon(":/qml/image/icon.png"));
 
     //QQmlDebuggingEnabler enabler;
 
     gui::Core core;
     gui::MusicListModel musicListModel{core.GetScore2dxCore()};
-    gui::ScoreAnalyzer analyzer{core.GetScore2dxCore()};
+    gui::GraphManager graphManager{core.GetScore2dxCore()};
+    gui::StatisticsManager statisticsManager{core.GetScore2dxCore()};
 
     QQmlApplicationEngine engine;
+    //'' Non-copyable model cannot use property method.
     engine.rootContext()->setContextProperty("core", &core);
     engine.rootContext()->setContextProperty("difficultyListModel", &core.GetDifficultyListModel());
 
-    engine.rootContext()->setContextProperty("csvTableModel", &core.GetCsvTableModel());
-
     engine.rootContext()->setContextProperty("musicListModel", &musicListModel);
 
-    engine.rootContext()->setContextProperty("analyzer", &analyzer);
-    engine.rootContext()->setContextProperty("analysisListModel", &analyzer.GetAnalysisListModel());
-    engine.rootContext()->setContextProperty("scoreLevelListModel", &analyzer.GetScoreLevelListModel());
+    engine.rootContext()->setContextProperty("graphManager", &graphManager);
+    engine.rootContext()->setContextProperty("graphAnalysisListModel", &graphManager.GetGraphAnalysisListModel());
+    engine.rootContext()->setContextProperty("scoreLevelListModel", &graphManager.GetScoreLevelListModel());
+
+    engine.rootContext()->setContextProperty("statisticsManager", &statisticsManager);
+    engine.rootContext()->setContextProperty("statsTableModel", &statisticsManager.GetTableModel());
+    engine.rootContext()->setContextProperty("statsHorizontalHeaderModel", &statisticsManager.GetHorizontalHeaderModel());
+    engine.rootContext()->setContextProperty("statsVerticalHeaderModel", &statisticsManager.GetVerticalHeaderModel());
+
     engine.load(QUrl("qrc:/qml/ScoreViewer.qml"));
 
     if (engine.rootObjects().isEmpty())

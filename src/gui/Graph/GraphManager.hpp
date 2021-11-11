@@ -13,18 +13,19 @@
 
 #include "score2dx/Core/Core.hpp"
 
-#include "gui/Score/ScoreAnalysisListModel.hpp"
-#include "gui/Score/ScoreLevelListModel.hpp"
+#include "gui/Graph/GraphAnalysisListModel.hpp"
+#include "gui/Graph/ScoreLevelListModel.hpp"
 
 namespace gui
 {
 
-class ScoreAnalyzer : public QObject
+class GraphManager : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QStringList timelineBeginVersionList READ getTimelineBeginVersionList CONSTANT)
 
 public:
-        explicit ScoreAnalyzer(const score2dx::Core &core, QObject* parent=nullptr);
+        explicit GraphManager(const score2dx::Core &core, QObject* parent=nullptr);
 
         Q_INVOKABLE
         void
@@ -47,16 +48,19 @@ public:
         void
         updateTimelineBeginVersion(const QString &timelineBeginVersion);
 
-        ScoreAnalysisListModel &
-        GetAnalysisListModel();
+        const QStringList & getTimelineBeginVersionList() const { return mTimelineBeginVersionList; }
+
+        GraphAnalysisListModel &
+        GetGraphAnalysisListModel();
 
         ScoreLevelListModel &
         GetScoreLevelListModel();
 
 private:
     const score2dx::Core &mCore;
+    QStringList mTimelineBeginVersionList;
 
-    ScoreAnalysisListModel mAnalysisListModel;
+    GraphAnalysisListModel mGraphAnalysisListModel;
     ScoreLevelListModel mScoreLevelListModel;
 
     QtCharts::QLegend* mLegend{nullptr};

@@ -15,7 +15,6 @@ class Core : public QObject
     Q_PROPERTY(QStringList playerList READ getPlayerList NOTIFY playerListChanged)
     Q_PROPERTY(QStringList playStyleList READ getPlayStyleList CONSTANT)
     Q_PROPERTY(QStringList versionNameList READ getVersionNameList CONSTANT)
-    Q_PROPERTY(QStringList timelineBeginVersionList READ getTimelineBeginVersionList CONSTANT)
     Q_PROPERTY(bool isDownloadingIst MEMBER mIsDownloadingIst NOTIFY isDownloadingIstChanged)
 
 public:
@@ -41,30 +40,22 @@ public:
                     const QString &styles,
                     bool runInPowerShell);
 
+    //! @brief Set active version and re-analyze ScoreAnalysis for player with iidxId.
         Q_INVOKABLE
         void
-        updatePlayerScore(const QString &iidxId, const QString &playStyle);
-
-        Q_INVOKABLE
-        void
-        setSeries(QtCharts::QAbstractSeries* series);
+        setActiveVersion(const QString &iidxId,
+                         const QString &activeVersionIndex);
 
         const QStringList & getPlayerList() const { return mPlayerList; }
         const QStringList & getPlayStyleList() const { return mPlayStyleList; }
         const QStringList & getVersionNameList() const { return mVersionNameList; }
-        const QStringList & getTimelineBeginVersionList() const { return mTimelineBeginVersionList; }
 
         const score2dx::Core &
         GetScore2dxCore()
         const;
 
         QStringListModel &
-        GetDifficultyListModel()
-        { return mDifficultyListModel; };
-
-        QStandardItemModel &
-        GetCsvTableModel()
-        { return mCsvTableModel; }
+        GetDifficultyListModel();
 
 signals:
         void playerListChanged();
@@ -77,9 +68,6 @@ private:
     QStringListModel mDifficultyListModel;
 
     QStringList mVersionNameList;
-    QStringList mTimelineBeginVersionList;
-    QStandardItemModel mCsvTableModel;
-    QtCharts::QXYSeries* mSeries{nullptr};
 
     bool mIsDownloadingIst{false};
 
