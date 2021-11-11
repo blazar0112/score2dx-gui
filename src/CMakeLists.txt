@@ -41,10 +41,12 @@ get_property(SOURCES GLOBAL PROPERTY PROP_SOURCES)
 get_property(PUBLIC_HEADERS GLOBAL PROPERTY PROP_PUBLIC_HEADERS)
 get_property(TEST_SOURCES GLOBAL PROPERTY PROP_TEST_SOURCES)
 
+set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/qml/ScoreViewer.rc")
 add_executable(ScoreViewer WIN32
     ${PUBLIC_HEADERS} ${HEADERS} ${SOURCES}
     app/ScoreViewer.cpp
     qml.qrc
+    ${APP_ICON_RESOURCE_WINDOWS}
 )
 target_compile_options(ScoreViewer PRIVATE -std=c++20 -pedantic -Wall -Wextra -Werror -g -DFMT_HEADER_ONLY)
 target_include_directories(ScoreViewer SYSTEM PUBLIC
