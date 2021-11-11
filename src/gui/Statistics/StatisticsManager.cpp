@@ -284,8 +284,8 @@ updateStatsTable(const QString &iidxId,
             break;
         }
     }
-    //'' RolSum column:
-    horizontalHeader[0][columnCount-2].Data[static_cast<int>(StatsTableDataRole::display)] = "RolSum";
+    //'' RowSum column:
+    horizontalHeader[0][columnCount-2].Data[static_cast<int>(StatsTableDataRole::display)] = "RowSum";
     horizontalHeader[0][columnCount-2].Data[static_cast<int>(StatsTableDataRole::foreground)] = "white";
     horizontalHeader[0][columnCount-2].Data[static_cast<int>(StatsTableDataRole::background)] = "#5D6D7E";
     //'' Total column:

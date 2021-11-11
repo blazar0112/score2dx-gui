@@ -1,5 +1,16 @@
 # Changelog of score2dx-gui
 
+* 1.2.0 [2021-11-12] (score2dx-2.3.0):
+    * Update DB to 2021-11-12 29048.
+    * Add GUI for score2dx added Statistics and ActiveVersion feature.
+        * Use ActiveVersion to get ScoreAnalysis at that time.
+        * **Statistics** tab offer multiple options to view ScoreAnalysis.
+    * Redesign UI layout.
+        * Rework side bar and can collopase ui now.
+    * Add window icon.
+    * Window title now shows IIDX ID.
+    * Update README.
+
 * 1.1.0 [2021-10-21] (score2dx-2.0.0):
     * Update to IIDX 29 CastHour.
     * Update for score2dx-2.0.0 change.
