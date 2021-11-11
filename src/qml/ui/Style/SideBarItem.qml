@@ -21,8 +21,8 @@ Rectangle {
 
         gradient: Gradient {
             orientation: Gradient.Horizontal
-            GradientStop { position: 0.0; color: "white" }
-            GradientStop { position: 1.0; color: "#512E5F" }
+            GradientStop { position: 0.0; color: 'white' }
+            GradientStop { position: 1.0; color: '#512E5F' }
         }
 
         Row {

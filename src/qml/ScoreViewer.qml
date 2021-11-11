@@ -74,7 +74,7 @@ ApplicationWindow
                     Layout.preferredHeight: 30
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
 
-                    placeholderText: 'Example: 5483-7391'
+                    placeholderText: 'e.g. 5483-7391'
                     font: fontMetrics.font
                     selectByMouse: true
                     horizontalAlignment: TextInput.AlignRight
@@ -132,7 +132,6 @@ ApplicationWindow
                     model: statisticsManager.activeVersionList
 
                     onActivated: {
-                        console.log('comboBoxActiveVersion actived')
                         generateScoreAnalysis()
                     }
                 }
@@ -191,10 +190,6 @@ ApplicationWindow
                     Layout.fillWidth: true
                     Layout.preferredHeight: 60
                     Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
-
-                    Component.onCompleted: {
-                        console.log('width', width)
-                    }
 
                     text: 'Download from IST'
                     font.family: 'Verdana'
@@ -284,8 +279,11 @@ ApplicationWindow
                 Layout.fillWidth: true
                 Layout.preferredHeight: 50
 
+                property string activeTabColor: 'cyan'
+                property string inactiveTabColor: 'darkslateblue'
+
                 background: Rectangle {
-                    color: 'transparent'
+                    color: 'mediumpurple'
                 }
 
                 TabButton {
@@ -296,7 +294,7 @@ ApplicationWindow
                     font: fontMetrics.font
 
                     background: Rectangle {
-                        color: tabBar.currentIndex==0 ? '#F1C40F' : '#616A6B'
+                        color: tabBar.currentIndex==0 ? tabBar.activeTabColor : tabBar.inactiveTabColor
                         radius: 5
                     }
                 }
@@ -309,7 +307,7 @@ ApplicationWindow
                     font: fontMetrics.font
 
                     background: Rectangle {
-                        color: tabBar.currentIndex==1 ? '#F1C40F' : '#616A6B'
+                        color: tabBar.currentIndex==1 ? tabBar.activeTabColor : tabBar.inactiveTabColor
                         radius: 5
                     }
                 }
@@ -324,7 +322,7 @@ ApplicationWindow
                     enabled: false
 
                     background: Rectangle {
-                        color: tabBar.currentIndex==2 ? '#F1C40F' : '#616A6B'
+                        color: tabBar.currentIndex==2 ? tabBar.activeTabColor : tabBar.inactiveTabColor
                         radius: 5
                     }
                 }
@@ -339,7 +337,7 @@ ApplicationWindow
                     enabled: false
 
                     background: Rectangle {
-                        color: tabBar.currentIndex==2 ? '#F1C40F' : '#616A6B'
+                        color: tabBar.currentIndex==3 ? tabBar.activeTabColor : tabBar.inactiveTabColor
                         radius: 5
                     }
                 }
