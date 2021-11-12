@@ -71,7 +71,6 @@ Item {
             implicitWidth: 300
             implicitHeight: parent.height-toolRow.height
 
-            focus: true
             clip: true
 
             cacheBuffer: 5*rowHeight

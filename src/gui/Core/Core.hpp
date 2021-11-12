@@ -14,6 +14,7 @@ class Core : public QObject
     Q_OBJECT
     Q_PROPERTY(QStringList playerList READ getPlayerList NOTIFY playerListChanged)
     Q_PROPERTY(QStringList playStyleList READ getPlayStyleList CONSTANT)
+    Q_PROPERTY(QStringList difficultyList READ getDifficultyList CONSTANT)
     Q_PROPERTY(QStringList versionNameList READ getVersionNameList CONSTANT)
     Q_PROPERTY(bool isDownloadingIst MEMBER mIsDownloadingIst NOTIFY isDownloadingIstChanged)
 
@@ -48,14 +49,12 @@ public:
 
         const QStringList & getPlayerList() const { return mPlayerList; }
         const QStringList & getPlayStyleList() const { return mPlayStyleList; }
+        const QStringList & getDifficultyList() const { return mDifficultyList; }
         const QStringList & getVersionNameList() const { return mVersionNameList; }
 
         const score2dx::Core &
         GetScore2dxCore()
         const;
-
-        QStringListModel &
-        GetDifficultyListModel();
 
 signals:
         void playerListChanged();
@@ -65,8 +64,7 @@ private:
     score2dx::Core mCore;
     QStringList mPlayerList;
     QStringList mPlayStyleList;
-    QStringListModel mDifficultyListModel;
-
+    QStringList mDifficultyList;
     QStringList mVersionNameList;
 
     bool mIsDownloadingIst{false};

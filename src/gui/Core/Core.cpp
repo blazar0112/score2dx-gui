@@ -38,7 +38,7 @@ Core(QObject *parent)
 {
     for (auto playStyle : score2dx::PlayStyleSmartEnum::ToRange())
     {
-        mPlayStyleList.append(ToString(playStyle).c_str());
+        mPlayStyleList << ToString(playStyle).c_str();
     }
 
     for (auto versionIndex : IndexRange{0, score2dx::VersionNames.size()})
@@ -46,12 +46,10 @@ Core(QObject *parent)
         mVersionNameList << score2dx::VersionNames.at(versionIndex).c_str();
     }
 
-    QStringList difficultyList;
     for (auto difficulty : score2dx::DifficultySmartEnum::ToRange())
     {
-        difficultyList << ToString(difficulty).c_str();
+        mDifficultyList << ToString(difficulty).c_str();
     }
-    mDifficultyListModel.setStringList(difficultyList);
 }
 
 QString
@@ -217,13 +215,6 @@ GetScore2dxCore()
 const
 {
     return mCore;
-}
-
-QStringListModel &
-Core::
-GetDifficultyListModel()
-{
-    return mDifficultyListModel;
 }
 
 void
