@@ -37,6 +37,7 @@ Item {
     ColumnLayout {
         width: parent.width
         height: parent.height
+        anchors.horizontalCenter: parent.horizontalCenter
 
         GridLayout {
             Layout.preferredHeight: 90
@@ -226,7 +227,8 @@ Item {
             rowSpacing: 0
             columnSpacing: 0
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            implicitWidth: horizontalHeaderView.contentWidth+verticalHeaderView.contentWidth
+            Layout.alignment: Qt.AlignHCenter
 
             Rectangle {
                 Layout.row: 0
@@ -237,7 +239,7 @@ Item {
                 id: horizontalHeaderView
                 Layout.row: 0
                 Layout.column: 1
-                Layout.fillWidth: true
+                implicitWidth: contentWidth
                 Layout.preferredHeight: 30
 
                 delegate: Rectangle {
@@ -258,7 +260,7 @@ Item {
                 id: verticalHeaderView
                 Layout.row: 1
                 Layout.column: 0
-                Layout.preferredWidth: 80
+                implicitWidth: contentWidth
                 Layout.fillHeight: true
 
                 delegate: Rectangle {
@@ -279,7 +281,7 @@ Item {
                 id: tableView
                 Layout.row: 1
                 Layout.column: 1
-                Layout.fillWidth: true
+                implicitWidth: contentWidth
                 Layout.fillHeight: true
 
                 delegate: Rectangle {
