@@ -608,7 +608,10 @@ Item {
                         anchors.centerIn: parent
                         text: model.bestScoreDiff
                         font: fontMetrics.font
-                        color: model.bestScoreDiff==='PB' ? '#2ECC71' : 'red'
+                        color: model.bestScoreDiff==='PB' ? '#2ECC71'
+                               : model.bestScoreDiff==='NP' ? 'yellow'
+                               : model.bestScoreDiff==='N/A' ? 'white'
+                               : 'red'
                     }
                 }
 

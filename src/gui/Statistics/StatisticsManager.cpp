@@ -680,10 +680,23 @@ updateMusicList(const QString &iidxId,
         {
             scoreDiffStr = "PB";
         }
+        if (chartScore.ExScore==0)
+        {
+            scoreDiffStr = "NP";
+        }
 
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::bestScoreDiff)] = scoreDiffStr;
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestVersion)] = score2dx::ToVersionString(careerBestChartScore.VersionIndex).c_str();
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScore)] = QString::number(careerBestChartScore.BestChartScore.ExScore);
+        if (careerBestChartScore.BestChartScore.ExScore!=0)
+        {
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::bestScoreDiff)] = scoreDiffStr;
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestVersion)] = score2dx::ToVersionString(careerBestChartScore.VersionIndex).c_str();
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScore)] = QString::number(careerBestChartScore.BestChartScore.ExScore);
+        }
+        else
+        {
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::bestScoreDiff)] = "N/A";
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestVersion)] = "N/A";
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScore)] = "N/A";
+        }
     }
 
     mMusicListModel.ResetModel(std::move(musicList));
