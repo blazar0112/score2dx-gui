@@ -9,6 +9,7 @@
 #include "score2dx/Core/Core.hpp"
 
 #include "gui/Statistics/StatsTableModel.hpp"
+#include "gui/Statistics/StatsMusicListModel.hpp"
 
 namespace gui
 {
@@ -49,21 +50,38 @@ public:
         updateStatsTable(const QString &iidxId,
                          const QString &playStyleQStr,
                          const QString &tableTypeQStr,
-                         const QString &versionQStr,
+                         const QString &difficultyVersionQStr,
                          const QString &columnTypeQStr,
                          const QString &valueTypeQStr);
 
+        Q_INVOKABLE
+        void
+        updateMusicList(const QString &iidxId,
+                        const QString &playStyleQStr,
+                        const QString &tableTypeQStr,
+                        const QString &difficultyVersionQStr,
+                        const QString &columnTypeQStr,
+                        const QString &activeVersionQStr,
+                        int tableRow,
+                        int tableColumn);
+
         const QStringList & getActiveVersionList() const { return mActiveVersionList; }
         const QStringList & getDifficultyVersionList() const { return mDifficultyVersionList; }
-
-        StatsTableModel &
-        GetTableModel();
 
         StatsTableModel &
         GetHorizontalHeaderModel();
 
         StatsTableModel &
         GetVerticalHeaderModel();
+
+        StatsTableModel &
+        GetTableModel();
+
+        StatsMusicListModel &
+        GetMusicListHeaderModel();
+
+        StatsMusicListModel &
+        GetMusicListModel();
 
 signals:
         void difficultyVersionListChanged();
@@ -81,6 +99,9 @@ private:
     //! @brief RowCount x 1 size TableModel use as vertical header.
     StatsTableModel mVerticalHeaderModel;
     StatsTableModel mTableModel;
+
+    StatsMusicListModel mMusicListHeaderModel;
+    StatsMusicListModel mMusicListModel;
 };
 
 }

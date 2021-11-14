@@ -9,6 +9,7 @@ set_property(GLOBAL PROPERTY
     PROP_SOURCES
     ${SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/StatisticsManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/StatsMusicListModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/StatsTableModel.cpp
 )
 

@@ -464,13 +464,20 @@ ApplicationWindow
                         Layout.fillHeight: true
                         Layout.alignment: Qt.AlignHCenter
 
-                        tableView.model: StatsTableModel
+                        comboBoxDifficultyVersion.model: StatisticsManager.difficultyVersionList
                         horizontalHeaderView.model: StatsHorizontalHeaderModel
                         verticalHeaderView.model: StatsVerticalHeaderModel
-                        comboBoxDifficultyVersion.model: StatisticsManager.difficultyVersionList
+                        tableView.model: StatsTableModel
+                        musicListHeader.model: StatsMusicListHeaderModel
+                        musicList.model: StatsMusicListModel
+
+                        activeVersion: comboBoxActiveVersion.currentText
 
                         onOptionChanged: {
                             updateStatsTable()
+                        }
+                        onCellClicked: {
+                            updateStatsMusicList(row, column)
                         }
                     }
 
@@ -551,6 +558,20 @@ ApplicationWindow
             statsView.comboBoxDifficultyVersion.currentText,
             statsView.columnType,
             statsView.valueType
+        )
+    }
+
+    function updateStatsMusicList(row, column)
+    {
+        StatisticsManager.updateMusicList(
+            comboBoxPlayer.currentText,
+            comboBoxPlayStyle.currentText,
+            statsView.tableType,
+            statsView.comboBoxDifficultyVersion.currentText,
+            statsView.columnType,
+            comboBoxActiveVersion.currentText,
+            row,
+            column
         )
     }
 }
