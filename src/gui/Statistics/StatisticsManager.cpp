@@ -638,7 +638,7 @@ updateMusicList(const QString &iidxId,
 
         statsMusicData.Data[static_cast<int>(StatsMusicDataRole::clear)] = ToPrettyString(chartScore.ClearType).c_str();
 
-        auto &title = database.GetLatestMusicInfo(musicId).GetField(score2dx::MusicInfoField::Title);
+        auto title = database.GetLatestMusicInfo(musicId).GetField(score2dx::MusicInfoField::Title);
         if (title.empty())
         {
             qDebug() << "title is empty music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";

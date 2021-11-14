@@ -70,6 +70,7 @@ Item {
             RadioButton {
                 Layout.row: 0
                 Layout.column: 1
+                Layout.maximumHeight: 30
                 checked: true
                 text: 'Level'
                 font: fontMetrics.font
@@ -87,6 +88,7 @@ Item {
             RadioButton {
                 Layout.row: 0
                 Layout.column: 2
+                Layout.maximumHeight: 30
                 text: 'All Difficulty'
                 font: fontMetrics.font
                 ButtonGroup.group: buttonGroupTableType
@@ -103,6 +105,7 @@ Item {
             RadioButton {
                 Layout.row: 0
                 Layout.column: 3
+                Layout.maximumHeight: 30
                 text: 'Difficulty by Version'
                 font: fontMetrics.font
                 ButtonGroup.group: buttonGroupTableType
@@ -141,6 +144,7 @@ Item {
             RadioButton {
                 Layout.row: 1
                 Layout.column: 1
+                Layout.maximumHeight: 30
                 checked: true
                 text: 'Clear'
                 font: fontMetrics.font
@@ -158,6 +162,7 @@ Item {
             RadioButton {
                 Layout.row: 1
                 Layout.column: 2
+                Layout.maximumHeight: 30
                 text: 'DJ Level'
                 font: fontMetrics.font
                 ButtonGroup.group: buttonGroupColumnType
@@ -174,6 +179,7 @@ Item {
             RadioButton {
                 Layout.row: 1
                 Layout.column: 3
+                Layout.maximumHeight: 30
                 text: 'Score Level'
                 font: fontMetrics.font
                 ButtonGroup.group: buttonGroupColumnType
@@ -199,6 +205,7 @@ Item {
             RadioButton {
                 Layout.row: 2
                 Layout.column: 1
+                Layout.maximumHeight: 30
                 checked: true
                 text: 'Count'
                 font: fontMetrics.font
@@ -216,6 +223,7 @@ Item {
             RadioButton {
                 Layout.row: 2
                 Layout.column: 2
+                Layout.maximumHeight: 30
                 text: 'Percentage'
                 font: fontMetrics.font
                 ButtonGroup.group: buttonGroupValueType
@@ -408,6 +416,7 @@ Item {
             }
 
             delegate: Row {
+
                 Rectangle {
                     width: 60
                     height: musicList.rowHeight
@@ -537,7 +546,7 @@ Item {
                     color: '#34495E'
 
                     Rectangle {
-                        id: padding
+                        id: rectPadding
                         width: 10
                         height: parent.height
                         anchors {
@@ -549,7 +558,7 @@ Item {
 
                     Text {
                         id: titleText
-                        width: parent.width-padding.width*2
+                        width: parent.width-rectPadding.width*2
                         anchors.centerIn: parent
 
                         text: model.title
