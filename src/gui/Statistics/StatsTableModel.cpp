@@ -111,6 +111,8 @@ ResetModel(std::vector<std::vector<StatsTableData>> &&table)
         }
 
         endResetModel();
+
+        emit rowItemCountChanged();
     }
     catch (const std::exception &e)
     {

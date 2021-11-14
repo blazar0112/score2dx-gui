@@ -28,8 +28,11 @@ struct StatsTableData
 class StatsTableModel : public QAbstractTableModel
 {
     Q_OBJECT
+    Q_PROPERTY(int rowItemCount READ getRowItemCount NOTIFY rowItemCountChanged)
 
 public:
+        int getRowItemCount() const { return rowCount(); }
+
         int
         rowCount(const QModelIndex &parent = QModelIndex())
         const
@@ -52,6 +55,9 @@ public:
 
         void
         ResetModel(std::vector<std::vector<StatsTableData>> &&table);
+
+signals:
+        void rowItemCountChanged();
 
 private:
     //! @brief Vector of {Index=RowIndex, Vector of {Index=ColumnIndex, Data}}.

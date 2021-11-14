@@ -71,6 +71,8 @@ ResetModel(std::vector<StatsMusicData> &&musicList)
         }
 
         endResetModel();
+
+        emit rowItemCountChanged();
     }
     catch (const std::exception &e)
     {

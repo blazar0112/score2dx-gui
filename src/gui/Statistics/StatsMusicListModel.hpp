@@ -36,8 +36,11 @@ struct StatsMusicData
 class StatsMusicListModel : public QAbstractListModel
 {
     Q_OBJECT
+    Q_PROPERTY(int rowItemCount READ getRowItemCount NOTIFY rowItemCountChanged)
 
 public:
+        int getRowItemCount() const { return rowCount(); }
+
         int
         rowCount(const QModelIndex &parent=QModelIndex{})
         const
@@ -55,6 +58,9 @@ public:
 
         void
         ResetModel(std::vector<StatsMusicData> &&musicList);
+
+signals:
+        void rowItemCountChanged();
 
 private:
     //! @brief Vector of {Index=rowIndex, StatsMusicData}.

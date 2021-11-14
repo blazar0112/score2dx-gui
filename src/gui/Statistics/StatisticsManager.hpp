@@ -36,6 +36,7 @@ class StatisticsManager : public QObject
     Q_OBJECT
     Q_PROPERTY(QStringList activeVersionList READ getActiveVersionList CONSTANT)
     Q_PROPERTY(QStringList difficultyVersionList READ getDifficultyVersionList NOTIFY difficultyVersionListChanged)
+    Q_PROPERTY(QStringList musicListFilterList READ getMusicListFilterList NOTIFY musicListFilterListChanged)
 
 public:
         explicit StatisticsManager(const score2dx::Core &core, QObject* parent=nullptr);
@@ -67,6 +68,7 @@ public:
 
         const QStringList & getActiveVersionList() const { return mActiveVersionList; }
         const QStringList & getDifficultyVersionList() const { return mDifficultyVersionList; }
+        const QStringList & getMusicListFilterList() const { return mMusicListFilterList; }
 
         StatsTableModel &
         GetHorizontalHeaderModel();
@@ -85,13 +87,16 @@ public:
 
 signals:
         void difficultyVersionListChanged();
+        void musicListFilterListChanged();
 
 private:
     const score2dx::Core &mCore;
-    //'' Selectable active version list, [22, 29].
+    //! @brief Selectable active version list, [22, 29].
     QStringList mActiveVersionList;
-    //'' Selectable versions of stats by difficulty, [0, activeVersion].
+    //! @brief Selectable versions of stats by difficulty, [0, activeVersion].
     QStringList mDifficultyVersionList;
+    //! @brief Filter applied to generate music list.
+    QStringList mMusicListFilterList;
 
     //'' Because default Horizontal/VerticalHeaderView cannot customize roles, use 3 table models.
     //! @brief 1 x ColumnCount size TableModel use as horizontal header.

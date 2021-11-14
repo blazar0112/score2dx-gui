@@ -470,6 +470,7 @@ ApplicationWindow
                         tableView.model: StatsTableModel
                         musicListHeader.model: StatsMusicListHeaderModel
                         musicList.model: StatsMusicListModel
+                        musicListFilterRepeater.model: StatisticsManager.musicListFilterList
 
                         activeVersion: comboBoxActiveVersion.currentText
 

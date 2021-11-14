@@ -21,6 +21,7 @@ Item {
     property alias tableView: tableView
     property alias musicListHeader: musicListHeader
     property alias musicList: musicList
+    property alias musicListFilterRepeater: musicListFilterRepeater
     property alias comboBoxDifficultyVersion: comboBoxDifficultyVersion
     property string tableType: 'Level'
     property string columnType: 'Clear'
@@ -244,19 +245,71 @@ Item {
             color: 'transparent'
         }
 
+        Rectangle {
+            id: rectTableSection
+            property bool expanded: true
+
+            implicitWidth: horizontalHeaderView.contentWidth+verticalHeaderView.contentWidth
+            implicitHeight: gridLayoutTable.implicitHeight ? 30 : 0
+            Layout.alignment: Qt.AlignHCenter
+            visible: tableView.model.rowItemCount!==0
+
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: 'white' }
+                GradientStop { position: 0.125; color: '#D7BDE2' }
+                GradientStop { position: 1.0; color: '#512E5F' }
+            }
+
+            Image {
+                id: image
+                width: 20
+                height: 20
+                x: verticalHeaderView.x+verticalHeaderView.width/2-width/2
+                anchors.verticalCenter: parent.verticalCenter
+                source: rectTableSection.expanded ? 'qrc:/qml/image/sidebar_expanded.png' : 'qrc:/qml/image/sidebar_collapsed.png'
+            }
+
+            Text {
+                anchors.centerIn: parent
+                text: 'Statistics Table'
+                font: fontMetrics.font
+                color: 'black'
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    rectTableSection.expanded = !rectTableSection.expanded
+                }
+            }
+        }
+
         GridLayout {
+            id: gridLayoutTable
+
+            implicitWidth: horizontalHeaderView.contentWidth+verticalHeaderView.contentWidth
+            implicitHeight: 0
+            Layout.fillWidth: true
+            Layout.minimumWidth: 10
+            Layout.alignment: Qt.AlignHCenter
+
+            visible: rectTableSection.expanded
+
             rows: 2
             columns: 2
             rowSpacing: 0
             columnSpacing: 0
-            Layout.fillWidth: true
-            Layout.minimumWidth: 10
-            implicitWidth: horizontalHeaderView.contentWidth+verticalHeaderView.contentWidth
-            Layout.alignment: Qt.AlignHCenter
 
             Rectangle {
-                Layout.row: 0
-                Layout.column: 0
+                implicitWidth: verticalHeaderView.contentWidth
+                implicitHeight: horizontalHeaderView.contentHeight
+
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0.0; color: 'white' }
+                    GradientStop { position: 1; color: '#D7BDE2' }
+                }
             }
 
             TableView {
@@ -339,6 +392,71 @@ Item {
             color: 'transparent'
         }
 
+        Rectangle {
+            id: rectMusicListSection
+            property bool expanded: true
+
+            implicitWidth: musicListHeader.implicitWidth
+            implicitHeight: musicList.model.rowItemCount===0 ? 0 : 40
+            Layout.alignment: Qt.AlignHCenter
+            visible: musicList.model.rowItemCount!==0
+
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: 'white' }
+                GradientStop { position: 0.125; color: '#D7BDE2' }
+                GradientStop { position: 1.0; color: '#512E5F' }
+            }
+
+            ColumnLayout {
+                anchors.fill: parent
+                Text {
+                    Layout.fillWidth: true
+
+                    text: 'Music List'
+                    font: fontMetrics.font
+                    color: 'black'
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                Row {
+                    Layout.alignment: Qt.AlignHCenter
+
+                    Repeater {
+                        id: musicListFilterRepeater
+                        Rectangle {
+                            implicitWidth: filterText.width+10
+                            height: filterText.height
+                            border.color: 'black'
+                            color: '#58D68D'
+                            radius: 5
+
+                            Text {
+                                id: filterText
+                                anchors.centerIn: parent
+
+                                text: modelData
+                                font.family: 'Verdana'
+                                font.pixelSize: 12
+                                color: 'black'
+
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                    }
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    rectMusicListSection.expanded = !rectMusicListSection.expanded
+                }
+            }
+        }
+
         ListView {
             id: musicListHeader
 
@@ -347,6 +465,7 @@ Item {
             implicitWidth: width
             implicitHeight: height
             Layout.alignment: Qt.AlignHCenter
+            visible: musicList.model.rowItemCount!==0
 
             delegate: Row {
                 StatsMusicHeader {
@@ -370,7 +489,7 @@ Item {
                 }
 
                 StatsMusicHeader {
-                    width: 100
+                    width: 80
                     text: model.djLevel
                 }
 
@@ -408,7 +527,7 @@ Item {
             Layout.alignment: Qt.AlignHCenter
 
             clip: true
-            cacheBuffer: 30*rowHeight
+            cacheBuffer: 40*rowHeight
 
             ScrollBar.vertical: ScrollBar {
                 active: true
@@ -582,7 +701,7 @@ Item {
                 }
 
                 Rectangle {
-                    width: 100
+                    width: 80
                     height: musicList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
