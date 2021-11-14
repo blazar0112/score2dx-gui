@@ -6,14 +6,14 @@ Rectangle {
     width: 60
     height: 50
     border.color: 'black'
-    color: '#A569BD'
+    color: 'dodgerblue'
     Text {
         id: innerText
         width: parent.width
         anchors.centerIn: parent
         color: 'white'
         font.family: 'Verdana'
-        font.pixelSize: 18
+        font.pixelSize: 16
         font.bold: true
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         horizontalAlignment: Text.AlignHCenter

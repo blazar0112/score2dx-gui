@@ -31,6 +31,11 @@ Item {
     signal optionChanged()
     signal cellClicked(int row, int column)
 
+    //'' Ver, C, Lv, Title, DjLevel, Score, RangeDiff, Miss, PB ScoreDiff, PB Ver, PB Score, PB Miss
+    //'' 40, 20, 40,   280,      60,    60,       100,   60,           60,     40,       60, 60
+    //'' better sum = 880 for same width as stats table.
+    readonly property var headerWidths: [40, 20, 40, 280, 60, 60, 100, 60, 60, 40, 60, 60]
+
     ButtonGroup { id: buttonGroupTableType }
     ButtonGroup { id: buttonGroupColumnType }
     ButtonGroup { id: buttonGroupValueType }
@@ -40,6 +45,30 @@ Item {
         font.family: 'Verdana'
         font.pixelSize: 16
         font.bold: true
+    }
+
+    Gradient {
+        id: gradientAAA
+        GradientStop { position: 0.0; color: 'white' }
+        GradientStop { position: 1.0; color: 'gold' }
+    }
+
+    Gradient {
+        id: gradientAA
+        GradientStop { position: 0.0; color: 'white' }
+        GradientStop { position: 1.0; color: 'silver' }
+    }
+
+    Gradient {
+        id: gradientA
+        GradientStop { position: 0.0; color: 'white' }
+        GradientStop { position: 1.0; color: '#16A085' }
+    }
+
+    Gradient {
+        id: gradientAMinus
+        GradientStop { position: 0.0; color: 'white' }
+        GradientStop { position: 1.0; color: '#2471A3' }
     }
 
     ColumnLayout {
@@ -469,48 +498,63 @@ Item {
 
             delegate: Row {
                 StatsMusicHeader {
-                    width: 60
+                    width: headerWidths[0]
                     text: model.version
                 }
 
                 StatsMusicHeader {
-                    width: 20
+                    width: headerWidths[1]
                     text: model.clear
                 }
 
                 StatsMusicHeader {
-                    width: 60
+                    width: headerWidths[2]
                     text: model.level
                 }
 
                 StatsMusicHeader {
-                    width: 300
+                    width: headerWidths[3]
                     text: model.title
                 }
 
                 StatsMusicHeader {
-                    width: 80
+                    width: headerWidths[4]
                     text: model.djLevel
                 }
 
                 StatsMusicHeader {
-                    width: 100
+                    width: headerWidths[5]
                     text: model.score
                 }
 
                 StatsMusicHeader {
-                    width: 100
-                    text: model.bestScoreDiff
+                    width: headerWidths[6]
+                    text: model.scoreLevelRangeDiff
                 }
 
                 StatsMusicHeader {
-                    width: 60
-                    text: model.careerBestVersion
+                    width: headerWidths[7]
+                    text: model.miss
                 }
 
                 StatsMusicHeader {
-                    width: 100
+                    width: headerWidths[8]
+                    text: model.careerBestScoreDiff
+                }
+
+                StatsMusicHeader {
+                    width: headerWidths[9]
+                    text: model.careerBestScoreVersion
+                }
+
+                StatsMusicHeader {
+                    width: headerWidths[10]
                     text: model.careerBestScore
+                }
+
+                StatsMusicHeader {
+                    width: headerWidths[11]
+                    text: model.careerBestScoreMiss
                 }
             }
         }
@@ -537,7 +581,7 @@ Item {
             delegate: Row {
 
                 Rectangle {
-                    width: 60
+                    width: headerWidths[0]
                     height: musicList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
@@ -551,7 +595,7 @@ Item {
 
                 Rectangle {
                     id: rectClear
-                    width: 20
+                    width: headerWidths[1]
                     height: musicList.rowHeight
                     border.color: 'black'
                     color: 'white'
@@ -637,7 +681,7 @@ Item {
                 }
 
                 Rectangle {
-                    width: 60
+                    width: headerWidths[2]
                     height: musicList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
@@ -657,7 +701,7 @@ Item {
                 }
 
                 Rectangle {
-                    width: 300
+                    width: headerWidths[3]
                     height: musicList.rowHeight
                     implicitWidth: width
                     implicitHeight: height
@@ -701,21 +745,31 @@ Item {
                 }
 
                 Rectangle {
-                    width: 80
+                    width: headerWidths[4]
                     height: musicList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
 
                     Text {
+                        id: djLevelText
                         anchors.centerIn: parent
                         text: model.djLevel
                         font: fontMetrics.font
-                        color: 'white'
+                        color: 'red'
+                    }
+
+                    LinearGradient {
+                        anchors.fill: djLevelText
+                        source: djLevelText
+                        gradient: model.djLevel==='AAA' ? gradientAAA
+                                  : model.djLevel==='AA' ? gradientAA
+                                  : model.djLevel==='A' ? gradientA
+                                  : gradientAMinus
                     }
                 }
 
                 Rectangle {
-                    width: 100
+                    width: headerWidths[5]
                     height: musicList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
@@ -728,42 +782,81 @@ Item {
                 }
 
                 Rectangle {
-                    width: 100
+                    width: headerWidths[6]
                     height: musicList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
                     Text {
                         anchors.centerIn: parent
-                        text: model.bestScoreDiff
-                        font: fontMetrics.font
-                        color: model.bestScoreDiff==='PB' ? '#2ECC71'
-                               : model.bestScoreDiff==='NP' ? 'yellow'
-                               : model.bestScoreDiff==='N/A' ? 'white'
-                               : 'red'
-                    }
-                }
-
-                Rectangle {
-                    width: 60
-                    height: musicList.rowHeight
-                    border.color: 'black'
-                    color: '#34495E'
-                    Text {
-                        anchors.centerIn: parent
-                        text: model.careerBestVersion
+                        text: model.scoreLevelRangeDiff
                         font: fontMetrics.font
                         color: 'white'
                     }
                 }
 
                 Rectangle {
-                    width: 100
+                    width: headerWidths[7]
+                    height: musicList.rowHeight
+                    border.color: 'black'
+                    color: '#34495E'
+                    Text {
+                        anchors.centerIn: parent
+                        text: model.miss
+                        font: fontMetrics.font
+                        color: 'white'
+                    }
+                }
+
+                Rectangle {
+                    width: headerWidths[8]
+                    height: musicList.rowHeight
+                    border.color: 'black'
+                    color: '#34495E'
+                    Text {
+                        anchors.centerIn: parent
+                        text: model.careerBestScoreDiff
+                        font: fontMetrics.font
+                        color: model.careerBestScoreDiff==='PB' ? '#2ECC71'
+                               : model.careerBestScoreDiff==='NP' ? 'yellow'
+                               : model.careerBestScoreDiff==='N/A' ? 'white'
+                               : 'red'
+                    }
+                }
+
+                Rectangle {
+                    width: headerWidths[9]
+                    height: musicList.rowHeight
+                    border.color: 'black'
+                    color: '#34495E'
+                    Text {
+                        anchors.centerIn: parent
+                        text: model.careerBestScoreVersion
+                        font: fontMetrics.font
+                        color: 'white'
+                    }
+                }
+
+                Rectangle {
+                    width: headerWidths[10]
                     height: musicList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
                     Text {
                         anchors.centerIn: parent
                         text: model.careerBestScore
+                        font: fontMetrics.font
+                        color: 'white'
+                    }
+                }
+
+                Rectangle {
+                    width: headerWidths[11]
+                    height: musicList.rowHeight
+                    border.color: 'black'
+                    color: '#34495E'
+                    Text {
+                        anchors.centerIn: parent
+                        text: model.careerBestScoreMiss
                         font: fontMetrics.font
                         color: 'white'
                     }

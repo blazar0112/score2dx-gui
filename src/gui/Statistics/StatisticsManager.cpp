@@ -134,6 +134,8 @@ StatisticsManager(const score2dx::Core &core, QObject *parent)
         mActiveVersionList << score2dx::ToVersionString(versionIndex).c_str();
     }
 
+    //! String display in header for role, some role data are combined to one header cell
+    //! e.g. 'Lv' Header Cell display 'Lv' from level role, and color use difficulty role.
     static const std::array<std::string, StatsMusicDataRoleSmartEnum::Size()> headerStrings
     {
         "Ver",
@@ -143,9 +145,12 @@ StatisticsManager(const score2dx::Core &core, QObject *parent)
         "Title",
         "DJ Level",
         "Score",
-        "PB Diff",
-        "PB Ver",
-        "PB Score"
+        "Range Diff",
+        "Miss",
+        "PBS Diff",
+        "PBS Ver",
+        "PB Score",
+        "PBS Miss"
     };
 
     std::vector<StatsMusicData> musicHeader(1);
@@ -678,11 +683,29 @@ updateMusicList(const QString &iidxId,
 
         auto &chartInfo = findChartInfo.value();
 
+        auto rangeDiff = score2dx::ToScoreLevelRangeDiffString(chartInfo.Note, chartScore.ExScore);
+
         statsMusicData.Data[static_cast<int>(StatsMusicDataRole::level)] = QString::number(chartInfo.Level);
         statsMusicData.Data[static_cast<int>(StatsMusicDataRole::difficulty)] = ToString(difficulty)[0];
         statsMusicData.Data[static_cast<int>(StatsMusicDataRole::title)] = title.c_str();
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::djLevel)] = ToString(chartScore.DjLevel).c_str();
+
         statsMusicData.Data[static_cast<int>(StatsMusicDataRole::score)] = QString::number(chartScore.ExScore);
+        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::djLevel)] = ToString(chartScore.DjLevel).c_str();
+        if (chartScore.ExScore!=0)
+        {
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::scoreLevelRangeDiff)] = rangeDiff.c_str();
+        }
+        else
+        {
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::scoreLevelRangeDiff)] = "NP";
+        }
+
+        //'' intentioned failed with score 0 ?
+        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::miss)] = "N/A";
+        if (chartScore.MissCount.has_value())
+        {
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::miss)] = QString::number(chartScore.MissCount.value());
+        }
 
         auto findCareerBest = icl_s2::Find(bestScoreData.CareerBestChartScores, difficulty);
         if (!findCareerBest)
@@ -713,15 +736,21 @@ updateMusicList(const QString &iidxId,
 
         if (careerBestChartScore.BestChartScore.ExScore!=0)
         {
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::bestScoreDiff)] = scoreDiffStr;
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestVersion)] = score2dx::ToVersionString(careerBestChartScore.VersionIndex).c_str();
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreDiff)] = scoreDiffStr;
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreVersion)] = score2dx::ToVersionString(careerBestChartScore.VersionIndex).c_str();
             statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScore)] = QString::number(careerBestChartScore.BestChartScore.ExScore);
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreMiss)] = "N/A";
+            if (careerBestChartScore.BestChartScore.MissCount.has_value())
+            {
+                statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreMiss)] = QString::number(careerBestChartScore.BestChartScore.MissCount.value());
+            }
         }
         else
         {
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::bestScoreDiff)] = "N/A";
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestVersion)] = "N/A";
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreDiff)] = "N/A";
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreVersion)] = "N/A";
             statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScore)] = "N/A";
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreMiss)] = "N/A";
         }
     }
 
