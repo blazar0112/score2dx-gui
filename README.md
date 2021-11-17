@@ -4,14 +4,14 @@
 
 # Score2dx GUI
 
-- Score2dx GUI is a GUI project utilize [score2dx](https://github.com/blazar0112/score2dx) library and visualize player's IIDX score.
+- Score2dx GUI is a GUI project utilize [score2dx](https://github.com/blazar0112/score2dx) library and visualize player's IIDX score from CSV files.
 - Score2dx GUI product:
     - ScoreViewer tool.
 
 ## Screenshot
 
 ![screenshot_1.3.0_graph](./doc/image/ScoreViewer-1.3.0_graph.png "ScoreViewer 1.3.0 Graph")
-![screenshot_1.3.0_stats_score_level](./doc/image/ScoreViewer-1.3.0_stats_score_level.png "ScoreViewer 1.3.0 Statistics Table & MusicList")
+![screenshot_1.3.0_stats_score_level](./doc/image/ScoreViewer-1.3.0_stats_score_level.png "ScoreViewer 1.3.0 Statistics Table & ChartList")
 
 ## Requirement
 
@@ -105,10 +105,12 @@
         - CSV files, e.g. `5483-7391_dp_score_2020-11-21.csv`.
             - Any character between `_score` and `.csv` is ignored, so you can use this to annotate CSV.
         - Export files, e.g. `score2dx_export_SP_2021-09-14_IST_28.json`.
+    - Not support unicode filename currently, filename must consist of alphanumeric and system allowed ASCII symbols.
 - **View Setting**:
     - Setting that affect multiple area:
         - **ActiveVersion**: affect Statistics, selecting active version will have statistics calculated as time back at end date of that version.
         - **Play Style**: affect Graph and Statistics.
+            - Can press `Key S` or `Key D` to select SP/DP using keyboard.
         - **Difficulty**: only affect Graph.
 - **Download from IST**:
     - Already covered in [How to use](#How-to-use).
@@ -198,3 +200,29 @@
     - Value: table cell display type
         - Count
         - Percentage (divided by row total chart count)
+- **Statistics Table**
+    - Can click heading section `Statistics Table` bar to expand/collapse table (to view more chart list rows).
+    - Click each non-zero cell (white background) will display charts from that cell in chart list.
+- **Statistics Chart List**
+    - Display score information of filtered charts.
+    - Show filters in heading section `Chart List` by green tags.
+    - Columns of chart list:
+
+        | Column | Explanation | Note |
+        | - | - | - |
+        | Ver | Version of chart's music. | |
+        | C | ClearType displayed as clear lamp. | |
+        | Lv | Level of chart. | |
+        | Title | Title of chart's music. | |
+        | DJ Level | DJ level of chart's score. | `F` if `NO PLAY`. |
+        | Score | EX Score of chart. | `0` if `NO PLAY`. |
+        | Score Level | Difference from Score Level of chart's score.<br>e.g. `MAX-20` | `NP` if `NO PLAY`. |
+        | Miss | Miss count of chart's score. | `N/A` if `NO PLAY`. |
+        | PDBS Diff | Difference of Score from `Personal Diffable Best Score`, which is best or second-best score (if current is Personal Best). | `NP` if `NO PLAY`, `PB` if no any PDBS record available. <br>Colored green if better (`+`, increased), red if worser (`-`, decreased). |
+        | PDBS Ver | Version of `Personal Diffable Best Score` record datetime (not music's). | `N/A` if no any PDBS record available. |
+        | PDB Score | Value of `Personal Diffable Best Score`. | `N/A` if no any PDBS record available. |
+        | PDBM Diff | Difference of Miss Count from `Personal Diffable Best Miss`, which is best or second-best miss (if current is Personal Best). | `NP` if `NO PLAY`, `PB` if no any PDBM record available. <br>Colored green if better (`-`, decreased), red if worser (`+`, increased). |
+        | PDBM Ver | Version of `Personal Diffable Best Miss` record datetime (not music's). | `N/A` if no any PDBM record available. |
+        | PDB Miss | Value of `Personal Diffable Best Miss`. | `N/A` if no any PDBM record available. |
+
+        - Note: `Diffable means must have difference in value, so same value records are ignored, therefore Diffable record may not be available.
