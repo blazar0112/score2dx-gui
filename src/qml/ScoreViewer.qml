@@ -5,6 +5,8 @@ import QtQuick.Dialogs 1.0
 import QtQuick.Layouts 1.12
 import QtQuick.Window 2.0
 
+import Score2dx.Gui 1.0
+
 import '../qml/ui/Score'
 import '../qml/ui/Style'
 
@@ -17,8 +19,8 @@ ApplicationWindow
     height: 900
     opacity: 1
     title: comboBoxPlayer.currentText
-           ? 'Score Viewer '+core.getScore2dxVersion()+' ['+comboBoxPlayer.currentText+']'
-           : 'Score Viewer '+core.getScore2dxVersion()
+           ? 'Score Viewer '+Core.getScore2dxVersion()+' ['+comboBoxPlayer.currentText+']'
+           : 'Score Viewer '+Core.getScore2dxVersion()
 
     FontMetrics {
         id: fontMetrics
@@ -26,182 +28,88 @@ ApplicationWindow
         font.pixelSize: 16
     }
 
-    RowLayout {
+    Item {
+        id: rootItem
+        focus: true
         anchors.fill: parent
-        spacing: 0
 
-        ColumnLayout {
-            Layout.maximumWidth: 300
-            Layout.preferredWidth: 300
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.alignment: Qt.AlignTop
+        RowLayout {
+            anchors.fill: parent
             spacing: 0
 
-            SideBarItem {
+            ColumnLayout {
+                Layout.maximumWidth: 300
+                Layout.preferredWidth: 300
                 Layout.fillWidth: true
-                title: 'Player'
+                Layout.fillHeight: true
+                Layout.alignment: Qt.AlignTop
+                spacing: 0
 
-                gridLayout.columns: 2
-                gridLayout.rows: 2
-
-                SideBarText {
-                    text: 'IIDX ID'
-                }
-
-                StyledComboBox {
-                    id: comboBoxPlayer
-
+                SideBarItem {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 30
-                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                    title: 'Player'
 
-                    model: core.playerList
+                    gridLayout.columns: 2
+                    gridLayout.rows: 2
 
-                    onActivated: {
-                        updatePlayer()
+                    SideBarText {
+                        text: 'IIDX ID'
                     }
-                }
 
-                SideBarText {
-                    text: 'Add Player'
-                }
+                    StyledComboBox {
+                        id: comboBoxPlayer
 
-                TextField {
-                    id: textFieldAddPlayer
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
+                        Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
 
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 30
-                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                        model: Core.playerList
 
-                    placeholderText: 'e.g. 5483-7391'
-                    font: fontMetrics.font
-                    selectByMouse: true
-                    horizontalAlignment: TextInput.AlignRight
+                        onActivated: {
+                            updatePlayer()
+                        }
+                    }
 
-                    onAccepted: {
-                        var succeeded = core.addPlayer(text)
-                        if (succeeded)
-                        {
-                            text = ''
-                            generateScoreAnalysis()
+                    SideBarText {
+                        text: 'Add Player'
+                    }
+
+                    TextField {
+                        id: textFieldAddPlayer
+
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
+                        Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+
+                        placeholderText: 'e.g. 5483-7391'
+                        font: fontMetrics.font
+                        selectByMouse: true
+                        horizontalAlignment: TextInput.AlignRight
+
+                        onAccepted: {
+                            var succeeded = Core.addPlayer(text)
+                            if (succeeded)
+                            {
+                                text = ''
+                                generateScoreAnalysis()
+                            }
                         }
                     }
                 }
-            }
-
-            Button {
-                id: buttonLoadDirectory
-
-                Layout.fillWidth: true
-                Layout.preferredHeight: 60
-
-                text: 'Load Directory'
-                font.family: 'Verdana'
-                font.pixelSize: 20
-                font.bold: true
-
-                onClicked: {
-                    fileDialog.open();
-                }
-
-                background: Rectangle {
-                    radius: 10
-                    color: parent.down ? '#FCF3CF'
-                                       : (parent.hovered ? '#B4F8C8' : '#F1948A')
-                }
-            }
-
-            SideBarItem {
-                Layout.fillWidth: true
-                title: 'View Setting'
-
-                gridLayout.columns: 2
-                gridLayout.rows: 3
-
-                SideBarText {
-                    text: 'Active Version'
-                }
-
-                StyledComboBox {
-                    id: comboBoxActiveVersion
-
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 30
-
-                    model: statisticsManager.activeVersionList
-
-                    onActivated: {
-                        generateScoreAnalysis()
-                    }
-                }
-
-                SideBarText {
-                    text: 'Play Style'
-                }
-
-                StyledComboBox {
-                    id: comboBoxPlayStyle
-
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 30
-
-                    model: core.playStyleList
-                    initialText: 'SinglePlay'
-
-                    onActivated: {
-                        updatePlayer()
-                    }
-                }
-
-                SideBarText {
-                    text: 'Difficulty'
-                }
-
-                StyledComboBox {
-                    id: comboBoxDifficulty
-
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 30
-
-                    model: difficultyListModel
-                    initialText: 'Another'
-                    comboBox.textRole: 'display'
-
-                    onActivated: {
-                        updateMusicScore()
-                    }
-                }
-            }
-
-            SideBarItem {
-                Layout.fillWidth: true
-
-                title: 'IST'
-
-                gridLayout.columns: 2
-                gridLayout.rows: 4
 
                 Button {
-                    id: buttonDownloadIst
+                    id: buttonLoadDirectory
 
-                    Layout.row: 0
-                    Layout.columnSpan: 2
                     Layout.fillWidth: true
                     Layout.preferredHeight: 60
-                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
 
-                    text: 'Download from IST'
+                    text: 'Load Directory'
                     font.family: 'Verdana'
                     font.pixelSize: 20
-
-                    enabled: comboBoxPlayer.currentText!='' && !core.isDownloadingIst
+                    font.bold: true
 
                     onClicked: {
-                        core.downloadIst(comboBoxPlayer.currentText,
-                                         textFieldVersions.text,
-                                         textFieldStyles.text,
-                                         checkBoxPowerShell.checked)
+                        fileDialog.open();
                     }
 
                     background: Rectangle {
@@ -211,254 +119,342 @@ ApplicationWindow
                     }
                 }
 
-                SideBarText {
-                    text: 'PowerShell'
-                }
-
-                CheckBox {
-                    id: checkBoxPowerShell
-
+                SideBarItem {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 30
+                    title: 'View Setting'
 
-                    indicator.width: 30
-                    indicator.height: 30
-                    indicator.anchors.right: right
+                    gridLayout.columns: 2
+                    gridLayout.rows: 3
 
-                    background: Rectangle {
-                        anchors.fill: parent
-                        color: '#2ECC71'
-                    }
-                }
-
-                SideBarText {
-                    text: 'Versions'
-                }
-
-                TextField {
-                    id: textFieldVersions
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 30
-
-                    text: '28, 29'
-                    placeholderText: 'Example: 24, 28, 29'
-                    font: fontMetrics.font
-                    selectByMouse: true
-                    horizontalAlignment: TextInput.AlignRight
-                }
-
-                SideBarText {
-                    text: 'Styles'
-                }
-
-                TextField {
-                    id: textFieldStyles
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 30
-
-                    text: 'SP, DP'
-                    placeholderText: 'Example: SP, DP'
-                    font: fontMetrics.font
-                    selectByMouse: true
-                    horizontalAlignment: TextInput.AlignRight
-                }
-            }
-        }
-
-        Rectangle {
-            width: 1
-            Layout.fillHeight: true
-            color: 'gray'
-        }
-
-        ColumnLayout {
-            Layout.fillWidth: true
-
-            TabBar {
-                id: tabBar
-                Layout.fillWidth: true
-                Layout.preferredHeight: 50
-
-                property string activeTabColor: 'cyan'
-                property string inactiveTabColor: 'darkslateblue'
-
-                background: Rectangle {
-                    color: 'mediumpurple'
-                }
-
-                TabButton {
-                    width: 150
-                    height: parent.height
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: qsTr('Graph')
-                    font: fontMetrics.font
-
-                    background: Rectangle {
-                        color: tabBar.currentIndex==0 ? tabBar.activeTabColor : tabBar.inactiveTabColor
-                        radius: 5
-                    }
-                }
-
-                TabButton {
-                    width: 150
-                    height: parent.height
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: qsTr('Statistics')
-                    font: fontMetrics.font
-
-                    background: Rectangle {
-                        color: tabBar.currentIndex==1 ? tabBar.activeTabColor : tabBar.inactiveTabColor
-                        radius: 5
-                    }
-                }
-
-                TabButton {
-                    width: 150
-                    height: parent.height
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: 'Browse'
-                    font: fontMetrics.font
-
-                    enabled: false
-
-                    background: Rectangle {
-                        color: tabBar.currentIndex==2 ? tabBar.activeTabColor : tabBar.inactiveTabColor
-                        radius: 5
-                    }
-                }
-
-                TabButton {
-                    width: 150
-                    height: parent.height
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: qsTr('Recommend')
-                    font: fontMetrics.font
-
-                    enabled: false
-
-                    background: Rectangle {
-                        color: tabBar.currentIndex==3 ? tabBar.activeTabColor : tabBar.inactiveTabColor
-                        radius: 5
-                    }
-                }
-            }
-
-            StackLayout {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-
-                currentIndex: tabBar.currentIndex
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-
-                    Rectangle {
-                        width: 5
-                        height: 1
-                        color: 'transparent'
+                    SideBarText {
+                        text: 'Active Version'
                     }
 
-                    MusicListView {
-                        id: musicListView
+                    StyledComboBox {
+                        id: comboBoxActiveVersion
 
-                        Layout.preferredWidth: 300
-                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
 
-                        listView.model: musicListModel
+                        model: StatisticsManager.activeVersionList
 
-                        Component.onCompleted: {
-                            musicListView.listView.sections = core.versionNameList
-                            musicListView.listView.enableAllSections(false)
+                        onActivated: {
+                            generateScoreAnalysis()
                         }
+                    }
 
-                        onMusicIdChanged: {
+                    SideBarText {
+                        text: 'Play Style'
+                    }
+
+                    StyledComboBox {
+                        id: comboBoxPlayStyle
+
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
+
+                        model: Core.playStyleList
+                        initialText: 'SinglePlay'
+
+                        onActivated: {
+                            updatePlayer()
+                        }
+                    }
+
+                    SideBarText {
+                        text: 'Difficulty'
+                    }
+
+                    StyledComboBox {
+                        id: comboBoxDifficulty
+
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
+
+                        model: Core.difficultyList
+                        initialText: 'Another'
+
+                        onActivated: {
                             updateMusicScore()
                         }
                     }
+                }
 
-                    Rectangle {
-                        width: 5
-                        height: 1
-                        color: 'transparent'
-                    }
+                SideBarItem {
+                    Layout.fillWidth: true
 
-                    ColumnLayout {
+                    title: 'IST'
 
-                        RowLayout {
+                    gridLayout.columns: 2
+                    gridLayout.rows: 4
 
-                            Text {
-                                Layout.row: 0
-                                Layout.column: 2
-                                Layout.columnSpan: 2
-                                Layout.alignment: Qt.AlignVCenter
+                    Button {
+                        id: buttonDownloadIst
 
-                                text: 'Timeline begin'
-                                font: fontMetrics.font
-                            }
+                        Layout.row: 0
+                        Layout.columnSpan: 2
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 60
+                        Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
 
-                            StyledComboBox {
-                                id: comboBoxTimeline
+                        text: 'Download from IST'
+                        font.family: 'Verdana'
+                        font.pixelSize: 20
 
-                                Layout.row: 0
-                                Layout.column: 4
-                                Layout.columnSpan: 1
-                                Layout.preferredWidth: 200
-                                Layout.preferredHeight: 50
-                                initialText: 'copula'
+                        enabled: comboBoxPlayer.currentText!='' && !Core.isDownloadingIst
 
-                                model: graphManager.timelineBeginVersionList
-
-                                onActivated: {
-                                    //console.log('comboBoxTimeline onActivated', currentText)
-                                    graphManager.updateTimelineBeginVersion(currentText);
-                                    triggerScoreChartViewUpdate()
-                                }
-                            }
-
-                            Rectangle {
-                                Layout.row: 0
-                                Layout.column: 5
-                                Layout.fillWidth: true
-                            }
+                        onClicked: {
+                            Core.downloadIst(comboBoxPlayer.currentText,
+                                             textFieldVersions.text,
+                                             textFieldStyles.text,
+                                             checkBoxPowerShell.checked)
                         }
 
-                        ScoreChartView {
-                            id: scoreChartView
+                        background: Rectangle {
+                            radius: 10
+                            color: parent.down ? '#FCF3CF'
+                                               : (parent.hovered ? '#B4F8C8' : '#F1948A')
+                        }
+                    }
 
-                            Layout.row: 1
-                            Layout.column: 1
-                            Layout.rowSpan: 2
-                            Layout.columnSpan: 6
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
+                    SideBarText {
+                        text: 'PowerShell'
+                    }
 
-                            repeaterScoreAnalysis.model: graphAnalysisListModel
-                            repeaterScoreLevel.model: scoreLevelListModel
+                    CheckBox {
+                        id: checkBoxPowerShell
 
-                            Component.onCompleted: {
-                                graphManager.setup(
-                                    scoreChartView.legend,
-                                    scoreChartView.lineSeriesScore,
-                                    scoreChartView.dateTimeAxis,
-                                    scoreChartView.valueAxisScore,
-                                    scoreChartView.categoryAxisVersion,
-                                    scoreChartView.scatterSeriesScoreLevel,
-                                    scoreChartView.valueAxisScoreLevel
-                                )
-                            }
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
+
+                        indicator.width: 30
+                        indicator.height: 30
+                        indicator.anchors.right: right
+
+                        background: Rectangle {
+                            anchors.fill: parent
+                            color: '#2ECC71'
+                        }
+                    }
+
+                    SideBarText {
+                        text: 'Versions'
+                    }
+
+                    TextField {
+                        id: textFieldVersions
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
+
+                        text: '28, 29'
+                        placeholderText: 'Example: 24, 28, 29'
+                        font: fontMetrics.font
+                        selectByMouse: true
+                        horizontalAlignment: TextInput.AlignRight
+                    }
+
+                    SideBarText {
+                        text: 'Styles'
+                    }
+
+                    TextField {
+                        id: textFieldStyles
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
+
+                        text: 'SP, DP'
+                        placeholderText: 'Example: SP, DP'
+                        font: fontMetrics.font
+                        selectByMouse: true
+                        horizontalAlignment: TextInput.AlignRight
+                    }
+                }
+            }
+
+            Rectangle {
+                width: 1
+                Layout.fillHeight: true
+                color: 'gray'
+            }
+
+            ColumnLayout {
+                Layout.fillWidth: true
+
+                TabBar {
+                    id: tabBar
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 50
+
+                    property string activeTabColor: 'cyan'
+                    property string inactiveTabColor: 'darkslateblue'
+
+                    background: Rectangle {
+                        color: 'mediumpurple'
+                    }
+
+                    TabButton {
+                        width: 150
+                        height: parent.height
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: qsTr('Graph')
+                        font: fontMetrics.font
+
+                        background: Rectangle {
+                            color: tabBar.currentIndex==0 ? tabBar.activeTabColor : tabBar.inactiveTabColor
+                            radius: 5
+                        }
+                    }
+
+                    TabButton {
+                        width: 150
+                        height: parent.height
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: qsTr('Statistics')
+                        font: fontMetrics.font
+
+                        background: Rectangle {
+                            color: tabBar.currentIndex==1 ? tabBar.activeTabColor : tabBar.inactiveTabColor
+                            radius: 5
+                        }
+                    }
+
+                    TabButton {
+                        width: 150
+                        height: parent.height
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: 'Browse'
+                        font: fontMetrics.font
+
+                        enabled: false
+
+                        background: Rectangle {
+                            color: tabBar.currentIndex==2 ? tabBar.activeTabColor : tabBar.inactiveTabColor
+                            radius: 5
+                        }
+                    }
+
+                    TabButton {
+                        width: 150
+                        height: parent.height
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: qsTr('Recommend')
+                        font: fontMetrics.font
+
+                        enabled: false
+
+                        background: Rectangle {
+                            color: tabBar.currentIndex==3 ? tabBar.activeTabColor : tabBar.inactiveTabColor
+                            radius: 5
                         }
                     }
                 }
 
-                RowLayout {
+                StackLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
-                    Rectangle {
-                        width: 5
-                        height: 1
-                        color: 'transparent'
+                    currentIndex: tabBar.currentIndex
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+
+                        Rectangle {
+                            width: 5
+                            height: 1
+                            color: 'transparent'
+                        }
+
+                        MusicListView {
+                            id: musicListView
+
+                            Layout.preferredWidth: 300
+                            Layout.fillHeight: true
+
+                            listView.model: MusicListModel
+
+                            Component.onCompleted: {
+                                musicListView.listView.sections = Core.versionNameList
+                                musicListView.listView.enableAllSections(false)
+                            }
+
+                            onMusicIdChanged: {
+                                updateMusicScore()
+                            }
+                        }
+
+                        Rectangle {
+                            width: 5
+                            height: 1
+                            color: 'transparent'
+                        }
+
+                        ColumnLayout {
+
+                            RowLayout {
+
+                                Text {
+                                    Layout.row: 0
+                                    Layout.column: 2
+                                    Layout.columnSpan: 2
+                                    Layout.alignment: Qt.AlignVCenter
+
+                                    text: 'Timeline begin'
+                                    font: fontMetrics.font
+                                }
+
+                                StyledComboBox {
+                                    id: comboBoxTimeline
+
+                                    Layout.row: 0
+                                    Layout.column: 4
+                                    Layout.columnSpan: 1
+                                    Layout.preferredWidth: 200
+                                    Layout.preferredHeight: 50
+                                    initialText: 'copula'
+
+                                    model: GraphManager.timelineBeginVersionList
+
+                                    onActivated: {
+                                        //console.log('comboBoxTimeline onActivated', currentText)
+                                        GraphManager.updateTimelineBeginVersion(currentText);
+                                        triggerScoreChartViewUpdate()
+                                    }
+                                }
+
+                                Rectangle {
+                                    Layout.row: 0
+                                    Layout.column: 5
+                                    Layout.fillWidth: true
+                                }
+                            }
+
+                            ScoreChartView {
+                                id: scoreChartView
+
+                                Layout.row: 1
+                                Layout.column: 1
+                                Layout.rowSpan: 2
+                                Layout.columnSpan: 6
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+
+                                repeaterScoreAnalysis.model: GraphAnalysisListModel
+                                repeaterScoreLevel.model: ScoreLevelListModel
+
+                                Component.onCompleted: {
+                                    GraphManager.setup(
+                                        scoreChartView.legend,
+                                        scoreChartView.lineSeriesScore,
+                                        scoreChartView.dateTimeAxis,
+                                        scoreChartView.valueAxisScore,
+                                        scoreChartView.categoryAxisVersion,
+                                        scoreChartView.scatterSeriesScoreLevel,
+                                        scoreChartView.valueAxisScoreLevel
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     StatsView {
@@ -468,24 +464,45 @@ ApplicationWindow
                         Layout.fillHeight: true
                         Layout.alignment: Qt.AlignHCenter
 
-                        tableView.model: statsTableModel
-                        horizontalHeaderView.model: statsHorizontalHeaderModel
-                        verticalHeaderView.model: statsVerticalHeaderModel
-                        comboBoxDifficultyVersion.model: statisticsManager.difficultyVersionList
+                        comboBoxDifficultyVersion.model: StatisticsManager.difficultyVersionList
+                        horizontalHeaderView.model: StatsHorizontalHeaderModel
+                        verticalHeaderView.model: StatsVerticalHeaderModel
+                        tableView.model: StatsTableModel
+                        chartListHeader.model: StatsChartListHeaderModel
+                        chartList.model: StatsChartListModel
+                        chartListFilterRepeater.model: StatisticsManager.chartListFilterList
+
+                        activeVersion: comboBoxActiveVersion.currentText
 
                         onOptionChanged: {
                             updateStatsTable()
                         }
+                        onCellClicked: {
+                            updateStatsChartList(row, column)
+                        }
+                    }
+
+                    Rectangle {
+                        color: 'plum'
+                    }
+
+                    Rectangle {
+                        color: 'plum'
                     }
                 }
+            }
+        }
 
-                Rectangle {
-                    color: 'plum'
-                }
-
-                Rectangle {
-                    color: 'plum'
-                }
+        Keys.onPressed: {
+            if (event.key === Qt.Key_S)
+            {
+                comboBoxPlayStyle.comboBox.currentIndex = 0
+                updatePlayer()
+            }
+            if (event.key === Qt.Key_D)
+            {
+                comboBoxPlayStyle.comboBox.currentIndex = 1
+                updatePlayer()
             }
         }
     }
@@ -496,7 +513,7 @@ ApplicationWindow
         //folder: 'file:///E:/project_document/score2dx'
         selectFolder: true
         onAccepted: {
-            core.loadDirectory(fileDialog.fileUrl)
+            Core.loadDirectory(fileDialog.fileUrl)
             updatePlayer()
         }
     }
@@ -509,7 +526,7 @@ ApplicationWindow
 
     function updateMusicScore()
     {
-        graphManager.updatePlayerScore(
+        GraphManager.updatePlayerScore(
             comboBoxPlayer.currentText,
             comboBoxPlayStyle.currentText,
             musicListView.musicId,
@@ -528,20 +545,34 @@ ApplicationWindow
 
     function generateScoreAnalysis()
     {
-        core.setActiveVersion(comboBoxPlayer.currentText, comboBoxActiveVersion.currentText)
-        statisticsManager.updateDifficultyVersionList()
+        Core.setActiveVersion(comboBoxPlayer.currentText, comboBoxActiveVersion.currentText)
+        StatisticsManager.updateDifficultyVersionList()
         updateStatsTable()
     }
 
     function updateStatsTable()
     {
-        statisticsManager.updateStatsTable(
+        StatisticsManager.updateStatsTable(
             comboBoxPlayer.currentText,
             comboBoxPlayStyle.currentText,
             statsView.tableType,
             statsView.comboBoxDifficultyVersion.currentText,
             statsView.columnType,
             statsView.valueType
+        )
+    }
+
+    function updateStatsChartList(row, column)
+    {
+        StatisticsManager.updateChartList(
+            comboBoxPlayer.currentText,
+            comboBoxPlayStyle.currentText,
+            statsView.tableType,
+            statsView.comboBoxDifficultyVersion.currentText,
+            statsView.columnType,
+            comboBoxActiveVersion.currentText,
+            row,
+            column
         )
     }
 }

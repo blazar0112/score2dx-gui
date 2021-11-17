@@ -1,13 +1,13 @@
 # Score2dx GUI
 
-- Score2dx GUI 是使用 [score2dx](https://github.com/blazar0112/score2dx) 函式庫分析與視覺化玩家的 IIDX 分數成績的圖形使用者介面專案。
+- Score2dx GUI 是使用 [score2dx](https://github.com/blazar0112/score2dx) 函式庫分析與視覺化 IIDX 玩家 CSV 分數成績的圖形使用者介面專案。
 - Score2dx GUI 產品：
     - ScoreViewer 工具。
 
 ## 螢幕截圖
 
-![screenshot_1.2.0_graph](../doc/image/ScoreViewer-1.2.0_graph.png "ScoreViewer 1.2.0 圖表")
-![screenshot_1.2.0_stats](../doc/image/ScoreViewer-1.2.0_stats_v29_diff29.png "ScoreViewer 1.2.0 統計")
+![screenshot_1.3.0_graph](../doc/image/ScoreViewer-1.3.0_graph.png "ScoreViewer 1.3.0 圖表")
+![screenshot_1.3.0_stats_score_level](../doc/image/ScoreViewer-1.3.0_stats_score_level.png "ScoreViewer 1.3.0 統計表格與譜面清單")
 
 ## 需求
 
@@ -30,7 +30,7 @@
         - **Graph** (圖表)會顯示你的分數折線圖。
         - 請看 [GUI 操作手冊](#GUI-操作手冊) 了解更多使用細節。
     - 發布版本內有提供範例資料夾 `Example/5483-7391` 提供測試讀取資料夾功能。
-- 如果你沒有 CSV 檔案，也不想購買白金會員，有下面的替代方案：
+- 如果你沒有 CSV 檔案，也不想購買高級會員，有下面的替代方案：
     - 從 [IIDX Score Table (IST)](https://score.iidx.app/) 下載現有資料夾(如果你有在使用IST)。
         - 或者從現在開始使用 IST：
             - 使用 IST 提供的 [javascript](https://score.iidx.app/helps/usage) 從 e-amusement 網站讀取資料到 IST 中。
@@ -77,7 +77,7 @@
         - `ist_scraper.exe` 會幫你檢查版本有無一致，可在 PowerShell 模式中得知。
     - 目前發布版本內附上 v95 的 `chromedriver.exe`.
         - 如果你的版本不一致，從 [官方下載頁面](https://chromedriver.chromium.org/downloads) 下載版本一致的 chromedriver，因為 Chrome 可能日後會需要更新，或者你使用未更新的 Chrome 版本。
-            - 將下載的 `chromedriver.exe` 取代至跟 `ScoreViewer.exe` 同資料夾中內附的 `chromedriver.exe`。
+            - 把跟 `ScoreViewer.exe` 同資料夾中附的 `chromedriver.exe` 取代成下載的 `chromedriver.exe`。
 
 ## GUI 操作手冊
 
@@ -101,10 +101,12 @@
         - CSV 檔案，如 `5483-7391_dp_score_2020-11-21.csv`。
             - 任何在 `_score` 與 `.csv` 之間的字元均被忽略，所以可以用此來標註 CSV。
         - 匯出(Export)檔案，如 `score2dx_export_SP_2021-09-14_IST_28.json`。
+    - 目前不支援萬國碼檔名，請只用英文數字與系統允許的 ASCII 符號命名檔案。
 - **View Setting** (查看設定):
     - 會影響多處的設定:
         - **ActiveVersion** (啟用版本): 影響 Statistics(統計), 選擇啟用版本會從當時的歌曲資料中統計。
         - **Play Style** (遊玩風格): 影響 Graph(圖表)與 Statistics(統計)。
+            - 可以按下 `S鍵` 或 `D鍵` 用鍵盤切換 SP/DP。
         - **Difficulty** (譜面難易度): 只影響 Graph(圖表)。
 - **Download from IST** (從 IST 下載)：
     - 已在 [使用方式](#使用方式) 中說明。
@@ -145,7 +147,7 @@
             - 預設時間起點版本： `IIDX 23 copula`，最早有 CSV 服務的版本。
             - 可以選的起點版本範圍： `IIDX 17 SIRIUS` 至 `IIDX 28 BISTOVER`。
 - **Statistics** (統計)：
-![screenshot_1.2.0_stats_diff29](../doc/image/ScoreViewer-1.2.0_stats_v29_diff29.png "ScoreViewer 1.2.0 單版本難度統計")
+![screenshot_1.3.0_stats_29dpa](../doc/image/ScoreViewer-1.3.0_stats_29dpa.png "ScoreViewer 1.3.0 統計 29 DPA")
     - 呈現統計數字表，會由下列因素影響：
         - ActiveVersion (啟用版本)
         - Table (表格)
@@ -194,3 +196,29 @@
     - Value (值)：選擇表格內值的類型
         - Count (數量)
         - Percentage 百分比(除以列總譜面數)
+- **Statistics Table** (統計表格)
+    - 可以點標題 `Statistics Table` 橫條展開/關閉表格(來看到譜面清單更多列)。
+    - 點非零數值的白底格子可以在譜面清單中顯示所有相關譜面。
+- **Statistics Chart List** (統計譜面清單)
+    - 顯示所有過濾的譜面分數資訊。
+    - 在標題 `Chart List` 中用綠色標籤顯示目前的過濾條件。
+    - 譜面清單欄位：
+
+        | 欄位 | 說明 | 註解 |
+        | - | - | - |
+        | Ver | 譜面歌曲的版本(Version)。 | |
+        | C | 以燈號顯示的過關類型(ClearType)`. | |
+        | Lv | 譜面的等級(Level)。 | |
+        | Title | 譜面歌曲的曲名(Title)。 | |
+        | DJ Level | 譜面分數的 DJ 等級(DJ level)。 | 如果 `NO PLAY` 預設成 `F`。 |
+        | Score | 譜面的分數(EX Score)。 | 如果 `NO PLAY` 預設成 `0`。 |
+        | Score Level | 譜面的分數等級(Score Level)與實際差距值。<br>例如 `MAX-20` | 如果 `NO PLAY` 預設成 `NP`。 |
+        | Miss | 譜面成績的失誤數(Miss count)。 | 如果 `NO PLAY` 預設成 `N/A`。 |
+        | PDBS Diff | 與 `Personal Diffable Best Score` (個人可差別最佳分數)的差距值(Diff)，PDBS 為最佳或者次佳分數(如果目前分數是個人最佳)。 | 如果 `NO PLAY` 預設成 `NP`。如果沒有任何可取得 PDBS 紀錄的話設成 `PB`。<br>如果成績較佳(`+`, 上升)用綠色上色，如果成績較糟(`-`, 下降)用紅色上色。 |
+        | PDBS Ver | `Personal Diffable Best Score` (個人可差別最佳分數)紀錄時間的版本(Version)(並非歌曲版本)。 | 如果沒有任何可取得 PDBS 紀錄的話設成 `N/A`。 |
+        | PDB Score | `Personal Diffable Best Score` (個人可差別最佳分數)的數值。 | 如果沒有任何可取得 PDBS 紀錄的話設成 `N/A`。 |
+        | PDBM Diff | 與 `Personal Diffable Best Miss` (個人可差別最佳失誤數)的差距值(Diff)，PDBM 為最佳或者次佳失誤數(如果目前失誤數是個人最佳)。 | 如果 `NO PLAY` 預設成 `NP`。如果沒有任何可取得 PDBM 紀錄的話設成 `PB`。<br>如果成績較佳(`-`, 下降)用綠色上色，如果成績較糟(`+`, 上升)用紅色上色。 |
+        | PDBM Ver | `Personal Diffable Best Miss` (個人可差別最佳失誤數)紀錄時間的版本(Version)(並非歌曲版本)。 | 如果沒有任何可取得 PDBM 紀錄的話設成 `N/A`。 |
+        | PDB Miss | `Personal Diffable Best Miss` (個人可差別最佳失誤數)的數值。 | 如果沒有任何可取得 PDBM 紀錄的話設成 `N/A`。 |
+
+        - 附註：`可差別`的意思是數值上必須要有差異值，所以同數值的其他紀錄會被忽略，因此有可能找不到可差別的紀錄。

@@ -5,10 +5,15 @@
 #include <QDebug>
 
 #include "icl_s2/Common/IntegralRangeUsing.hpp"
+#include "icl_s2/StdUtil/Find.hxx"
+#include "icl_s2/Time/TimeUtilFormat.hxx"
 
 #include "fmt/format.h"
 
 #include "score2dx/Iidx/Version.hpp"
+#include "score2dx/Analysis/Analyzer.hpp"
+
+namespace s2Time = icl_s2::Time;
 
 namespace
 {
@@ -128,6 +133,37 @@ StatisticsManager(const score2dx::Core &core, QObject *parent)
     {
         mActiveVersionList << score2dx::ToVersionString(versionIndex).c_str();
     }
+
+    //! String display in header for role, some role data are combined to one header cell
+    //! e.g. 'Lv' Header Cell display 'Lv' from level role, and color use difficulty role.
+    static const std::array<std::string, StatsChartDataRoleSmartEnum::Size()> headerStrings
+    {
+        "Ver",
+        "C",
+        "Lv",
+        "",
+        "Title",
+        "DJ Level",
+        "Score",
+        "Score Level",
+        "Miss",
+        "PDBS Diff",
+        "PDBS Ver",
+        "PDB Score",
+        "PDBM Diff",
+        "PDBM Ver",
+        "PDB Miss"
+    };
+
+    std::vector<StatsChartData> chartHeader(1);
+    auto &statsChartData = chartHeader.front();
+
+    for (auto roleIndex : IndexRange{0, StatsChartDataRoleSmartEnum::Size()})
+    {
+        statsChartData.Data[roleIndex] = headerStrings[roleIndex].c_str();
+    }
+
+    mChartListHeaderModel.ResetModel(std::move(chartHeader));
 }
 
 void
@@ -147,12 +183,12 @@ StatisticsManager::
 updateStatsTable(const QString &iidxId,
                  const QString &playStyleQStr,
                  const QString &tableTypeQStr,
-                 const QString &versionQStr,
+                 const QString &difficultyVersionQStr,
                  const QString &columnTypeQStr,
                  const QString &valueTypeQStr)
 {
     if (iidxId.isEmpty()||playStyleQStr.isEmpty()||tableTypeQStr.isEmpty()
-        ||versionQStr.isEmpty()||columnTypeQStr.isEmpty()||valueTypeQStr.isEmpty())
+        ||difficultyVersionQStr.isEmpty()||columnTypeQStr.isEmpty()||valueTypeQStr.isEmpty())
     {
         return;
     }
@@ -303,7 +339,7 @@ updateStatsTable(const QString &iidxId,
     //! (include RowSum column, exclude Total column)
     std::vector<std::size_t> columnSums(columnCount-1, 0);
 
-    auto versionIndex = versionQStr.toULongLong();
+    auto difficultyVersionIndex = difficultyVersionQStr.toULongLong();
     auto valueType = ToStatsValueType(valueTypeQStr.toStdString());
 
     auto ToValueText = [](StatsValueType valueType, std::size_t value, std::size_t count)
@@ -343,7 +379,7 @@ updateStatsTable(const QString &iidxId,
             case StatsTableType::VersionDifficulty:
             {
                 auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, static_cast<score2dx::Difficulty>(row+1));
-                statisticsPtr = &scoreAnalysis.StatisticsByVersionStyleDifficulty.at(versionIndex).at(styleDifficulty);
+                statisticsPtr = &scoreAnalysis.StatisticsByVersionStyleDifficulty.at(difficultyVersionIndex).at(styleDifficulty);
                 break;
             }
         }
@@ -425,13 +461,325 @@ updateStatsTable(const QString &iidxId,
     mHorizontalHeaderModel.ResetModel(std::move(horizontalHeader));
     mVerticalHeaderModel.ResetModel(std::move(verticalHeader));
     mTableModel.ResetModel(std::move(table));
+
+    mChartListModel.ResetModel({});
+    mChartListFilterList.clear();
+    emit chartListFilterListChanged();
 }
 
-StatsTableModel &
+void
 StatisticsManager::
-GetTableModel()
+updateChartList(const QString &iidxId,
+                const QString &playStyleQStr,
+                const QString &tableTypeQStr,
+                const QString &difficultyVersionQStr,
+                const QString &columnTypeQStr,
+                const QString &activeVersionQStr,
+                int tableRow,
+                int tableColumn)
 {
-    return mTableModel;
+    if (iidxId.isEmpty()||playStyleQStr.isEmpty()||tableTypeQStr.isEmpty()
+        ||difficultyVersionQStr.isEmpty()||columnTypeQStr.isEmpty()||activeVersionQStr.isEmpty())
+    {
+        return;
+    }
+
+    auto* scoreAnalysisPtr = mCore.FindAnalysis(iidxId.toStdString());
+    if (!scoreAnalysisPtr)
+    {
+        qDebug() << "Cannot find ScoreAnalysis for player " << iidxId;
+        return;
+    }
+
+    //auto begin = s2Time::Now();
+    mChartListFilterList.clear();
+
+    auto &scoreAnalysis = *scoreAnalysisPtr;
+
+    auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
+    auto tableType = ToStatsTableType(tableTypeQStr.toStdString());
+    auto difficultyVersionIndex = difficultyVersionQStr.toULongLong();
+    auto statsColumnType = ToStatsColumnType(columnTypeQStr.toStdString());
+    auto activeVersionIndex = activeVersionQStr.toULongLong();
+
+    mChartListFilterList << "Active: "+activeVersionQStr;
+    mChartListFilterList << QString{"Style: "}+ToString(static_cast<score2dx::PlayStyleAcronym>(playStyle)).c_str();
+
+    const score2dx::Statistics* statisticsPtr = nullptr;
+
+    if (tableRow==mTableModel.rowCount()-1)
+    {
+        if (tableType!=StatsTableType::VersionDifficulty)
+        {
+            statisticsPtr = &scoreAnalysis.StatisticsByStyle.at(playStyle);
+            mChartListFilterList << "Version: All";
+        }
+        else
+        {
+            statisticsPtr = &scoreAnalysis.StatisticsByVersionStyle.at(difficultyVersionIndex).at(playStyle);
+            mChartListFilterList << "Version: "+difficultyVersionQStr;
+        }
+    }
+    else
+    {
+        switch (tableType)
+        {
+            case StatsTableType::Level:
+            {
+                statisticsPtr = &scoreAnalysis.StatisticsByStyleLevel.at(playStyle)[tableRow+1];
+                mChartListFilterList << "Version: All";
+                mChartListFilterList << "Level: "+QString::number(tableRow+1);
+                break;
+            }
+            case StatsTableType::AllDifficulty:
+            {
+                auto difficulty = static_cast<score2dx::Difficulty>(tableRow+1);
+                auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
+                statisticsPtr = &scoreAnalysis.StatisticsByStyleDifficulty.at(styleDifficulty);
+                mChartListFilterList << "Version: All";
+                mChartListFilterList << QString{"Difficulty: "}+ToString(difficulty).c_str();
+                break;
+            }
+            case StatsTableType::VersionDifficulty:
+            {
+                auto difficulty = static_cast<score2dx::Difficulty>(tableRow+1);
+                auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
+                statisticsPtr = &scoreAnalysis.StatisticsByVersionStyleDifficulty.at(difficultyVersionIndex).at(styleDifficulty);
+                mChartListFilterList << "Version: "+difficultyVersionQStr;
+                mChartListFilterList << QString{"Difficulty: "}+ToString(difficulty).c_str();
+                break;
+            }
+        }
+    }
+
+    if (!statisticsPtr)
+    {
+        throw std::runtime_error("statisticsPtr is nullptr.");
+    }
+
+    auto &statistics = *statisticsPtr;
+
+    std::set<std::size_t> chartIdList;
+
+    if (tableColumn==mTableModel.columnCount()-1)
+    {
+        chartIdList = statistics.ChartIdList;
+        mChartListFilterList << "Chart: All";
+    }
+    else if (tableColumn==mTableModel.columnCount()-2)
+    {
+        switch (statsColumnType)
+        {
+            case StatsColumnType::Clear:
+            {
+                for (auto &[clearType, colChartIdList] : statistics.ChartIdListByClearType)
+                {
+                    for (auto chartId : colChartIdList)
+                    {
+                        chartIdList.emplace(chartId);
+                    }
+                }
+                mChartListFilterList << "Chart: All";
+                break;
+            }
+            case StatsColumnType::DjLevel:
+            {
+                for (auto &[djLevel, colChartIdList] : statistics.ChartIdListByDjLevel)
+                {
+                    for (auto chartId : colChartIdList)
+                    {
+                        chartIdList.emplace(chartId);
+                    }
+                }
+                mChartListFilterList << "Chart: All DJ Level";
+                break;
+            }
+            case StatsColumnType::ScoreLevel:
+            {
+                for (auto &[scoreLevel, colChartIdList] : statistics.ChartIdListByScoreLevelRange)
+                {
+                    for (auto chartId : colChartIdList)
+                    {
+                        chartIdList.emplace(chartId);
+                    }
+                }
+                mChartListFilterList << "Chart: All Score Level";
+                break;
+            }
+        }
+    }
+    else
+    {
+        switch (statsColumnType)
+        {
+            case StatsColumnType::Clear:
+            {
+                auto clear = static_cast<score2dx::ClearType>(tableColumn);
+                chartIdList = statistics.ChartIdListByClearType.at(clear);
+                mChartListFilterList << QString{"Chart: Clear="}+ToPrettyString(clear).c_str();
+                break;
+            }
+            case StatsColumnType::DjLevel:
+            {
+                auto djLevel = static_cast<score2dx::DjLevel>(tableColumn);
+                chartIdList = statistics.ChartIdListByDjLevel.at(djLevel);
+                mChartListFilterList << QString{"Chart: DJ Level="}+ToString(djLevel).c_str();
+                break;
+            }
+            case StatsColumnType::ScoreLevel:
+            {
+                auto scoreLevel = static_cast<score2dx::StatisticScoreLevelRange>(tableColumn);
+                chartIdList = statistics.ChartIdListByScoreLevelRange.at(scoreLevel);
+                mChartListFilterList << QString{"Chart: Score Level="}+ToPrettyString(scoreLevel).c_str();
+                break;
+            }
+        }
+    }
+
+    std::vector<StatsChartData> chartList;
+    chartList.reserve(chartIdList.size());
+
+    for (auto chartId : chartIdList)
+    {
+        chartList.emplace_back();
+        auto &statsChartData = chartList.back();
+
+        auto &database = mCore.GetMusicDatabase();
+        auto [musicId, playStyle, difficulty] = score2dx::ToMusicStyleDiffculty(chartId);
+        auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
+        auto [versionIndex, musicIndex] = score2dx::ToIndexes(musicId);
+
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::version)] = score2dx::ToVersionString(versionIndex).c_str();
+
+        auto findBestScoreData = icl_s2::Find(scoreAnalysis.MusicBestScoreData, musicId);
+        if (!findBestScoreData)
+        {
+            qDebug() << "cannot find best score data of music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
+            continue;
+        }
+
+        auto &bestScoreData = (findBestScoreData.value()->second).at(playStyle);
+        auto findChartScore = bestScoreData.GetVersionBestMusicScore().FindChartScore(difficulty);
+        if (!findChartScore)
+        {
+            qDebug() << "cannot find chart score music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
+            continue;
+        }
+
+        auto &chartScore = *findChartScore;
+
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::clear)] = ToPrettyString(chartScore.ClearType).c_str();
+
+        //'' intended copy since QString construct below will have dangling problem.
+        auto title = database.GetLatestMusicInfo(musicId).GetField(score2dx::MusicInfoField::Title);
+        if (title.empty())
+        {
+            qDebug() << "title is empty music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
+        }
+        auto findChartInfo = database.FindChartInfo(versionIndex, title, styleDifficulty, activeVersionIndex);
+        if (!findChartInfo)
+        {
+            qDebug() << "cannot find chart info music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
+            continue;
+        }
+
+        auto &chartInfo = findChartInfo.value();
+
+        auto rangeDiff = score2dx::ToScoreLevelRangeDiffString(chartInfo.Note, chartScore.ExScore);
+
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::level)] = QString::number(chartInfo.Level);
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::difficulty)] = ToString(difficulty)[0];
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::title)] = title.c_str();
+
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::score)] = QString::number(chartScore.ExScore);
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::djLevel)] = ToString(chartScore.DjLevel).c_str();
+        if (chartScore.ExScore!=0)
+        {
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::scoreLevelRangeDiff)] = rangeDiff.c_str();
+        }
+        else
+        {
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::scoreLevelRangeDiff)] = "NP";
+        }
+
+        //'' intentioned failed with score 0 ?
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::miss)] = "N/A";
+        if (chartScore.MissCount.has_value())
+        {
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::miss)] = QString::number(chartScore.MissCount.value());
+        }
+
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreDiff)] = "PB";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreVersion)] = "N/A";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScore)] = "N/A";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissDiff)] = "PB";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissVersion)] = "N/A";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMiss)] = "N/A";
+        if (!chartScore.MissCount.has_value())
+        {
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissDiff)] = "N/A";
+        }
+
+        if (auto* findCareerDiffableBestScore =
+                bestScoreData.FindDiffableChartScoreRecord(score2dx::DiffableBestScoreType::ExScore, difficulty))
+        {
+            auto &careerBestDiffableScoreRecord = *findCareerDiffableBestScore;
+            auto scoreDiff = chartScore.ExScore-careerBestDiffableScoreRecord.ChartScoreProp.ExScore;
+            auto scoreDiffStr = fmt::format("{:+d}", scoreDiff);
+
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreDiff)] =
+                scoreDiffStr.c_str();
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreVersion)] =
+                score2dx::ToVersionString(careerBestDiffableScoreRecord.VersionIndex).c_str();
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScore)] =
+                QString::number(careerBestDiffableScoreRecord.ChartScoreProp.ExScore);
+        }
+
+        if (chartScore.ExScore==0)
+        {
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreDiff)] = "NP";
+        }
+
+        if (auto* findCareerDiffableBestMiss =
+                bestScoreData.FindDiffableChartScoreRecord(score2dx::DiffableBestScoreType::Miss, difficulty))
+        {
+            auto &careerBestDiffableMissRecord = *findCareerDiffableBestMiss;
+            if (!chartScore.MissCount.has_value() || !careerBestDiffableMissRecord.ChartScoreProp.MissCount.has_value())
+            {
+                qDebug() << "Music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "] find PB differ miss but not both miss available.";
+            }
+
+            auto missDiff = chartScore.MissCount.value()-careerBestDiffableMissRecord.ChartScoreProp.MissCount.value();
+            auto missDiffStr = fmt::format("{:+d}", missDiff);
+
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissDiff)] =
+                missDiffStr.c_str();
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissVersion)] =
+                score2dx::ToVersionString(careerBestDiffableMissRecord.VersionIndex).c_str();
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMiss)] =
+                QString::number(careerBestDiffableMissRecord.ChartScoreProp.MissCount.value());
+        }
+        else
+        {
+            if (auto* findCareerBestMiss = bestScoreData.FindBestChartScoreRecord(score2dx::BestScoreType::BestMiss, difficulty))
+            {
+                auto &careerBestMiss = *findCareerBestMiss;
+                if (!chartScore.MissCount.has_value() && careerBestMiss.ChartScoreProp.MissCount.has_value())
+                {
+                    statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissVersion)] =
+                        score2dx::ToVersionString(careerBestMiss.VersionIndex).c_str();
+                    statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMiss)] =
+                        QString::number(careerBestMiss.ChartScoreProp.MissCount.value());
+                }
+            }
+        }
+    }
+
+    mChartListModel.ResetModel(std::move(chartList));
+    emit chartListFilterListChanged();
+
+    //s2Time::Print<std::chrono::milliseconds>(s2Time::CountNs(begin), "StatisticsManager::updateChartList");
+    std::cout << std::flush;
 }
 
 StatsTableModel &
@@ -446,6 +794,27 @@ StatisticsManager::
 GetVerticalHeaderModel()
 {
     return mVerticalHeaderModel;
+}
+
+StatsTableModel &
+StatisticsManager::
+GetTableModel()
+{
+    return mTableModel;
+}
+
+StatsChartListModel &
+StatisticsManager::
+GetChartListHeaderModel()
+{
+    return mChartListHeaderModel;
+}
+
+StatsChartListModel &
+StatisticsManager::
+GetChartListModel()
+{
+    return mChartListModel;
 }
 
 }
