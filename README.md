@@ -225,4 +225,4 @@
         | PDBM Ver | Version of `Personal Diffable Best Miss` record datetime (not music's). | `N/A` if no any PDBM record available. |
         | PDB Miss | Value of `Personal Diffable Best Miss`. | `N/A` if no any PDBM record available. |
 
-        - Note: `Diffable means must have difference in value, so same value records are ignored, therefore Diffable record may not be available.
+        - Note: `Diffable` means must have difference in value, so same value records are ignored, therefore Diffable record may not be available.
