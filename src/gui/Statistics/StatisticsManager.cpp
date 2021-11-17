@@ -145,12 +145,14 @@ StatisticsManager(const score2dx::Core &core, QObject *parent)
         "Title",
         "DJ Level",
         "Score",
-        "Range Diff",
+        "Score Level",
         "Miss",
-        "PBS Diff",
-        "PBS Ver",
-        "PB Score",
-        "PBS Miss"
+        "PDBS Diff",
+        "PDBS Ver",
+        "PDB Score",
+        "PDBM Diff",
+        "PDBM Ver",
+        "PDB Miss"
     };
 
     std::vector<StatsMusicData> musicHeader(1);
@@ -658,7 +660,7 @@ updateMusicList(const QString &iidxId,
         }
 
         auto &bestScoreData = (findBestScoreData.value()->second).at(playStyle);
-        auto findChartScore = bestScoreData.VersionBestMusicScore.FindChartScore(difficulty);
+        auto findChartScore = bestScoreData.GetVersionBestMusicScore().FindChartScore(difficulty);
         if (!findChartScore)
         {
             qDebug() << "cannot find chart score music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
@@ -707,50 +709,69 @@ updateMusicList(const QString &iidxId,
             statsMusicData.Data[static_cast<int>(StatsMusicDataRole::miss)] = QString::number(chartScore.MissCount.value());
         }
 
-        auto findCareerBest = icl_s2::Find(bestScoreData.CareerBestChartScores, difficulty);
-        if (!findCareerBest)
+        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScoreDiff)] = "PB";
+        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScoreVersion)] = "N/A";
+        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScore)] = "N/A";
+        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissDiff)] = "PB";
+        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissVersion)] = "N/A";
+        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMiss)] = "N/A";
+        if (!chartScore.MissCount.has_value())
         {
-            qDebug() << "cannot find career best score of music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
-            continue;
-        }
-        auto &careerBestChartScore = findCareerBest.value()->second;
-        auto scoreDiff = careerBestChartScore.BestChartScore.ExScore-chartScore.ExScore;
-        if (scoreDiff<0)
-        {
-            qDebug() << "career best score is not better, music id" << musicId
-                     << "[" << ToString(styleDifficulty).c_str()
-                     << "], PB = " << careerBestChartScore.BestChartScore.ExScore
-                     << ", current = " << chartScore.ExScore;
-            continue;
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissDiff)] = "N/A";
         }
 
-        auto scoreDiffStr = "-"+QString::number(scoreDiff);
-        if (scoreDiff==0)
+        if (auto* findCareerDiffableBestScore =
+                bestScoreData.FindDiffableChartScoreRecord(score2dx::DiffableBestScoreType::ExScore, difficulty))
         {
-            scoreDiffStr = "PB";
+            auto &careerBestDiffableScoreRecord = *findCareerDiffableBestScore;
+            auto scoreDiff = chartScore.ExScore-careerBestDiffableScoreRecord.ChartScoreProp.ExScore;
+            auto scoreDiffStr = fmt::format("{:+d}", scoreDiff);
+
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScoreDiff)] =
+                scoreDiffStr.c_str();
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScoreVersion)] =
+                score2dx::ToVersionString(careerBestDiffableScoreRecord.VersionIndex).c_str();
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScore)] =
+                QString::number(careerBestDiffableScoreRecord.ChartScoreProp.ExScore);
         }
+
         if (chartScore.ExScore==0)
         {
-            scoreDiffStr = "NP";
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScoreDiff)] = "NP";
         }
 
-        if (careerBestChartScore.BestChartScore.ExScore!=0)
+        if (auto* findCareerDiffableBestMiss =
+                bestScoreData.FindDiffableChartScoreRecord(score2dx::DiffableBestScoreType::Miss, difficulty))
         {
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreDiff)] = scoreDiffStr;
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreVersion)] = score2dx::ToVersionString(careerBestChartScore.VersionIndex).c_str();
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScore)] = QString::number(careerBestChartScore.BestChartScore.ExScore);
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreMiss)] = "N/A";
-            if (careerBestChartScore.BestChartScore.MissCount.has_value())
+            auto &careerBestDiffableMissRecord = *findCareerDiffableBestMiss;
+            if (!chartScore.MissCount.has_value() || !careerBestDiffableMissRecord.ChartScoreProp.MissCount.has_value())
             {
-                statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreMiss)] = QString::number(careerBestChartScore.BestChartScore.MissCount.value());
+                qDebug() << "Music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "] find PB differ miss but not both miss available.";
             }
+
+            auto missDiff = chartScore.MissCount.value()-careerBestDiffableMissRecord.ChartScoreProp.MissCount.value();
+            auto missDiffStr = fmt::format("{:+d}", missDiff);
+
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissDiff)] =
+                missDiffStr.c_str();
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissVersion)] =
+                score2dx::ToVersionString(careerBestDiffableMissRecord.VersionIndex).c_str();
+            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMiss)] =
+                QString::number(careerBestDiffableMissRecord.ChartScoreProp.MissCount.value());
         }
         else
         {
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreDiff)] = "N/A";
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreVersion)] = "N/A";
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScore)] = "N/A";
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerBestScoreMiss)] = "N/A";
+            if (auto* findCareerBestMiss = bestScoreData.FindBestChartScoreRecord(score2dx::BestScoreType::BestMiss, difficulty))
+            {
+                auto &careerBestMiss = *findCareerBestMiss;
+                if (!chartScore.MissCount.has_value() && careerBestMiss.ChartScoreProp.MissCount.has_value())
+                {
+                    statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissVersion)] =
+                        score2dx::ToVersionString(careerBestMiss.VersionIndex).c_str();
+                    statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMiss)] =
+                        QString::number(careerBestMiss.ChartScoreProp.MissCount.value());
+                }
+            }
         }
     }
 

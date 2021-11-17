@@ -31,10 +31,10 @@ Item {
     signal optionChanged()
     signal cellClicked(int row, int column)
 
-    //'' Ver, C, Lv, Title, DjLevel, Score, RangeDiff, Miss, PB ScoreDiff, PB Ver, PB Score, PB Miss
-    //'' 40, 20, 40,   280,      60,    60,       100,   60,           60,     40,       60, 60
+    //'' Ver, C, Lv, Title, DjLevel, Score, RangeDiff, Miss, PDBS Diff, PDBS Ver, PDB Score, PDBM Diff, PDBM Ver, PDB Miss
+    //'' 40, 20, 40,   180,      60,    60,       100,   60,        60,       40,        60,        60,       40,       60
     //'' better sum = 880 for same width as stats table.
-    readonly property var headerWidths: [40, 20, 40, 280, 60, 60, 100, 60, 60, 40, 60, 60]
+    readonly property var headerWidths: [40, 20, 40, 240, 50, 60, 80, 50, 60, 40, 60, 50, 40, 50]
 
     ButtonGroup { id: buttonGroupTableType }
     ButtonGroup { id: buttonGroupColumnType }
@@ -62,13 +62,13 @@ Item {
     Gradient {
         id: gradientA
         GradientStop { position: 0.0; color: 'white' }
-        GradientStop { position: 1.0; color: '#16A085' }
+        GradientStop { position: 1.0; color: '#2ECC71' }
     }
 
     Gradient {
         id: gradientAMinus
         GradientStop { position: 0.0; color: 'white' }
-        GradientStop { position: 1.0; color: '#2471A3' }
+        GradientStop { position: 1.0; color: '#8E44AD' }
     }
 
     ColumnLayout {
@@ -520,6 +520,7 @@ Item {
                 StatsMusicHeader {
                     width: headerWidths[4]
                     text: model.djLevel
+                    font.pixelSize: 14
                 }
 
                 StatsMusicHeader {
@@ -539,22 +540,38 @@ Item {
 
                 StatsMusicHeader {
                     width: headerWidths[8]
-                    text: model.careerBestScoreDiff
+                    text: model.careerDiffableBestScoreDiff
+                    font.pixelSize: 12
                 }
 
                 StatsMusicHeader {
                     width: headerWidths[9]
-                    text: model.careerBestScoreVersion
+                    text: model.careerDiffableBestScoreVersion
+                    font.pixelSize: 12
                 }
 
                 StatsMusicHeader {
                     width: headerWidths[10]
-                    text: model.careerBestScore
+                    text: model.careerDiffableBestScore
+                    font.pixelSize: 14
                 }
 
                 StatsMusicHeader {
                     width: headerWidths[11]
-                    text: model.careerBestScoreMiss
+                    text: model.careerDiffableBestMissDiff
+                    font.pixelSize: 12
+                }
+
+                StatsMusicHeader {
+                    width: headerWidths[12]
+                    text: model.careerDiffableBestMissVersion
+                    font.pixelSize: 12
+                }
+
+                StatsMusicHeader {
+                    width: headerWidths[13]
+                    text: model.careerDiffableBestMiss
+                    font.pixelSize: 14
                 }
             }
         }
@@ -789,7 +806,9 @@ Item {
                     Text {
                         anchors.centerIn: parent
                         text: model.scoreLevelRangeDiff
-                        font: fontMetrics.font
+                        font.family: 'Verdana'
+                        font.pixelSize: 12
+                        font.bold: true
                         color: 'white'
                     }
                 }
@@ -802,8 +821,10 @@ Item {
                     Text {
                         anchors.centerIn: parent
                         text: model.miss
-                        font: fontMetrics.font
-                        color: 'white'
+                        font.family: 'Verdana'
+                        font.pixelSize: model.miss==='N/A' ? 12 : 16
+                        font.bold: true
+                        color: model.miss==='N/A' ? 'gray' : 'white'
                     }
                 }
 
@@ -814,11 +835,12 @@ Item {
                     color: '#34495E'
                     Text {
                         anchors.centerIn: parent
-                        text: model.careerBestScoreDiff
+                        text: model.careerDiffableBestScoreDiff
                         font: fontMetrics.font
-                        color: model.careerBestScoreDiff==='PB' ? '#2ECC71'
-                               : model.careerBestScoreDiff==='NP' ? 'yellow'
-                               : model.careerBestScoreDiff==='N/A' ? 'white'
+                        color: model.careerDiffableBestScoreDiff==='PB' ? 'cyan'
+                               : model.careerDiffableBestScoreDiff==='NP' ? 'yellow'
+                               : model.careerDiffableBestScoreDiff.startsWith('+') ? '#58D68D'
+                               : model.careerDiffableBestScoreDiff==='0' ? 'white'
                                : 'red'
                     }
                 }
@@ -830,9 +852,11 @@ Item {
                     color: '#34495E'
                     Text {
                         anchors.centerIn: parent
-                        text: model.careerBestScoreVersion
-                        font: fontMetrics.font
-                        color: 'white'
+                        text: model.careerDiffableBestScoreVersion
+                        font.family: 'Verdana'
+                        font.pixelSize: model.careerDiffableBestScoreVersion==='N/A' ? 12 : 16
+                        font.bold: true
+                        color: model.careerDiffableBestScoreVersion==='N/A' ? 'gray' : 'white'
                     }
                 }
 
@@ -843,9 +867,11 @@ Item {
                     color: '#34495E'
                     Text {
                         anchors.centerIn: parent
-                        text: model.careerBestScore
-                        font: fontMetrics.font
-                        color: 'white'
+                        text: model.careerDiffableBestScore
+                        font.family: 'Verdana'
+                        font.pixelSize: model.careerDiffableBestScore==='N/A' ? 12 : 16
+                        font.bold: true
+                        color: model.careerDiffableBestScore==='N/A' ? 'gray' : 'white'
                     }
                 }
 
@@ -856,9 +882,45 @@ Item {
                     color: '#34495E'
                     Text {
                         anchors.centerIn: parent
-                        text: model.careerBestScoreMiss
-                        font: fontMetrics.font
-                        color: 'white'
+                        text: model.careerDiffableBestMissDiff
+                        font.family: 'Verdana'
+                        font.pixelSize: model.careerDiffableBestMissDiff==='N/A' ? 12 : 16
+                        font.bold: true
+                        color: model.careerDiffableBestMissDiff==='PB' ? 'cyan'
+                               : model.careerDiffableBestMissDiff==='N/A' ? 'gray'
+                               : model.careerDiffableBestMissDiff.startsWith('+') ? 'red'
+                               : model.careerDiffableBestMissDiff==='0' ? 'white'
+                               : '#58D68D'
+                    }
+                }
+
+                Rectangle {
+                    width: headerWidths[12]
+                    height: musicList.rowHeight
+                    border.color: 'black'
+                    color: '#34495E'
+                    Text {
+                        anchors.centerIn: parent
+                        text: model.careerDiffableBestMissVersion
+                        font.family: 'Verdana'
+                        font.pixelSize: model.careerDiffableBestMissVersion==='N/A' ? 12 : 16
+                        font.bold: true
+                        color: model.careerDiffableBestMissVersion==='N/A' ? 'gray' : 'white'
+                    }
+                }
+
+                Rectangle {
+                    width: headerWidths[13]
+                    height: musicList.rowHeight
+                    border.color: 'black'
+                    color: '#34495E'
+                    Text {
+                        anchors.centerIn: parent
+                        text: model.careerDiffableBestMiss
+                        font.family: 'Verdana'
+                        font.pixelSize: model.careerDiffableBestMiss==='N/A' ? 12 : 16
+                        font.bold: true
+                        color: model.careerDiffableBestMiss==='N/A' ? 'gray' : 'white'
                     }
                 }
             }

@@ -10,8 +10,8 @@
 
 ## Screenshot
 
-![screenshot_1.2.0_graph](./doc/image/ScoreViewer-1.2.0_graph.png "ScoreViewer 1.2.0 Graph")
-![screenshot_1.2.0_stats](./doc/image/ScoreViewer-1.2.0_stats_v29_diff29.png "ScoreViewer 1.2.0 Statistics")
+![screenshot_1.3.0_graph](./doc/image/ScoreViewer-1.3.0_graph.png "ScoreViewer 1.3.0 Graph")
+![screenshot_1.3.0_stats_score_level](./doc/image/ScoreViewer-1.3.0_stats_score_level.png "ScoreViewer 1.3.0 Statistics Table & MusicList")
 
 ## Requirement
 
@@ -81,7 +81,7 @@
         - `ist_scraper.exe` will check version for you, you can see if version mismatch in PowerShell mode.
     - Current release bundle a v95 `chromedriver.exe`.
         - Download chromedriver from [official download](https://chromedriver.chromium.org/downloads) and to match your Chrome version if needed, since Chrome may update or you did not update your Chome.
-            - Replace matched `chromedriver.exe` with bundled one in same directory of `ScoreViewer.exe`.
+            - Replace bundled `chromedriver.exe` with downloaded one in same directory of `ScoreViewer.exe`.
 
 ## GUI Manual
 
@@ -149,7 +149,7 @@
             - Default version: `IIDX 23 copula`, earliest of CSV service.
             - Selectable range: `IIDX 17 SIRIUS` to `IIDX 28 BISTOVER`.
 - **Statistics**:
-![screenshot_1.2.0_stats_diff29](./doc/image/ScoreViewer-1.2.0_stats_v29_diff29.png "ScoreViewer 1.2.0 Statistics by difficulty and version")
+![screenshot_1.3.0_stats_29dpa](./doc/image/ScoreViewer-1.3.0_stats_29dpa.png "ScoreViewer 1.3.0 Statistics 29 DPA")
     - Show statistics table, which affected by
         - ActiveVersion
         - Table

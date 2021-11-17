@@ -6,8 +6,8 @@
 
 ## 螢幕截圖
 
-![screenshot_1.2.0_graph](../doc/image/ScoreViewer-1.2.0_graph.png "ScoreViewer 1.2.0 圖表")
-![screenshot_1.2.0_stats](../doc/image/ScoreViewer-1.2.0_stats_v29_diff29.png "ScoreViewer 1.2.0 統計")
+![screenshot_1.3.0_graph](../doc/image/ScoreViewer-1.3.0_graph.png "ScoreViewer 1.3.0 圖表")
+![screenshot_1.3.0_stats_score_level](../doc/image/ScoreViewer-1.3.0_stats_score_level.png "ScoreViewer 1.3.0 統計表格與歌曲清單")
 
 ## 需求
 
@@ -77,7 +77,7 @@
         - `ist_scraper.exe` 會幫你檢查版本有無一致，可在 PowerShell 模式中得知。
     - 目前發布版本內附上 v95 的 `chromedriver.exe`.
         - 如果你的版本不一致，從 [官方下載頁面](https://chromedriver.chromium.org/downloads) 下載版本一致的 chromedriver，因為 Chrome 可能日後會需要更新，或者你使用未更新的 Chrome 版本。
-            - 將下載的 `chromedriver.exe` 取代至跟 `ScoreViewer.exe` 同資料夾中內附的 `chromedriver.exe`。
+            - 把跟 `ScoreViewer.exe` 同資料夾中附的 `chromedriver.exe` 取代成下載的 `chromedriver.exe`。
 
 ## GUI 操作手冊
 
@@ -145,7 +145,7 @@
             - 預設時間起點版本： `IIDX 23 copula`，最早有 CSV 服務的版本。
             - 可以選的起點版本範圍： `IIDX 17 SIRIUS` 至 `IIDX 28 BISTOVER`。
 - **Statistics** (統計)：
-![screenshot_1.2.0_stats_diff29](../doc/image/ScoreViewer-1.2.0_stats_v29_diff29.png "ScoreViewer 1.2.0 單版本難度統計")
+![screenshot_1.3.0_stats_29dpa](../doc/image/ScoreViewer-1.3.0_stats_29dpa.png "ScoreViewer 1.3.0 統計 29 DPA")
     - 呈現統計數字表，會由下列因素影響：
         - ActiveVersion (啟用版本)
         - Table (表格)

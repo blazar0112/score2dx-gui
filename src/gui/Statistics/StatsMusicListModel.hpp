@@ -19,10 +19,12 @@ ICL_S2_SMART_ENUM(StatsMusicDataRole,
     score,
     scoreLevelRangeDiff,
     miss,
-    careerBestScoreDiff,
-    careerBestScoreVersion,
-    careerBestScore,
-    careerBestScoreMiss
+    careerDiffableBestScoreDiff,
+    careerDiffableBestScoreVersion,
+    careerDiffableBestScore,
+    careerDiffableBestMissDiff,
+    careerDiffableBestMissVersion,
+    careerDiffableBestMiss
 );
 
 //! @brief String to let GUI control display behavior.
