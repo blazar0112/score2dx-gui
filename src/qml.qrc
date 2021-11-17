@@ -13,6 +13,6 @@
         <file>qml/image/sidebar_collapsed.png</file>
         <file>qml/image/sidebar_expanded.png</file>
         <file>qml/ui/Style/SideBarText.qml</file>
-        <file>qml/ui/Score/StatsMusicHeader.qml</file>
+        <file>qml/ui/Score/StatsChartHeader.qml</file>
     </qresource>
 </RCC>

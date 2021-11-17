@@ -207,6 +207,7 @@ setActiveVersion(const QString &iidxId,
 
     mCore.SetActiveVersionIndex(activeVersionIndex.toULongLong());
     mCore.Analyze(iidxId.toStdString());
+    std::cout << std::flush;
 }
 
 const score2dx::Core &

@@ -9,7 +9,7 @@
 namespace gui
 {
 
-ICL_S2_SMART_ENUM(StatsMusicDataRole,
+ICL_S2_SMART_ENUM(StatsChartDataRole,
     version,
     clear,
     level,
@@ -32,13 +32,12 @@ ICL_S2_SMART_ENUM(StatsMusicDataRole,
 //!     ToString() if not noted
 //!     clear: ToPrettyString(ClearType)
 //!     difficulty: ToString(DifficultyAcronym)
-//!     scoreLevel: no API, need to update library.
-struct StatsMusicData
+struct StatsChartData
 {
-    std::array<QString, StatsMusicDataRoleSmartEnum::Size()> Data;
+    std::array<QString, StatsChartDataRoleSmartEnum::Size()> Data;
 };
 
-class StatsMusicListModel : public QAbstractListModel
+class StatsChartListModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int rowItemCount READ getRowItemCount NOTIFY rowItemCountChanged)
@@ -62,14 +61,14 @@ public:
         override;
 
         void
-        ResetModel(std::vector<StatsMusicData> &&musicList);
+        ResetModel(std::vector<StatsChartData> &&chartList);
 
 signals:
         void rowItemCountChanged();
 
 private:
-    //! @brief Vector of {Index=rowIndex, StatsMusicData}.
-    std::vector<StatsMusicData> mMusicList;
+    //! @brief Vector of {Index=rowIndex, StatsChartData}.
+    std::vector<StatsChartData> mChartList;
 };
 
 }

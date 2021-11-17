@@ -9,7 +9,7 @@
 #include "score2dx/Core/Core.hpp"
 
 #include "gui/Statistics/StatsTableModel.hpp"
-#include "gui/Statistics/StatsMusicListModel.hpp"
+#include "gui/Statistics/StatsChartListModel.hpp"
 
 namespace gui
 {
@@ -36,7 +36,7 @@ class StatisticsManager : public QObject
     Q_OBJECT
     Q_PROPERTY(QStringList activeVersionList READ getActiveVersionList CONSTANT)
     Q_PROPERTY(QStringList difficultyVersionList READ getDifficultyVersionList NOTIFY difficultyVersionListChanged)
-    Q_PROPERTY(QStringList musicListFilterList READ getMusicListFilterList NOTIFY musicListFilterListChanged)
+    Q_PROPERTY(QStringList chartListFilterList READ getChartListFilterList NOTIFY chartListFilterListChanged)
 
 public:
         explicit StatisticsManager(const score2dx::Core &core, QObject* parent=nullptr);
@@ -57,7 +57,7 @@ public:
 
         Q_INVOKABLE
         void
-        updateMusicList(const QString &iidxId,
+        updateChartList(const QString &iidxId,
                         const QString &playStyleQStr,
                         const QString &tableTypeQStr,
                         const QString &difficultyVersionQStr,
@@ -68,7 +68,7 @@ public:
 
         const QStringList & getActiveVersionList() const { return mActiveVersionList; }
         const QStringList & getDifficultyVersionList() const { return mDifficultyVersionList; }
-        const QStringList & getMusicListFilterList() const { return mMusicListFilterList; }
+        const QStringList & getChartListFilterList() const { return mChartListFilterList; }
 
         StatsTableModel &
         GetHorizontalHeaderModel();
@@ -79,15 +79,15 @@ public:
         StatsTableModel &
         GetTableModel();
 
-        StatsMusicListModel &
-        GetMusicListHeaderModel();
+        StatsChartListModel &
+        GetChartListHeaderModel();
 
-        StatsMusicListModel &
-        GetMusicListModel();
+        StatsChartListModel &
+        GetChartListModel();
 
 signals:
         void difficultyVersionListChanged();
-        void musicListFilterListChanged();
+        void chartListFilterListChanged();
 
 private:
     const score2dx::Core &mCore;
@@ -95,8 +95,8 @@ private:
     QStringList mActiveVersionList;
     //! @brief Selectable versions of stats by difficulty, [0, activeVersion].
     QStringList mDifficultyVersionList;
-    //! @brief Filter applied to generate music list.
-    QStringList mMusicListFilterList;
+    //! @brief Filter applied to generate chart list.
+    QStringList mChartListFilterList;
 
     //'' Because default Horizontal/VerticalHeaderView cannot customize roles, use 3 table models.
     //! @brief 1 x ColumnCount size TableModel use as horizontal header.
@@ -105,8 +105,8 @@ private:
     StatsTableModel mVerticalHeaderModel;
     StatsTableModel mTableModel;
 
-    StatsMusicListModel mMusicListHeaderModel;
-    StatsMusicListModel mMusicListModel;
+    StatsChartListModel mChartListHeaderModel;
+    StatsChartListModel mChartListModel;
 };
 
 }

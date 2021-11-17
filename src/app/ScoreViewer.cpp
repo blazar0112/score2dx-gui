@@ -42,8 +42,8 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance<gui::StatsTableModel>("Score2dx.Gui", 1, 0, "StatsHorizontalHeaderModel", &statisticsManager.GetHorizontalHeaderModel());
     qmlRegisterSingletonInstance<gui::StatsTableModel>("Score2dx.Gui", 1, 0, "StatsVerticalHeaderModel", &statisticsManager.GetVerticalHeaderModel());
     qmlRegisterSingletonInstance<gui::StatsTableModel>("Score2dx.Gui", 1, 0, "StatsTableModel", &statisticsManager.GetTableModel());
-    qmlRegisterSingletonInstance<gui::StatsMusicListModel>("Score2dx.Gui", 1, 0, "StatsMusicListHeaderModel", &statisticsManager.GetMusicListHeaderModel());
-    qmlRegisterSingletonInstance<gui::StatsMusicListModel>("Score2dx.Gui", 1, 0, "StatsMusicListModel", &statisticsManager.GetMusicListModel());
+    qmlRegisterSingletonInstance<gui::StatsChartListModel>("Score2dx.Gui", 1, 0, "StatsChartListHeaderModel", &statisticsManager.GetChartListHeaderModel());
+    qmlRegisterSingletonInstance<gui::StatsChartListModel>("Score2dx.Gui", 1, 0, "StatsChartListModel", &statisticsManager.GetChartListModel());
 
     engine.load(QUrl("qrc:/qml/ScoreViewer.qml"));
 

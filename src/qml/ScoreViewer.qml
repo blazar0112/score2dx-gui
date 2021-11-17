@@ -468,9 +468,9 @@ ApplicationWindow
                         horizontalHeaderView.model: StatsHorizontalHeaderModel
                         verticalHeaderView.model: StatsVerticalHeaderModel
                         tableView.model: StatsTableModel
-                        musicListHeader.model: StatsMusicListHeaderModel
-                        musicList.model: StatsMusicListModel
-                        musicListFilterRepeater.model: StatisticsManager.musicListFilterList
+                        chartListHeader.model: StatsChartListHeaderModel
+                        chartList.model: StatsChartListModel
+                        chartListFilterRepeater.model: StatisticsManager.chartListFilterList
 
                         activeVersion: comboBoxActiveVersion.currentText
 
@@ -478,7 +478,7 @@ ApplicationWindow
                             updateStatsTable()
                         }
                         onCellClicked: {
-                            updateStatsMusicList(row, column)
+                            updateStatsChartList(row, column)
                         }
                     }
 
@@ -562,9 +562,9 @@ ApplicationWindow
         )
     }
 
-    function updateStatsMusicList(row, column)
+    function updateStatsChartList(row, column)
     {
-        StatisticsManager.updateMusicList(
+        StatisticsManager.updateChartList(
             comboBoxPlayer.currentText,
             comboBoxPlayStyle.currentText,
             statsView.tableType,

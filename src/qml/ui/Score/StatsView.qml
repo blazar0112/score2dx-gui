@@ -6,22 +6,13 @@ import QtGraphicalEffects 1.0
 import '../Style'
 import '.'
 
-//! @brief StatsView
-//'' Select style, active version from combobox (not in this view)
-//'' display score analysis
-//'' input ui:
-//'' Statistics select by Level/Difficulty
-//'' o Level
-//'' o Difficulty groupbox { o AllVersion o Version cbox [version]
-//'' create grid buttons below.
-//'' inside Statistics, select column: clear type, djlevel, score level.
 Item {
     property alias horizontalHeaderView: horizontalHeaderView
     property alias verticalHeaderView: verticalHeaderView
     property alias tableView: tableView
-    property alias musicListHeader: musicListHeader
-    property alias musicList: musicList
-    property alias musicListFilterRepeater: musicListFilterRepeater
+    property alias chartListHeader: chartListHeader
+    property alias chartList: chartList
+    property alias chartListFilterRepeater: chartListFilterRepeater
     property alias comboBoxDifficultyVersion: comboBoxDifficultyVersion
     property string tableType: 'Level'
     property string columnType: 'Clear'
@@ -32,7 +23,7 @@ Item {
     signal cellClicked(int row, int column)
 
     //'' Ver, C, Lv, Title, DjLevel, Score, RangeDiff, Miss, PDBS Diff, PDBS Ver, PDB Score, PDBM Diff, PDBM Ver, PDB Miss
-    //'' 40, 20, 40,   180,      60,    60,       100,   60,        60,       40,        60,        60,       40,       60
+    //'' 40, 20, 40,   240,      50,    60,        80,   50,        60,       40,        60,        50,       40,       50
     //'' better sum = 880 for same width as stats table.
     readonly property var headerWidths: [40, 20, 40, 240, 50, 60, 80, 50, 60, 40, 60, 50, 40, 50]
 
@@ -422,13 +413,13 @@ Item {
         }
 
         Rectangle {
-            id: rectMusicListSection
+            id: rectChartListSection
             property bool expanded: true
 
-            implicitWidth: musicListHeader.implicitWidth
-            implicitHeight: musicList.model.rowItemCount===0 ? 0 : 40
+            implicitWidth: chartListHeader.implicitWidth
+            implicitHeight: chartList.model.rowItemCount===0 ? 0 : 40
             Layout.alignment: Qt.AlignHCenter
-            visible: musicList.model.rowItemCount!==0
+            visible: chartList.model.rowItemCount!==0
 
             gradient: Gradient {
                 orientation: Gradient.Horizontal
@@ -439,10 +430,11 @@ Item {
 
             ColumnLayout {
                 anchors.fill: parent
+
                 Text {
                     Layout.fillWidth: true
 
-                    text: 'Music List'
+                    text: 'Chart List'
                     font: fontMetrics.font
                     color: 'black'
                     horizontalAlignment: Text.AlignHCenter
@@ -453,7 +445,8 @@ Item {
                     Layout.alignment: Qt.AlignHCenter
 
                     Repeater {
-                        id: musicListFilterRepeater
+                        id: chartListFilterRepeater
+
                         Rectangle {
                             implicitWidth: filterText.width+10
                             height: filterText.height
@@ -481,94 +474,94 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    rectMusicListSection.expanded = !rectMusicListSection.expanded
+                    rectChartListSection.expanded = !rectChartListSection.expanded
                 }
             }
         }
 
         ListView {
-            id: musicListHeader
+            id: chartListHeader
 
             width: contentItem.childrenRect.width
             height: contentItem.childrenRect.height
             implicitWidth: width
             implicitHeight: height
             Layout.alignment: Qt.AlignHCenter
-            visible: musicList.model.rowItemCount!==0
+            visible: chartList.model.rowItemCount!==0
 
             delegate: Row {
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[0]
                     text: model.version
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[1]
                     text: model.clear
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[2]
                     text: model.level
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[3]
                     text: model.title
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[4]
                     text: model.djLevel
                     font.pixelSize: 14
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[5]
                     text: model.score
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[6]
                     text: model.scoreLevelRangeDiff
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[7]
                     text: model.miss
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[8]
                     text: model.careerDiffableBestScoreDiff
                     font.pixelSize: 12
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[9]
                     text: model.careerDiffableBestScoreVersion
                     font.pixelSize: 12
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[10]
                     text: model.careerDiffableBestScore
                     font.pixelSize: 14
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[11]
                     text: model.careerDiffableBestMissDiff
                     font.pixelSize: 12
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[12]
                     text: model.careerDiffableBestMissVersion
                     font.pixelSize: 12
                 }
 
-                StatsMusicHeader {
+                StatsChartHeader {
                     width: headerWidths[13]
                     text: model.careerDiffableBestMiss
                     font.pixelSize: 14
@@ -577,7 +570,7 @@ Item {
         }
 
         ListView {
-            id: musicList
+            id: chartList
 
             readonly property int rowHeight: 40
 
@@ -599,7 +592,7 @@ Item {
 
                 Rectangle {
                     width: headerWidths[0]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
                     Text {
@@ -613,7 +606,7 @@ Item {
                 Rectangle {
                     id: rectClear
                     width: headerWidths[1]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: 'white'
 
@@ -674,9 +667,6 @@ Item {
                         ColorAnimation { from: 'white'; to: 'cyan'; duration: 150 }
                         ColorAnimation { from: 'cyan'; to: 'white'; duration: 150 }
                         ColorAnimation { from: 'white'; to: 'yellow'; duration: 150 }
-                        //ColorAnimation { from: 'cyan'; to: 'yellow'; duration: 50 }
-                        //ColorAnimation { from: 'yellow'; to: 'cyan'; duration: 50 }
-                        //ColorAnimation { from: 'cyan'; to: 'white'; duration: 100 }
                     }
 
                     SequentialAnimation on color {
@@ -699,9 +689,10 @@ Item {
 
                 Rectangle {
                     width: headerWidths[2]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
+
                     Text {
                         anchors.centerIn: parent
                         text: model.level
@@ -719,7 +710,7 @@ Item {
 
                 Rectangle {
                     width: headerWidths[3]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     implicitWidth: width
                     implicitHeight: height
                     border.color: 'black'
@@ -746,8 +737,6 @@ Item {
                         font: fontMetrics.font
                         minimumPixelSize: 8
                         fontSizeMode: Text.Fit
-                        //wrapMode: Text.WrapAnywhere
-                        //renderType: Text.NativeRendering
                         visible: false
                     }
 
@@ -763,7 +752,7 @@ Item {
 
                 Rectangle {
                     width: headerWidths[4]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
 
@@ -787,9 +776,10 @@ Item {
 
                 Rectangle {
                     width: headerWidths[5]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
+
                     Text {
                         anchors.centerIn: parent
                         text: model.score
@@ -800,24 +790,26 @@ Item {
 
                 Rectangle {
                     width: headerWidths[6]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
+
                     Text {
                         anchors.centerIn: parent
                         text: model.scoreLevelRangeDiff
                         font.family: 'Verdana'
                         font.pixelSize: 12
                         font.bold: true
-                        color: 'white'
+                        color: model.scoreLevelRangeDiff==='NP' ? 'yellow' : 'white'
                     }
                 }
 
                 Rectangle {
                     width: headerWidths[7]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
+
                     Text {
                         anchors.centerIn: parent
                         text: model.miss
@@ -830,9 +822,10 @@ Item {
 
                 Rectangle {
                     width: headerWidths[8]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
+
                     Text {
                         anchors.centerIn: parent
                         text: model.careerDiffableBestScoreDiff
@@ -847,9 +840,10 @@ Item {
 
                 Rectangle {
                     width: headerWidths[9]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
+
                     Text {
                         anchors.centerIn: parent
                         text: model.careerDiffableBestScoreVersion
@@ -862,9 +856,10 @@ Item {
 
                 Rectangle {
                     width: headerWidths[10]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
+
                     Text {
                         anchors.centerIn: parent
                         text: model.careerDiffableBestScore
@@ -877,9 +872,10 @@ Item {
 
                 Rectangle {
                     width: headerWidths[11]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
+
                     Text {
                         anchors.centerIn: parent
                         text: model.careerDiffableBestMissDiff
@@ -896,9 +892,10 @@ Item {
 
                 Rectangle {
                     width: headerWidths[12]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
+
                     Text {
                         anchors.centerIn: parent
                         text: model.careerDiffableBestMissVersion
@@ -911,9 +908,10 @@ Item {
 
                 Rectangle {
                     width: headerWidths[13]
-                    height: musicList.rowHeight
+                    height: chartList.rowHeight
                     border.color: 'black'
                     color: '#34495E'
+
                     Text {
                         anchors.centerIn: parent
                         text: model.careerDiffableBestMiss

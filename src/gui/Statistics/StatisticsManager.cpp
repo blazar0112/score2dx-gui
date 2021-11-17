@@ -136,7 +136,7 @@ StatisticsManager(const score2dx::Core &core, QObject *parent)
 
     //! String display in header for role, some role data are combined to one header cell
     //! e.g. 'Lv' Header Cell display 'Lv' from level role, and color use difficulty role.
-    static const std::array<std::string, StatsMusicDataRoleSmartEnum::Size()> headerStrings
+    static const std::array<std::string, StatsChartDataRoleSmartEnum::Size()> headerStrings
     {
         "Ver",
         "C",
@@ -155,15 +155,15 @@ StatisticsManager(const score2dx::Core &core, QObject *parent)
         "PDB Miss"
     };
 
-    std::vector<StatsMusicData> musicHeader(1);
-    auto &statsMusicData = musicHeader.front();
+    std::vector<StatsChartData> chartHeader(1);
+    auto &statsChartData = chartHeader.front();
 
-    for (auto roleIndex : IndexRange{0, StatsMusicDataRoleSmartEnum::Size()})
+    for (auto roleIndex : IndexRange{0, StatsChartDataRoleSmartEnum::Size()})
     {
-        statsMusicData.Data[roleIndex] = headerStrings[roleIndex].c_str();
+        statsChartData.Data[roleIndex] = headerStrings[roleIndex].c_str();
     }
 
-    mMusicListHeaderModel.ResetModel(std::move(musicHeader));
+    mChartListHeaderModel.ResetModel(std::move(chartHeader));
 }
 
 void
@@ -462,14 +462,14 @@ updateStatsTable(const QString &iidxId,
     mVerticalHeaderModel.ResetModel(std::move(verticalHeader));
     mTableModel.ResetModel(std::move(table));
 
-    mMusicListModel.ResetModel({});
-    mMusicListFilterList.clear();
-    emit musicListFilterListChanged();
+    mChartListModel.ResetModel({});
+    mChartListFilterList.clear();
+    emit chartListFilterListChanged();
 }
 
 void
 StatisticsManager::
-updateMusicList(const QString &iidxId,
+updateChartList(const QString &iidxId,
                 const QString &playStyleQStr,
                 const QString &tableTypeQStr,
                 const QString &difficultyVersionQStr,
@@ -484,7 +484,6 @@ updateMusicList(const QString &iidxId,
         return;
     }
 
-    qDebug() << "StatisticsManager::updateMusicList row " << tableRow << "column" << tableColumn;
     auto* scoreAnalysisPtr = mCore.FindAnalysis(iidxId.toStdString());
     if (!scoreAnalysisPtr)
     {
@@ -493,7 +492,7 @@ updateMusicList(const QString &iidxId,
     }
 
     //auto begin = s2Time::Now();
-    mMusicListFilterList.clear();
+    mChartListFilterList.clear();
 
     auto &scoreAnalysis = *scoreAnalysisPtr;
 
@@ -503,8 +502,8 @@ updateMusicList(const QString &iidxId,
     auto statsColumnType = ToStatsColumnType(columnTypeQStr.toStdString());
     auto activeVersionIndex = activeVersionQStr.toULongLong();
 
-    mMusicListFilterList << "Active: "+activeVersionQStr;
-    mMusicListFilterList << QString{"Style: "}+ToString(static_cast<score2dx::PlayStyleAcronym>(playStyle)).c_str();
+    mChartListFilterList << "Active: "+activeVersionQStr;
+    mChartListFilterList << QString{"Style: "}+ToString(static_cast<score2dx::PlayStyleAcronym>(playStyle)).c_str();
 
     const score2dx::Statistics* statisticsPtr = nullptr;
 
@@ -513,12 +512,12 @@ updateMusicList(const QString &iidxId,
         if (tableType!=StatsTableType::VersionDifficulty)
         {
             statisticsPtr = &scoreAnalysis.StatisticsByStyle.at(playStyle);
-            mMusicListFilterList << "Version: All";
+            mChartListFilterList << "Version: All";
         }
         else
         {
             statisticsPtr = &scoreAnalysis.StatisticsByVersionStyle.at(difficultyVersionIndex).at(playStyle);
-            mMusicListFilterList << "Version: "+difficultyVersionQStr;
+            mChartListFilterList << "Version: "+difficultyVersionQStr;
         }
     }
     else
@@ -528,8 +527,8 @@ updateMusicList(const QString &iidxId,
             case StatsTableType::Level:
             {
                 statisticsPtr = &scoreAnalysis.StatisticsByStyleLevel.at(playStyle)[tableRow+1];
-                mMusicListFilterList << "Version: All";
-                mMusicListFilterList << "Level: "+QString::number(tableRow+1);
+                mChartListFilterList << "Version: All";
+                mChartListFilterList << "Level: "+QString::number(tableRow+1);
                 break;
             }
             case StatsTableType::AllDifficulty:
@@ -537,8 +536,8 @@ updateMusicList(const QString &iidxId,
                 auto difficulty = static_cast<score2dx::Difficulty>(tableRow+1);
                 auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
                 statisticsPtr = &scoreAnalysis.StatisticsByStyleDifficulty.at(styleDifficulty);
-                mMusicListFilterList << "Version: All";
-                mMusicListFilterList << QString{"Difficulty: "}+ToString(difficulty).c_str();
+                mChartListFilterList << "Version: All";
+                mChartListFilterList << QString{"Difficulty: "}+ToString(difficulty).c_str();
                 break;
             }
             case StatsTableType::VersionDifficulty:
@@ -546,8 +545,8 @@ updateMusicList(const QString &iidxId,
                 auto difficulty = static_cast<score2dx::Difficulty>(tableRow+1);
                 auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
                 statisticsPtr = &scoreAnalysis.StatisticsByVersionStyleDifficulty.at(difficultyVersionIndex).at(styleDifficulty);
-                mMusicListFilterList << "Version: "+difficultyVersionQStr;
-                mMusicListFilterList << QString{"Difficulty: "}+ToString(difficulty).c_str();
+                mChartListFilterList << "Version: "+difficultyVersionQStr;
+                mChartListFilterList << QString{"Difficulty: "}+ToString(difficulty).c_str();
                 break;
             }
         }
@@ -565,7 +564,7 @@ updateMusicList(const QString &iidxId,
     if (tableColumn==mTableModel.columnCount()-1)
     {
         chartIdList = statistics.ChartIdList;
-        mMusicListFilterList << "Chart: All";
+        mChartListFilterList << "Chart: All";
     }
     else if (tableColumn==mTableModel.columnCount()-2)
     {
@@ -580,7 +579,7 @@ updateMusicList(const QString &iidxId,
                         chartIdList.emplace(chartId);
                     }
                 }
-                mMusicListFilterList << "Chart: All";
+                mChartListFilterList << "Chart: All";
                 break;
             }
             case StatsColumnType::DjLevel:
@@ -592,7 +591,7 @@ updateMusicList(const QString &iidxId,
                         chartIdList.emplace(chartId);
                     }
                 }
-                mMusicListFilterList << "Chart: All DJ Level";
+                mChartListFilterList << "Chart: All DJ Level";
                 break;
             }
             case StatsColumnType::ScoreLevel:
@@ -604,7 +603,7 @@ updateMusicList(const QString &iidxId,
                         chartIdList.emplace(chartId);
                     }
                 }
-                mMusicListFilterList << "Chart: All Score Level";
+                mChartListFilterList << "Chart: All Score Level";
                 break;
             }
         }
@@ -617,45 +616,45 @@ updateMusicList(const QString &iidxId,
             {
                 auto clear = static_cast<score2dx::ClearType>(tableColumn);
                 chartIdList = statistics.ChartIdListByClearType.at(clear);
-                mMusicListFilterList << QString{"Chart: Clear="}+ToPrettyString(clear).c_str();
+                mChartListFilterList << QString{"Chart: Clear="}+ToPrettyString(clear).c_str();
                 break;
             }
             case StatsColumnType::DjLevel:
             {
                 auto djLevel = static_cast<score2dx::DjLevel>(tableColumn);
                 chartIdList = statistics.ChartIdListByDjLevel.at(djLevel);
-                mMusicListFilterList << QString{"Chart: DJ Level="}+ToString(djLevel).c_str();
+                mChartListFilterList << QString{"Chart: DJ Level="}+ToString(djLevel).c_str();
                 break;
             }
             case StatsColumnType::ScoreLevel:
             {
                 auto scoreLevel = static_cast<score2dx::StatisticScoreLevelRange>(tableColumn);
                 chartIdList = statistics.ChartIdListByScoreLevelRange.at(scoreLevel);
-                mMusicListFilterList << QString{"Chart: Score Level="}+ToPrettyString(scoreLevel).c_str();
+                mChartListFilterList << QString{"Chart: Score Level="}+ToPrettyString(scoreLevel).c_str();
                 break;
             }
         }
     }
 
-    std::vector<StatsMusicData> musicList;
-    musicList.reserve(chartIdList.size());
+    std::vector<StatsChartData> chartList;
+    chartList.reserve(chartIdList.size());
 
     for (auto chartId : chartIdList)
     {
-        musicList.emplace_back();
-        auto &statsMusicData = musicList.back();
+        chartList.emplace_back();
+        auto &statsChartData = chartList.back();
 
         auto &database = mCore.GetMusicDatabase();
         auto [musicId, playStyle, difficulty] = score2dx::ToMusicStyleDiffculty(chartId);
         auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
         auto [versionIndex, musicIndex] = score2dx::ToIndexes(musicId);
 
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::version)] = score2dx::ToVersionString(versionIndex).c_str();
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::version)] = score2dx::ToVersionString(versionIndex).c_str();
 
         auto findBestScoreData = icl_s2::Find(scoreAnalysis.MusicBestScoreData, musicId);
         if (!findBestScoreData)
         {
-            qDebug() << "cannot find best score data of music id" << musicId;
+            qDebug() << "cannot find best score data of music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
             continue;
         }
 
@@ -669,8 +668,9 @@ updateMusicList(const QString &iidxId,
 
         auto &chartScore = *findChartScore;
 
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::clear)] = ToPrettyString(chartScore.ClearType).c_str();
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::clear)] = ToPrettyString(chartScore.ClearType).c_str();
 
+        //'' intended copy since QString construct below will have dangling problem.
         auto title = database.GetLatestMusicInfo(musicId).GetField(score2dx::MusicInfoField::Title);
         if (title.empty())
         {
@@ -687,37 +687,37 @@ updateMusicList(const QString &iidxId,
 
         auto rangeDiff = score2dx::ToScoreLevelRangeDiffString(chartInfo.Note, chartScore.ExScore);
 
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::level)] = QString::number(chartInfo.Level);
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::difficulty)] = ToString(difficulty)[0];
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::title)] = title.c_str();
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::level)] = QString::number(chartInfo.Level);
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::difficulty)] = ToString(difficulty)[0];
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::title)] = title.c_str();
 
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::score)] = QString::number(chartScore.ExScore);
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::djLevel)] = ToString(chartScore.DjLevel).c_str();
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::score)] = QString::number(chartScore.ExScore);
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::djLevel)] = ToString(chartScore.DjLevel).c_str();
         if (chartScore.ExScore!=0)
         {
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::scoreLevelRangeDiff)] = rangeDiff.c_str();
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::scoreLevelRangeDiff)] = rangeDiff.c_str();
         }
         else
         {
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::scoreLevelRangeDiff)] = "NP";
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::scoreLevelRangeDiff)] = "NP";
         }
 
         //'' intentioned failed with score 0 ?
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::miss)] = "N/A";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::miss)] = "N/A";
         if (chartScore.MissCount.has_value())
         {
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::miss)] = QString::number(chartScore.MissCount.value());
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::miss)] = QString::number(chartScore.MissCount.value());
         }
 
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScoreDiff)] = "PB";
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScoreVersion)] = "N/A";
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScore)] = "N/A";
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissDiff)] = "PB";
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissVersion)] = "N/A";
-        statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMiss)] = "N/A";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreDiff)] = "PB";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreVersion)] = "N/A";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScore)] = "N/A";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissDiff)] = "PB";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissVersion)] = "N/A";
+        statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMiss)] = "N/A";
         if (!chartScore.MissCount.has_value())
         {
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissDiff)] = "N/A";
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissDiff)] = "N/A";
         }
 
         if (auto* findCareerDiffableBestScore =
@@ -727,17 +727,17 @@ updateMusicList(const QString &iidxId,
             auto scoreDiff = chartScore.ExScore-careerBestDiffableScoreRecord.ChartScoreProp.ExScore;
             auto scoreDiffStr = fmt::format("{:+d}", scoreDiff);
 
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScoreDiff)] =
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreDiff)] =
                 scoreDiffStr.c_str();
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScoreVersion)] =
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreVersion)] =
                 score2dx::ToVersionString(careerBestDiffableScoreRecord.VersionIndex).c_str();
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScore)] =
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScore)] =
                 QString::number(careerBestDiffableScoreRecord.ChartScoreProp.ExScore);
         }
 
         if (chartScore.ExScore==0)
         {
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestScoreDiff)] = "NP";
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreDiff)] = "NP";
         }
 
         if (auto* findCareerDiffableBestMiss =
@@ -752,11 +752,11 @@ updateMusicList(const QString &iidxId,
             auto missDiff = chartScore.MissCount.value()-careerBestDiffableMissRecord.ChartScoreProp.MissCount.value();
             auto missDiffStr = fmt::format("{:+d}", missDiff);
 
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissDiff)] =
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissDiff)] =
                 missDiffStr.c_str();
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissVersion)] =
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissVersion)] =
                 score2dx::ToVersionString(careerBestDiffableMissRecord.VersionIndex).c_str();
-            statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMiss)] =
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMiss)] =
                 QString::number(careerBestDiffableMissRecord.ChartScoreProp.MissCount.value());
         }
         else
@@ -766,20 +766,20 @@ updateMusicList(const QString &iidxId,
                 auto &careerBestMiss = *findCareerBestMiss;
                 if (!chartScore.MissCount.has_value() && careerBestMiss.ChartScoreProp.MissCount.has_value())
                 {
-                    statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMissVersion)] =
+                    statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissVersion)] =
                         score2dx::ToVersionString(careerBestMiss.VersionIndex).c_str();
-                    statsMusicData.Data[static_cast<int>(StatsMusicDataRole::careerDiffableBestMiss)] =
+                    statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMiss)] =
                         QString::number(careerBestMiss.ChartScoreProp.MissCount.value());
                 }
             }
         }
     }
 
-    mMusicListModel.ResetModel(std::move(musicList));
-    emit musicListFilterListChanged();
+    mChartListModel.ResetModel(std::move(chartList));
+    emit chartListFilterListChanged();
 
-    //s2Time::Print<std::chrono::milliseconds>(s2Time::CountNs(begin), "StatisticsManager::updateMusicList");
-    //std::cout << std::flush;
+    //s2Time::Print<std::chrono::milliseconds>(s2Time::CountNs(begin), "StatisticsManager::updateChartList");
+    std::cout << std::flush;
 }
 
 StatsTableModel &
@@ -803,18 +803,18 @@ GetTableModel()
     return mTableModel;
 }
 
-StatsMusicListModel &
+StatsChartListModel &
 StatisticsManager::
-GetMusicListHeaderModel()
+GetChartListHeaderModel()
 {
-    return mMusicListHeaderModel;
+    return mChartListHeaderModel;
 }
 
-StatsMusicListModel &
+StatsChartListModel &
 StatisticsManager::
-GetMusicListModel()
+GetChartListModel()
 {
-    return mMusicListModel;
+    return mChartListModel;
 }
 
 }
