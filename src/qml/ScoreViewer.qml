@@ -7,6 +7,8 @@ import QtQuick.Window 2.0
 
 import Score2dx.Gui 1.0
 
+import '../qml/ui/Activity'
+import '../qml/ui/Calendar'
 import '../qml/ui/Score'
 import '../qml/ui/Style'
 
@@ -322,13 +324,26 @@ ApplicationWindow
                         width: 150
                         height: parent.height
                         anchors.verticalCenter: parent.verticalCenter
+                        text: 'Activity'
+                        font: fontMetrics.font
+
+                        background: Rectangle {
+                            color: tabBar.currentIndex==2 ? tabBar.activeTabColor : tabBar.inactiveTabColor
+                            radius: 5
+                        }
+                    }
+
+                    TabButton {
+                        width: 150
+                        height: parent.height
+                        anchors.verticalCenter: parent.verticalCenter
                         text: 'Browse'
                         font: fontMetrics.font
 
                         enabled: false
 
                         background: Rectangle {
-                            color: tabBar.currentIndex==2 ? tabBar.activeTabColor : tabBar.inactiveTabColor
+                            color: tabBar.currentIndex==3 ? tabBar.activeTabColor : tabBar.inactiveTabColor
                             radius: 5
                         }
                     }
@@ -343,7 +358,7 @@ ApplicationWindow
                         enabled: false
 
                         background: Rectangle {
-                            color: tabBar.currentIndex==3 ? tabBar.activeTabColor : tabBar.inactiveTabColor
+                            color: tabBar.currentIndex==4 ? tabBar.activeTabColor : tabBar.inactiveTabColor
                             radius: 5
                         }
                     }
@@ -482,6 +497,38 @@ ApplicationWindow
                         }
                     }
 
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: 0
+
+                        Calendar {
+                            Layout.fillWidth: true
+
+                            onDateClicked: {
+                                ActivityManager.updateActivity(
+                                    comboBoxPlayer.currentText,
+                                    comboBoxPlayStyle.currentText,
+                                    date
+                                )
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 10
+                            color: 'transparent'
+                        }
+
+                        ActivityView {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+
+                            activityList.model: ActivityListModel
+                            activeVersion: comboBoxActiveVersion.currentText
+                        }
+                    }
+
                     Rectangle {
                         color: 'plum'
                     }
@@ -510,7 +557,7 @@ ApplicationWindow
     FileDialog {
         id: fileDialog
         title: 'Select directory'
-        //folder: 'file:///E:/project_document/score2dx'
+        folder: 'file:///E:/project_document/score2dx'
         selectFolder: true
         onAccepted: {
             Core.loadDirectory(fileDialog.fileUrl)

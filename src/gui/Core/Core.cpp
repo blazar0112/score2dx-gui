@@ -220,6 +220,15 @@ const
 
 void
 Core::
+AnalyzeActivity(const std::string &iidxId,
+                const std::string &beginDateTime,
+                const std::string &endDateTime)
+{
+    mCore.AnalyzeActivity(iidxId, beginDateTime, endDateTime);
+}
+
+void
+Core::
 UpdatePlayerList()
 {
     mPlayerList.clear();

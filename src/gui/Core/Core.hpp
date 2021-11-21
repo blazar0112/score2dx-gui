@@ -1,3 +1,5 @@
+#pragma once
+
 #include <QObject>
 #include <QtCharts/QXYSeries>
 #include <QStringList>
@@ -56,6 +58,10 @@ public:
         GetScore2dxCore()
         const;
 
+        void
+        AnalyzeActivity(const std::string &iidxId,
+                        const std::string &beginDateTime,
+                        const std::string &endDateTime);
 signals:
         void playerListChanged();
         void isDownloadingIstChanged();
