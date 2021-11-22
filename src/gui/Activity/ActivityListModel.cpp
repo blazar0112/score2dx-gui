@@ -18,7 +18,11 @@ ActivityListModel::
 getMusicActivityListModel(int row)
 {
     auto musicActivityListModel = new MusicActivityListModel();
-    auto musicActivity = mMusicActivityList.at(row);
+    std::vector<MusicActivityData> musicActivity;
+    if (row>=0)
+    {
+        musicActivity = mMusicActivityList.at(row);
+    }
     musicActivityListModel->ResetModel(std::move(musicActivity));
     return musicActivityListModel;
 }

@@ -51,6 +51,9 @@ updateActivity(const QString &iidxId,
         return;
     }
 
+    mActivityPlayStyle = playStyleQStr;
+    mActivityDate = testDate.c_str();
+
     auto &activityAnalysis = *activityAnalysisPtr;
 
     auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
@@ -175,6 +178,8 @@ updateActivity(const QString &iidxId,
 
     mActivityListModel.ResetModel(std::move(activityList),
                                   std::move(musicActivityList));
+
+    emit activityPlayStyleChanged();
 }
 
 }

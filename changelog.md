@@ -1,5 +1,11 @@
 # Changelog of score2dx-gui
 
+- Ongoing:
+    - Add Activity tab.
+    - score2dx fixes:
+        - Non-FC Miss = 0 from import data should be recognized as failed without miss.
+        - Revival music mistakenly inherit clear mark before. Should reset to NO PLAY after revival.
+
 - 1.3.0 [2021-11-17] (score2dx-2.4.0):
     - Statistics table add collapsible heading and adjust resize behavior.
     - Add global hotkey to select SP/DP (Key S and Key D).

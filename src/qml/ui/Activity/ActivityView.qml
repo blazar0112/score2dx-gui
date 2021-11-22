@@ -8,6 +8,8 @@ import '../Style'
 Item {
     id: root
     property alias activityList: activityList
+    property alias activitySectionText: activitySectionText
+
     readonly property var headerWidths: [60, 380, 60, 40, 60]
     readonly property var chartHeaderWidths: [40, 40, 120, 60, 60, 40, 120, 60, 60]
     property string activeVersion: ''
@@ -51,6 +53,24 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
 
         spacing: 0
+
+        Rectangle {
+            Layout.fillWidth: true
+            height: activityList.rowHeight
+            border.color: 'black'
+
+            gradient: Gradient {
+                orientation: Gradient.Horizontal
+                GradientStop { position: 0.0; color: 'white' }
+                GradientStop { position: 1.0; color: '#512E5F' }
+            }
+
+            Text {
+                id: activitySectionText
+                anchors.centerIn: parent
+                font: fontMetrics.font
+            }
+        }
 
         Row {
             id: header
@@ -124,7 +144,7 @@ Item {
 
             delegate: Item {
                 implicitWidth: root.implicitWidth
-                implicitHeight: activityList.rowHeight+placeholder.height+musicActivityListView.height
+                implicitHeight: activityList.rowHeight+placeholder.height+musicActivityListView.implicitHeight
 
                 ColumnLayout {
                     anchors.fill: parent
@@ -358,7 +378,7 @@ Item {
                     Rectangle {
                         id: placeholder
                         Layout.fillWidth: true
-                        height: 3
+                        height: 2
                         color: 'yellow'
                     }
                 }

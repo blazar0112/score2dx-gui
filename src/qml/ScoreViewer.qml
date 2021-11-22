@@ -525,6 +525,7 @@ ApplicationWindow
                             Layout.fillHeight: true
 
                             activityList.model: ActivityListModel
+                            activitySectionText.text: '['+ActivityManager.activityDate+'] '+ActivityManager.activityPlayStyle+' activity: '+ActivityListModel.rowItemCount
                             activeVersion: comboBoxActiveVersion.currentText
                         }
                     }
