@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
     //QQmlDebuggingEnabler enabler;
 
-    qRegisterMetaType<gui::MusicActivityListModel*>("MusicActivityListModel*");
+    qRegisterMetaType<gui::ChartActivityListModel*>("ChartActivityListModel*");
     //qmlRegisterAnonymousType<gui::MusicActivityListModel*>("Score2dx.Gui", 1);
 
     gui::Core core;

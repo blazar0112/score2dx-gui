@@ -10,7 +10,7 @@ set_property(GLOBAL PROPERTY
     ${SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/ActivityListModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ActivityManager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/MusicActivityListModel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ChartActivityListModel.cpp
 )
 
 get_property(PUBLIC_HEADERS GLOBAL PROPERTY PROP_PUBLIC_HEADERS)

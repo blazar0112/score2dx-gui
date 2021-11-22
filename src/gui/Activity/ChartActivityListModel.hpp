@@ -10,8 +10,7 @@ namespace gui
 {
 
 //! @note Previous must exist, if has no new record then it's empty string.
-ICL_S2_SMART_ENUM(MusicActivityDataRole,
-    styleDifficulty,
+ICL_S2_SMART_ENUM(ChartActivityDataRole,
     level,
     difficulty,
     previousClear,
@@ -22,19 +21,17 @@ ICL_S2_SMART_ENUM(MusicActivityDataRole,
     newRecordMiss
 );
 
-struct MusicActivityData
+struct ChartActivityData
 {
-    std::array<QVariant, MusicActivityDataRoleSmartEnum::Size()> Data;
+    std::array<QVariant, ChartActivityDataRoleSmartEnum::Size()> Data;
 };
 
-class MusicActivityListModel : public QAbstractListModel
+class ChartActivityListModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int rowItemCount READ getRowItemCount NOTIFY rowItemCountChanged)
 
 public:
-        MusicActivityListModel();
-
         int getRowItemCount() const { return rowCount(); }
 
         int
@@ -53,16 +50,14 @@ public:
         override;
 
         void
-        ResetModel(std::vector<MusicActivityData> &&musicActivityList);
+        ResetModel(std::vector<ChartActivityData> &&chartActivityList);
 
 signals:
         void rowItemCountChanged();
 
 private:
-    //! @brief Vector of {Index=rowIndex, MusicActivityData}.
-    std::vector<MusicActivityData> mMusicActivityList;
+    //! @brief Vector of {Index=rowIndex, ChartActivityData}.
+    std::vector<ChartActivityData> mChartActivityList;
 };
 
 }
-
-//Q_DECLARE_METATYPE(gui::MusicActivityListModel*)

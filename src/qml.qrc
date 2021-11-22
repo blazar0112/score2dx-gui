@@ -16,5 +16,8 @@
         <file>qml/ui/Score/StatsChartHeader.qml</file>
         <file>qml/ui/Calendar/Calendar.qml</file>
         <file>qml/ui/Activity/ActivityView.qml</file>
+        <file>qml/ui/Score/ClearLampRectangle.qml</file>
+        <file>qml/ui/Activity/ChartActivityHeaderRectangle.qml</file>
+        <file>qml/ui/Activity/ChartActivityRectangle.qml</file>
     </qresource>
 </RCC>

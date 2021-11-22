@@ -11,7 +11,7 @@
 #include "score2dx/Iidx/Version.hpp"
 #include "score2dx/Analysis/Analyzer.hpp"
 
-#include "gui/Activity/MusicActivityListModel.hpp"
+#include "gui/Activity/ChartActivityListModel.hpp"
 
 namespace s2Time = icl_s2::Time;
 
@@ -61,9 +61,9 @@ updateActivity(const QString &iidxId,
     auto &styleActivity = activityAnalysis.ActivityByDateTime.at(playStyle);
 
     std::vector<ActivityData> activityList;
-    std::vector<std::vector<MusicActivityData>> musicActivityList;
+    std::vector<std::vector<ChartActivityData>> musicChartActivityList;
 
-    std::size_t count = 0;
+    std::size_t musicScoreCount = 0;
     for (auto &[dateTime, musicScoreById] : styleActivity)
     {
         auto tokens = icl_s2::SplitString(" ", dateTime);
@@ -72,11 +72,11 @@ updateActivity(const QString &iidxId,
             throw std::runtime_error("daily activity has incorrect date in datetime "+dateTime);
         }
 
-        count += musicScoreById.size();
+        musicScoreCount += musicScoreById.size();
     }
 
-    activityList.reserve(count);
-    musicActivityList.resize(count);
+    activityList.reserve(musicScoreCount);
+    musicChartActivityList.resize(musicScoreCount);
 
     std::size_t index = 0;
     for (auto &[dateTime, musicScoreById] : styleActivity)
@@ -109,8 +109,8 @@ updateActivity(const QString &iidxId,
                 throw std::runtime_error("&musicScore!=snapshotData.CurrentMusicScore");
             }
 
-            auto &musicActivity = musicActivityList.at(index);
-            musicActivity.reserve(score2dx::DifficultySmartEnum::Size());
+            auto &chartActivityList = musicChartActivityList.at(index);
+            chartActivityList.reserve(score2dx::DifficultySmartEnum::Size());
 
             for (auto &[difficulty, chartScore] : musicScore.GetChartScores())
             {
@@ -127,10 +127,9 @@ updateActivity(const QString &iidxId,
                     continue;
                 }
 
-                musicActivity.emplace_back();
-                auto &chartActivity = musicActivity.back();
+                chartActivityList.emplace_back();
+                auto &chartActivity = chartActivityList.back();
                 auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
-                chartActivity.Data[static_cast<int>(MusicActivityDataRole::styleDifficulty)] = ToString(styleDifficulty).c_str();
 
                 auto findChartInfo = database.FindChartInfo(versionIndex, title, styleDifficulty, activeVersionIndex);
                 if (!findChartInfo)
@@ -142,33 +141,33 @@ updateActivity(const QString &iidxId,
                 auto &chartInfo = findChartInfo.value();
                 auto &previousChartScore = *previousChartScorePtr;
 
-                chartActivity.Data[static_cast<int>(MusicActivityDataRole::level)] = QString::number(chartInfo.Level);
-                chartActivity.Data[static_cast<int>(MusicActivityDataRole::difficulty)] = ToString(difficulty).c_str();
-                chartActivity.Data[static_cast<int>(MusicActivityDataRole::previousClear)] = ToPrettyString(previousChartScore.ClearType).c_str();
-                chartActivity.Data[static_cast<int>(MusicActivityDataRole::previousScore)] = QString::number(previousChartScore.ExScore);
-                chartActivity.Data[static_cast<int>(MusicActivityDataRole::previousMiss)] = "N/A";
+                chartActivity.Data[static_cast<int>(ChartActivityDataRole::level)] = QString::number(chartInfo.Level);
+                chartActivity.Data[static_cast<int>(ChartActivityDataRole::difficulty)] = ToString(static_cast<score2dx::DifficultyAcronym>(difficulty)).c_str();
+                chartActivity.Data[static_cast<int>(ChartActivityDataRole::previousClear)] = ToPrettyString(previousChartScore.ClearType).c_str();
+                chartActivity.Data[static_cast<int>(ChartActivityDataRole::previousScore)] = QString::number(previousChartScore.ExScore);
+                chartActivity.Data[static_cast<int>(ChartActivityDataRole::previousMiss)] = "N/A";
                 if (previousChartScore.MissCount)
                 {
-                    chartActivity.Data[static_cast<int>(MusicActivityDataRole::previousMiss)] = QString::number(previousChartScore.MissCount.value());
+                    chartActivity.Data[static_cast<int>(ChartActivityDataRole::previousMiss)] = QString::number(previousChartScore.MissCount.value());
                 }
 
-                chartActivity.Data[static_cast<int>(MusicActivityDataRole::newRecordClear)] = "";
-                chartActivity.Data[static_cast<int>(MusicActivityDataRole::newRecordScore)] = "";
-                chartActivity.Data[static_cast<int>(MusicActivityDataRole::newRecordMiss)] = "";
+                chartActivity.Data[static_cast<int>(ChartActivityDataRole::newRecordClear)] = "";
+                chartActivity.Data[static_cast<int>(ChartActivityDataRole::newRecordScore)] = "";
+                chartActivity.Data[static_cast<int>(ChartActivityDataRole::newRecordMiss)] = "";
 
                 if (chartScore.ClearType>previousChartScore.ClearType)
                 {
-                    chartActivity.Data[static_cast<int>(MusicActivityDataRole::newRecordClear)] = ToPrettyString(chartScore.ClearType).c_str();;
+                    chartActivity.Data[static_cast<int>(ChartActivityDataRole::newRecordClear)] = ToPrettyString(chartScore.ClearType).c_str();;
                 }
                 if (chartScore.ExScore>previousChartScore.ExScore)
                 {
-                    chartActivity.Data[static_cast<int>(MusicActivityDataRole::newRecordScore)] = QString::number(chartScore.ExScore);
+                    chartActivity.Data[static_cast<int>(ChartActivityDataRole::newRecordScore)] = QString::number(chartScore.ExScore);
                 }
                 if (chartScore.MissCount &&
                         (!previousChartScore.MissCount.has_value()
                             || chartScore.MissCount>previousChartScore.MissCount))
                 {
-                    chartActivity.Data[static_cast<int>(MusicActivityDataRole::newRecordMiss)] = QString::number(chartScore.MissCount.value());
+                    chartActivity.Data[static_cast<int>(ChartActivityDataRole::newRecordMiss)] = QString::number(chartScore.MissCount.value());
                 }
             }
 
@@ -177,7 +176,7 @@ updateActivity(const QString &iidxId,
     }
 
     mActivityListModel.ResetModel(std::move(activityList),
-                                  std::move(musicActivityList));
+                                  std::move(musicChartActivityList));
 
     emit activityPlayStyleChanged();
 }

@@ -7,24 +7,18 @@
 namespace gui
 {
 
+ChartActivityListModel*
 ActivityListModel::
-~ActivityListModel()
+getChartActivityListModel(int row)
 {
-
-}
-
-MusicActivityListModel*
-ActivityListModel::
-getMusicActivityListModel(int row)
-{
-    auto musicActivityListModel = new MusicActivityListModel();
-    std::vector<MusicActivityData> musicActivity;
+    auto chartActivityListModel = new ChartActivityListModel();
+    std::vector<ChartActivityData> chartActivityList;
     if (row>=0)
     {
-        musicActivity = mMusicActivityList.at(row);
+        chartActivityList = mMusicChartActivityList.at(row);
     }
-    musicActivityListModel->ResetModel(std::move(musicActivity));
-    return musicActivityListModel;
+    chartActivityListModel->ResetModel(std::move(chartActivityList));
+    return chartActivityListModel;
 }
 
 int
@@ -72,12 +66,12 @@ const
 void
 ActivityListModel::
 ResetModel(std::vector<ActivityData> &&activityList,
-           std::vector<std::vector<MusicActivityData>> &&musicActivityList)
+           std::vector<std::vector<ChartActivityData>> &&musicChartActivityList)
 {
     try
     {
         mActivityList = std::move(activityList);
-        mMusicActivityList = std::move(musicActivityList);
+        mMusicChartActivityList = std::move(musicChartActivityList);
 
         beginResetModel();
 
