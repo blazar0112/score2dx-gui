@@ -19,5 +19,8 @@
         <file>qml/ui/Score/ClearLampRectangle.qml</file>
         <file>qml/ui/Activity/ChartActivityHeaderRectangle.qml</file>
         <file>qml/ui/Activity/ChartActivityRectangle.qml</file>
+        <file>qml/ui/Activity/ActivityHeaderRectangle.qml</file>
+        <file>qml/ui/Activity/ActivityRectangle.qml</file>
+        <file>qml/ui/Score/TitleRectangle.qml</file>
     </qresource>
 </RCC>

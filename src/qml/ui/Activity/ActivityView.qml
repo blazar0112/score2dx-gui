@@ -12,16 +12,19 @@ Item {
     property alias activityList: activityListView
     property alias activitySectionText: activitySectionText
 
-    //'' Row: | Time(JST) | Ver | Title | PreviousPlayCount | -> | PlayCount |
-    readonly property var headerWidths: [60, 40, 340, 60, 40, 60]
+    readonly property string rightArrow: '➜'
 
-    //'' Header:    | Chart | Previous Record | -> | New Record |
-    //'' AuxHeader: | Lv | C | Clear | Score | Miss | -> | C | Clear | Score | Miss |
-    //'' Row:       | Lv | ClearLamp | ClearText | Score | Miss | -> | ClearLamp | ClearText | Score | Miss |
-    readonly property var chartHeaderWidths: [60, 20, 110, 60, 60, 40, 20, 110, 60, 60]
+    //'' Header:    | #Act  | Time(JST) | Ver | Title | PreviousPlayCount | -> | PlayCount |
+    //'' AuxHeader: | Lv    | Previous Record | -> | New Record |
+    readonly property var headerWidths: [40, 60, 40, 500, 100, 40, 100]
+    readonly property var auxHeaderWidths: [40, 400, 40, 400]
+
+    //'' Header:    | Lv    | C | Clear | Score | Miss | -> | C | Clear | Score | Miss |
+    //'' Row:       | Lv    | ClearLamp | ClearText | Score | Miss | -> | ClearLamp | ClearText | Score | Miss |
+    readonly property var chartHeaderWidths: [40, 30, 250, 60, 60, 40, 30, 250, 60, 60]
     property string activeVersion: ''
 
-    implicitWidth: 600
+    implicitWidth: 880
 
     FontMetrics {
         id: fontMetrics
@@ -65,7 +68,7 @@ Item {
             id: activitySection
             implicitWidth: activityListView.implicitWidth ? activityListView.implicitWidth : root.implicitWidth
             Layout.alignment: Qt.AlignHCenter
-            height: activityListView.rowHeight
+            height: 30
             border.color: 'black'
 
             gradient: Gradient {
@@ -83,75 +86,92 @@ Item {
 
         Row {
             id: activityListHeader
+
+            readonly property int headerHeight: 40
+
             Layout.alignment: Qt.AlignHCenter
 
             visible: activityListView.width!==0
 
-            Rectangle {
+            ActivityHeaderRectangle {
                 width: headerWidths[0]
-                height: activityListView.rowHeight
-                border.color: 'black'
-                color: 'dodgerblue'
-                Text {
-                    width: parent.width
-                    anchors.centerIn: parent
-                    text: 'Time (JST)'
-                    font.family: 'Verdana'
-                    font.pixelSize: 16
-                    font.bold: true
-                    color: 'white'
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                    horizontalAlignment: Text.AlignHCenter
-                }
+                height: parent.headerHeight
+                innerText.text: '#Act'
             }
 
-            Rectangle {
+            ActivityHeaderRectangle {
                 width: headerWidths[1]
-                height: activityListView.rowHeight
-                border.color: 'black'
-                color: 'dodgerblue'
-
-                Text {
-                    anchors.centerIn: parent
-                    text: 'Ver'
-                    font: fontMetrics.font
-                    color: 'white'
-                }
+                height: parent.headerHeight
+                innerText.text: 'Time (JST)'
             }
 
-            Rectangle {
+            ActivityHeaderRectangle {
                 width: headerWidths[2]
-                height: activityListView.rowHeight
-                border.color: 'black'
-                color: 'dodgerblue'
-
-                Text {
-                    anchors.centerIn: parent
-                    text: 'Title'
-                    font: fontMetrics.font
-                    color: 'white'
-                }
+                height: parent.headerHeight
+                innerText.text: 'Ver'
             }
 
-            Rectangle {
-                width: headerWidths[3]+headerWidths[4]+headerWidths[5]
-                height: activityListView.rowHeight
-                border.color: 'black'
-                color: 'dodgerblue'
+            ActivityHeaderRectangle {
+                width: headerWidths[3]
+                height: parent.headerHeight
+                innerText.text: 'Title'
+            }
 
-                Text {
-                    anchors.centerIn: parent
-                    text: 'Play Count'
-                    font: fontMetrics.font
-                    color: 'white'
-                }
+            ActivityHeaderRectangle {
+                width: headerWidths[4]
+                height: parent.headerHeight
+                innerText.text: 'Previous PlayCount'
+            }
+
+            ActivityHeaderRectangle {
+                width: headerWidths[5]
+                height: parent.headerHeight
+                innerText.text: rightArrow
+            }
+
+            ActivityHeaderRectangle {
+                width: headerWidths[6]
+                height: parent.headerHeight
+                innerText.text: 'PlayCount'
+            }
+        }
+
+        Row {
+            id: activityListAuxHeader
+
+            readonly property int headerHeight: 20
+
+            Layout.alignment: Qt.AlignHCenter
+
+            visible: activityListView.width!==0
+
+            ActivityHeaderRectangle {
+                width: auxHeaderWidths[0]
+                height: parent.headerHeight
+                innerText.text: 'Lv'
+            }
+
+            ActivityHeaderRectangle {
+                width: auxHeaderWidths[1]
+                height: parent.headerHeight
+                innerText.text: 'Previous Record'
+            }
+
+            ActivityHeaderRectangle {
+                width: auxHeaderWidths[2]
+                height: parent.headerHeight
+                innerText.text: rightArrow
+            }
+
+            ActivityHeaderRectangle {
+                width: auxHeaderWidths[3]
+                height: parent.headerHeight
+                innerText.text: 'New Record'
             }
         }
 
         ListView {
             id: activityListView
-
-            readonly property int rowHeight: 40
 
             width: contentItem.childrenRect.width
             implicitWidth: width
@@ -160,7 +180,7 @@ Item {
             Layout.alignment: Qt.AlignHCenter
 
             clip: true
-            cacheBuffer: 40*rowHeight
+            cacheBuffer: 1000
 
             ScrollBar.vertical: ScrollBar {
                 active: true
@@ -169,9 +189,8 @@ Item {
 
             delegate: Item {
                 implicitWidth: root.implicitWidth
-                implicitHeight: activityListView.rowHeight
-                                +chartActivityHeader.implicitHeight
-                                +chartActivityAuxHeader.implicitHeight
+                implicitHeight: musicActivityRow.rowHeight
+                                +chartActivityHeader.rowHeight
                                 +chartActivityListView.implicitHeight
                                 +separateLine.height
 
@@ -182,207 +201,117 @@ Item {
                     Row {
                         id: musicActivityRow
 
-                        Rectangle {
-                            id: activityRectangle
+                        readonly property int rowHeight: 40
+
+                        ActivityRectangle {
                             width: headerWidths[0]
-                            height: activityListView.rowHeight
-                            border.color: 'black'
-                            color: '#34495E'
-                            Text {
-                                anchors.centerIn: parent
-                                text: model.time
-                                font: fontMetrics.font
-                                color: 'white'
-                            }
+                            height: parent.rowHeight
+                            innerText.text: '#'+index
                         }
 
-                        Rectangle {
+                        ActivityRectangle {
                             width: headerWidths[1]
-                            height: activityListView.rowHeight
-                            border.color: 'black'
-                            color: '#34495E'
-                            Text {
-                                anchors.centerIn: parent
-                                text: model.version
-                                font: fontMetrics.font
-                                color: 'white'
-                            }
+                            height: parent.rowHeight
+                            innerText.text: model.time
                         }
 
-                        Rectangle {
+                        ActivityRectangle {
                             width: headerWidths[2]
-                            height: activityListView.rowHeight
-                            implicitWidth: width
-                            implicitHeight: height
-                            border.color: 'black'
-                            color: '#34495E'
-
-                            Rectangle {
-                                id: rectPadding
-                                width: 10
-                                height: parent.height
-                                anchors {
-                                    left: parent.left
-                                    top: parent.top
-                                }
-                                color: 'transparent'
-                            }
-
-                            Text {
-                                id: titleText
-                                width: parent.width-rectPadding.width*2
-                                anchors.centerIn: parent
-
-                                text: model.title
-                                color: 'white'
-                                font: fontMetrics.font
-                                minimumPixelSize: 8
-                                fontSizeMode: Text.Fit
-                                visible: false
-                            }
-
-                            LinearGradient {
-                                anchors.fill: titleText
-                                source: titleText
-                                gradient: Gradient {
-                                    GradientStop { position: 0; color: model.version===activeVersion ? '#AED6F1' : '#F9E79F' }
-                                    GradientStop { position: 1; color: model.version===activeVersion ? '#13A2FF' : '#F4D03F' }
-                                }
-                            }
+                            height: parent.rowHeight
+                            innerText.text: model.version
                         }
 
-                        Rectangle {
+                        TitleRectangle {
                             width: headerWidths[3]
-                            height: activityListView.rowHeight
-                            border.color: 'black'
-                            color: '#34495E'
+                            height: parent.rowHeight
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: model.previousPlayCount
-                                font: fontMetrics.font
-                                color: 'white'
-                            }
+                            version: model.version
+                            activeVersion: activeVersion
+
+                            innerText.text: model.title
                         }
 
-                        Rectangle {
+                        ActivityRectangle {
                             width: headerWidths[4]
-                            height: activityListView.rowHeight
-                            border.color: 'black'
-                            color: '#34495E'
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: '->'
-                                font: fontMetrics.font
-                                color: 'white'
-                            }
+                            height: parent.rowHeight
+                            innerText.text: model.previousPlayCount
                         }
 
-                        Rectangle {
+                        ActivityRectangle {
                             width: headerWidths[5]
-                            height: activityListView.rowHeight
-                            border.color: 'black'
-                            color: '#34495E'
+                            height: parent.rowHeight
+                            innerText.text: rightArrow
+                        }
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: model.playCount
-                                font: fontMetrics.font
-                                color: 'white'
-                            }
+                        ActivityRectangle {
+                            width: headerWidths[6]
+                            height: parent.rowHeight
+                            innerText.text: model.playCount
                         }
                     }
 
                     Row {
                         id: chartActivityHeader
 
-                        ChartActivityHeaderRectangle {
-                            width: chartHeaderWidths[0]
-                            height: chartActivityListView.rowHeight
-                            color: activityRectangle.color
-                            innerText.text: '#'+(index+1)
-                        }
-
-                        ChartActivityHeaderRectangle {
-                            width: chartHeaderWidths[1]+chartHeaderWidths[2]+chartHeaderWidths[3]+chartHeaderWidths[4]
-                            height: chartActivityListView.rowHeight
-                            innerText.text: 'Previous Record'
-                        }
-
-                        ChartActivityHeaderRectangle {
-                            width: chartHeaderWidths[5]
-                            height: chartActivityListView.rowHeight
-                            innerText.text: '->'
-                        }
-
-                        ChartActivityHeaderRectangle {
-                            width: chartHeaderWidths[6]+chartHeaderWidths[7]+chartHeaderWidths[8]+chartHeaderWidths[9]
-                            height: chartActivityListView.rowHeight
-                            innerText.text: 'New Record'
-                        }
-                    }
-
-                    Row {
-                        id: chartActivityAuxHeader
+                        readonly property int rowHeight: 20
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[0]
-                            height: chartActivityListView.rowHeight
+                            height: parent.rowHeight
                             innerText.text: 'Lv'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[1]
-                            height: chartActivityListView.rowHeight
-                            innerText.text: 'C'
+                            height: parent.rowHeight
+                            innerText.text: 'CL'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[2]
-                            height: chartActivityListView.rowHeight
+                            height: parent.rowHeight
                             innerText.text: 'Clear'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[3]
-                            height: chartActivityListView.rowHeight
+                            height: parent.rowHeight
                             innerText.text: 'Score'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[4]
-                            height: chartActivityListView.rowHeight
+                            height: parent.rowHeight
                             innerText.text: 'Miss'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[5]
-                            height: chartActivityListView.rowHeight
-                            innerText.text: '->'
+                            height: parent.rowHeight
+                            innerText.text: rightArrow
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[6]
-                            height: chartActivityListView.rowHeight
-                            innerText.text: 'C'
+                            height: parent.rowHeight
+                            innerText.text: 'CL'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[7]
-                            height: chartActivityListView.rowHeight
+                            height: parent.rowHeight
                             innerText.text: 'Clear'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[8]
-                            height: chartActivityListView.rowHeight
+                            height: parent.rowHeight
                             innerText.text: 'Score'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[9]
-                            height: chartActivityListView.rowHeight
+                            height: parent.rowHeight
                             innerText.text: 'Miss'
                         }
                     }

@@ -3,10 +3,13 @@ import QtQuick.Controls 2.15
 
 Rectangle {
     property alias innerText: innerText
+
     width: 60
     height: 30
+
     border.color: 'black'
     color: 'mediumturquoise'
+
     Text {
         id: innerText
 

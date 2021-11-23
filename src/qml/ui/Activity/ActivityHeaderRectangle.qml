@@ -8,7 +8,7 @@ Rectangle {
     height: 30
 
     border.color: 'black'
-    color: 'lightslategray'
+    color: 'dodgerblue'
 
     Text {
         id: innerText
@@ -18,7 +18,7 @@ Rectangle {
 
         color: 'white'
         font.family: 'Verdana'
-        font.pixelSize: 16
+        font.pixelSize: 14
         font.bold: true
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         horizontalAlignment: Text.AlignHCenter

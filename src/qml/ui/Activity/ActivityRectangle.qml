@@ -8,7 +8,7 @@ Rectangle {
     height: 30
 
     border.color: 'black'
-    color: 'lightslategray'
+    color: '#34495E'
 
     Text {
         id: innerText
