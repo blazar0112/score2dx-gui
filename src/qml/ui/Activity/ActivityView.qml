@@ -15,13 +15,18 @@ Item {
     readonly property string rightArrow: '➜'
 
     //'' Header:    | #Act  | Time(JST) | Ver | Title | PreviousPlayCount | -> | PlayCount |
-    //'' AuxHeader: | Lv    | Previous Record | -> | New Record |
+    //'' AuxHeader: | Lv    | Previous Record | -> | New Record | Statistics |
     readonly property var headerWidths: [40, 60, 40, 500, 100, 40, 100]
-    readonly property var auxHeaderWidths: [40, 400, 40, 400]
+    readonly property var auxHeaderWidths: [40, 350, 20, 350, 120]
 
-    //'' Header:    | Lv    | C | Clear | Score | Miss | -> | C | Clear | Score | Miss |
-    //'' Row:       | Lv    | ClearLamp | ClearText | Score | Miss | -> | ClearLamp | ClearText | Score | Miss |
-    readonly property var chartHeaderWidths: [40, 30, 250, 60, 60, 40, 30, 250, 60, 60]
+    //'' Row:       | Lv    |( ClearLamp | Clear | Score | DJ Level | SLv Diff | Miss )| () =  previous record
+    //''                | -> | (new record same columns as previous record) |
+    //''                | PDBS Diff | PDBM Diff |
+    readonly property var chartHeaderWidths: [
+        40, 20, 80, 60, 50, 90, 50,
+        20, 20, 80, 60, 50, 90, 50,
+        60, 60
+    ]
     property string activeVersion: ''
 
     implicitWidth: 880
@@ -168,6 +173,12 @@ Item {
                 height: parent.headerHeight
                 innerText.text: 'New Record'
             }
+
+            ActivityHeaderRectangle {
+                width: auxHeaderWidths[4]
+                height: parent.headerHeight
+                innerText.text: 'Stats Diff'
+            }
         }
 
         ListView {
@@ -226,7 +237,7 @@ Item {
                             height: parent.rowHeight
 
                             version: model.version
-                            activeVersion: activeVersion
+                            activeVersion: root.activeVersion
 
                             innerText.text: model.title
                         }
@@ -258,7 +269,6 @@ Item {
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[0]
                             height: parent.rowHeight
-                            innerText.text: 'Lv'
                         }
 
                         ChartActivityHeaderRectangle {
@@ -282,37 +292,74 @@ Item {
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[4]
                             height: parent.rowHeight
-                            innerText.text: 'Miss'
+                            innerText.text: 'DJ Lv'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[5]
                             height: parent.rowHeight
-                            innerText.text: rightArrow
+                            innerText.text: 'SL Diff'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[6]
                             height: parent.rowHeight
-                            innerText.text: 'CL'
+                            innerText.text: 'Miss'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[7]
                             height: parent.rowHeight
-                            innerText.text: 'Clear'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[8]
                             height: parent.rowHeight
-                            innerText.text: 'Score'
+                            innerText.text: 'CL'
                         }
 
                         ChartActivityHeaderRectangle {
                             width: chartHeaderWidths[9]
                             height: parent.rowHeight
+                            innerText.text: 'Clear'
+                        }
+
+                        ChartActivityHeaderRectangle {
+                            width: chartHeaderWidths[10]
+                            height: parent.rowHeight
+                            innerText.text: 'Score'
+                        }
+
+                        ChartActivityHeaderRectangle {
+                            width: chartHeaderWidths[11]
+                            height: parent.rowHeight
+                            innerText.text: 'DJ Lv'
+                        }
+
+                        ChartActivityHeaderRectangle {
+                            width: chartHeaderWidths[12]
+                            height: parent.rowHeight
+                            innerText.text: 'SL Diff'
+                        }
+
+                        ChartActivityHeaderRectangle {
+                            width: chartHeaderWidths[13]
+                            height: parent.rowHeight
                             innerText.text: 'Miss'
+                        }
+
+                        ChartActivityHeaderRectangle {
+                            width: chartHeaderWidths[14]
+                            height: parent.rowHeight
+                            innerText.text: 'PDBS'
+                            color: 'orangered'
+                        }
+
+                        ChartActivityHeaderRectangle {
+                            width: chartHeaderWidths[15]
+                            height: parent.rowHeight
+                            innerText.text: 'PDBM'
+                            color: 'orangered'
                         }
                     }
 
@@ -348,10 +395,11 @@ Item {
                                 difficulty: model.difficulty
                             }
 
-                            ChartActivityRectangle {
+                            ClearRectangle {
                                 width: chartHeaderWidths[2]
                                 height: chartActivityListView.rowHeight
                                 innerText.text : previousClear
+                                color: chartActivityRectangle.color
                             }
 
                             ChartActivityRectangle {
@@ -360,42 +408,87 @@ Item {
                                 innerText.text : previousScore
                             }
 
-                            ChartActivityRectangle {
+                            DjLevelRectangle {
                                 width: chartHeaderWidths[4]
                                 height: chartActivityListView.rowHeight
+                                innerText.text : previousDjLevel
+                                color: chartActivityRectangle.color
+                            }
+
+                            ScoreLevelCategoryRectangle {
+                                width: chartHeaderWidths[5]
+                                height: chartActivityListView.rowHeight
+                                innerText.text : previousScoreLevelDiff
+                                color: chartActivityRectangle.color
+                            }
+
+                            MissRectangle {
+                                width: chartHeaderWidths[6]
+                                height: chartActivityListView.rowHeight
                                 innerText.text : previousMiss
+                                color: chartActivityRectangle.color
                             }
 
                             ChartActivityRectangle {
-                                width: chartHeaderWidths[5]
+                                width: chartHeaderWidths[7]
                                 height: chartActivityListView.rowHeight
-                                innerText.text : '->'
+                                innerText.text : rightArrow
                             }
 
                             ClearLampRectangle {
-                                width: chartHeaderWidths[6]
+                                width: chartHeaderWidths[8]
                                 height: chartActivityListView.rowHeight
                                 color: chartActivityRectangle.color
                                 clear: newRecordClear
                                 difficulty: model.difficulty
                             }
 
-                            ChartActivityRectangle {
-                                width: chartHeaderWidths[7]
+                            ClearRectangle {
+                                width: chartHeaderWidths[9]
                                 height: chartActivityListView.rowHeight
                                 innerText.text : newRecordClear
+                                color: chartActivityRectangle.color
                             }
 
                             ChartActivityRectangle {
-                                width: chartHeaderWidths[8]
+                                width: chartHeaderWidths[10]
                                 height: chartActivityListView.rowHeight
                                 innerText.text : newRecordScore
                             }
 
-                            ChartActivityRectangle {
-                                width: chartHeaderWidths[9]
+                            DjLevelRectangle {
+                                width: chartHeaderWidths[11]
+                                height: chartActivityListView.rowHeight
+                                innerText.text : newRecordDjLevel
+                                color: chartActivityRectangle.color
+                            }
+
+                            ScoreLevelCategoryRectangle {
+                                width: chartHeaderWidths[12]
+                                height: chartActivityListView.rowHeight
+                                innerText.text : newRecordScoreLevelDiff
+                                color: chartActivityRectangle.color
+                            }
+
+                            MissRectangle {
+                                width: chartHeaderWidths[13]
                                 height: chartActivityListView.rowHeight
                                 innerText.text : newRecordMiss
+                                color: chartActivityRectangle.color
+                            }
+
+                            CareerBestScoreDiffRectangle {
+                                width: chartHeaderWidths[14]
+                                height: chartActivityListView.rowHeight
+                                innerText.text : careerDiffableBestScoreDiff
+                                color: chartActivityRectangle.color
+                            }
+
+                            CareerBestMissDiffRectangle {
+                                width: chartHeaderWidths[15]
+                                height: chartActivityListView.rowHeight
+                                innerText.text : careerDiffableBestMissDiff
+                                color: chartActivityRectangle.color
                             }
                         }
                     }

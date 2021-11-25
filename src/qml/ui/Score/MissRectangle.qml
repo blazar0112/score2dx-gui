@@ -16,12 +16,12 @@ Rectangle {
         width: parent.width
         anchors.centerIn: parent
 
-        color: 'white'
+        color: text==='N/A' ? 'lightpink' : 'white'
+
         font.family: 'Verdana'
-        font.pixelSize: 16
+        font.pixelSize: text==='N/A' ? 12 : 14
         font.bold: true
         style: Text.Outline
-        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         horizontalAlignment: Text.AlignHCenter
     }
 }

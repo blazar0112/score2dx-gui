@@ -3,6 +3,7 @@ import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.0
 
 Rectangle {
+    id: root
     property alias innerText: innerText
 
     property string activeVersion: ''
@@ -12,7 +13,7 @@ Rectangle {
     height: 40
 
     border.color: 'black'
-    color: '#34495E'
+    color: 'darkslategray'
 
     Rectangle {
         id: padding
@@ -46,8 +47,15 @@ Rectangle {
         anchors.fill: innerText
         source: innerText
         gradient: Gradient {
-            GradientStop { position: 0; color: version===activeVersion ? '#AED6F1' : '#F9E79F' }
-            GradientStop { position: 1; color: version===activeVersion ? '#13A2FF' : '#F4D03F' }
+            GradientStop {
+                position: 0
+                //color: root.version===root.activeVersion ? '#AED6F1' : '#F9E79F'
+                color: 'white'
+            }
+            GradientStop {
+                position: 1
+                color: root.version===root.activeVersion ? '#13A2FF' : '#F4D03F'
+            }
         }
     }
 }

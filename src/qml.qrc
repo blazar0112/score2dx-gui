@@ -22,5 +22,11 @@
         <file>qml/ui/Activity/ActivityHeaderRectangle.qml</file>
         <file>qml/ui/Activity/ActivityRectangle.qml</file>
         <file>qml/ui/Score/TitleRectangle.qml</file>
+        <file>qml/ui/Score/ClearRectangle.qml</file>
+        <file>qml/ui/Score/DjLevelRectangle.qml</file>
+        <file>qml/ui/Score/MissRectangle.qml</file>
+        <file>qml/ui/Score/ScoreLevelCategoryRectangle.qml</file>
+        <file>qml/ui/Score/CareerBestScoreDiffRectangle.qml</file>
+        <file>qml/ui/Score/CareerBestMissDiffRectangle.qml</file>
     </qresource>
 </RCC>

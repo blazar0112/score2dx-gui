@@ -16,12 +16,20 @@ Rectangle {
         width: parent.width
         anchors.centerIn: parent
 
-        color: 'white'
+        color: text==='NO PLAY' ? 'darkgray'
+               : text==='FAILED' ? 'firebrick'
+               : text==='ASSIST' ? 'plum'
+               : text==='EASY' ? 'palegreen'
+               : text==='CLEAR' ? 'deepskyblue'
+               : text==='HARD' ? 'red'
+               : text==='EX HARD' ? 'gold'
+               : text==='FC' ? 'cyan'
+               : 'white'
+
         font.family: 'Verdana'
-        font.pixelSize: 16
+        font.pixelSize: 14
         font.bold: true
         style: Text.Outline
-        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         horizontalAlignment: Text.AlignHCenter
     }
 }

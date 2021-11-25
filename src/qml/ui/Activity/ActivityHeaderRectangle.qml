@@ -20,6 +20,7 @@ Rectangle {
         font.family: 'Verdana'
         font.pixelSize: 14
         font.bold: true
+        style: Text.Outline
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         horizontalAlignment: Text.AlignHCenter
     }

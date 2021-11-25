@@ -15,10 +15,16 @@ ICL_S2_SMART_ENUM(ChartActivityDataRole,
     difficulty,
     previousClear,
     previousScore,
+    previousDjLevel,
+    previousScoreLevelDiff,
     previousMiss,
     newRecordClear,
     newRecordScore,
-    newRecordMiss
+    newRecordDjLevel,
+    newRecordScoreLevelDiff,
+    newRecordMiss,
+    careerDiffableBestScoreDiff,
+    careerDiffableBestMissDiff
 );
 
 struct ChartActivityData

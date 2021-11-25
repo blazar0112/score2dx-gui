@@ -735,7 +735,8 @@ updateChartList(const QString &iidxId,
                 QString::number(careerBestDiffableScoreRecord.ChartScoreProp.ExScore);
         }
 
-        if (chartScore.ExScore==0)
+        //'' intented non-hard/exhard failed? is it possible with retire mechanism ?
+        if (chartScore.ExScore==0 && !chartScore.MissCount.has_value())
         {
             statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreDiff)] = "NP";
         }
