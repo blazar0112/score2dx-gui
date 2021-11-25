@@ -9,8 +9,7 @@ import '../Style'
 
 Item {
     id: root
-    property alias activityList: activityListView
-    property alias activitySectionText: activitySectionText
+    property alias activityListView: activityListView
 
     readonly property string rightArrow: '➜'
 
@@ -68,26 +67,6 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
 
         spacing: 0
-
-        Rectangle {
-            id: activitySection
-            implicitWidth: activityListView.implicitWidth ? activityListView.implicitWidth : root.implicitWidth
-            Layout.alignment: Qt.AlignHCenter
-            height: 30
-            border.color: 'black'
-
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: 'white' }
-                GradientStop { position: 1.0; color: '#512E5F' }
-            }
-
-            Text {
-                id: activitySectionText
-                anchors.centerIn: parent
-                font: fontMetrics.font
-            }
-        }
 
         Row {
             id: activityListHeader

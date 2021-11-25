@@ -47,7 +47,7 @@ ApplicationWindow
                 Layout.alignment: Qt.AlignTop
                 spacing: 0
 
-                SideBarItem {
+                CollapsibleGridLayout {
                     Layout.fillWidth: true
                     title: 'Player'
 
@@ -121,7 +121,7 @@ ApplicationWindow
                     }
                 }
 
-                SideBarItem {
+                CollapsibleGridLayout {
                     Layout.fillWidth: true
                     title: 'View Setting'
 
@@ -182,7 +182,7 @@ ApplicationWindow
                     }
                 }
 
-                SideBarItem {
+                CollapsibleGridLayout {
                     Layout.fillWidth: true
 
                     title: 'IST'
@@ -502,15 +502,28 @@ ApplicationWindow
                         Layout.fillHeight: true
                         spacing: 0
 
-                        Calendar {
-                            Layout.fillWidth: true
+                        CollapsibleGridLayout {
+                            width: 280
+                            height: 30
+                            Layout.alignment: Qt.AlignHCenter
 
-                            onDateClicked: {
-                                ActivityManager.updateActivity(
-                                    comboBoxPlayer.currentText,
-                                    comboBoxPlayStyle.currentText,
-                                    date
-                                )
+                            title: 'Calendar'
+
+                            gridLayout.columns: 1
+                            gridLayout.rows: 1
+
+                            Calendar {
+                                id: calendar
+                                Layout.fillWidth: true
+
+                                onDateClicked: {
+                                    console.log('date clicked', date)
+                                    ActivityManager.updateActivity(
+                                        comboBoxPlayer.currentText,
+                                        comboBoxPlayStyle.currentText,
+                                        date
+                                    )
+                                }
                             }
                         }
 
@@ -520,12 +533,35 @@ ApplicationWindow
                             color: 'transparent'
                         }
 
+                        Rectangle {
+                            id: activitySection
+                            implicitWidth: activityView.activityListView.implicitWidth
+                                           ? activityView.activityListView.implicitWidth
+                                           : activityView.implicitWidth
+                            Layout.alignment: Qt.AlignHCenter
+                            height: 30
+                            border.color: 'black'
+
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: 'white' }
+                                GradientStop { position: 1.0; color: '#512E5F' }
+                            }
+
+                            Text {
+                                id: activitySectionText
+                                anchors.centerIn: parent
+                                text: '['+ActivityManager.activityDate+'] '+ActivityManager.activityPlayStyle+' activity: '+ActivityListModel.rowItemCount
+                                font: fontMetrics.font
+                            }
+                        }
+
                         ActivityView {
+                            id: activityView
                             Layout.fillWidth: true
                             Layout.fillHeight: true
 
-                            activityList.model: ActivityListModel
-                            activitySectionText.text: '['+ActivityManager.activityDate+'] '+ActivityManager.activityPlayStyle+' activity: '+ActivityListModel.rowItemCount
+                            activityListView.model: ActivityListModel
                             activeVersion: comboBoxActiveVersion.currentText
                         }
                     }

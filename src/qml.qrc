@@ -9,7 +9,7 @@
         <file>qml/ui/Style/StyledComboBox.qml</file>
         <file>qml/ui/Score/StatsView.qml</file>
         <file>qml/image/icon.png</file>
-        <file>qml/ui/Style/SideBarItem.qml</file>
+        <file>qml/ui/Style/CollapsibleGridLayout.qml</file>
         <file>qml/image/sidebar_collapsed.png</file>
         <file>qml/image/sidebar_expanded.png</file>
         <file>qml/ui/Style/SideBarText.qml</file>
