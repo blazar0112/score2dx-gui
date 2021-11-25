@@ -4,15 +4,16 @@ import QtQuick.Layouts 1.12
 
 //'' To avoid confusion:
 //''    type 'Date': datetime class in Qt/Javascript
-//''    variable name with 'dateTime': instance of datetime, even if it's new Date().
-//''    variable name with 'date': date part of datetime, not padded to two digit as in ISO format.
-//''    variable name with 'isoDate': ISO format 'YYYY-MM-DD' from datetime
+//''    variable name with 'dateTime': instance of datetime.
+//''    variable name with 'date': date part of datetime, i.e. Date.getDate(),
+//''                               not padded to two digit as in ISO format.
+//''    variable name with 'isoDate': 'YYYY-MM-DD' part in ISO format (strip time part) from datetime
 Item {
     id: root
-    property date leftTopDateTime: (getLeftTopDateTimeFromToday())
+    property date leftTopDateTime: getLeftTopDateTime(new Date())
     property date iteratingDateTime: leftTopDateTime
     property string currentYearMonth: getYearMonthOfToday()
-    property string currentIsoDate: ''
+    property string selectedIsoDate: ''
 
     readonly property var weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
@@ -26,25 +27,130 @@ Item {
         anchors.fill: parent
         spacing: 0
 
-        Rectangle {
-            id: title
+        Row {
+            Rectangle {
+                width: 30
+                height: 30
 
-            width: 280
-            height: 30
-            Layout.alignment: Qt.AlignHCenter
+                color: 'lightsalmon'
 
-            color: 'lightsalmon'
+                Text {
+                    anchors.fill: parent
+                    color: 'white'
+                    text: '<'
+                    font.family: 'Verdana'
+                    font.pixelSize: 16
+                    font.bold: true
+                    style: Text.Outline
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
 
-            Text {
-                anchors.fill: parent
-                color: 'white'
-                text: root.currentYearMonth
-                font.family: 'Verdana'
-                font.pixelSize: 16
-                font.bold: true
-                style: Text.Outline
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        let monthFirstIsoDate = root.currentYearMonth+'-01'
+                        let dateTime = getDateTime(monthFirstIsoDate)
+                        dateTime.setMonth(dateTime.getMonth()-1)
+                        let isoDate = getIsoDate(dateTime)
+                        updateCalender(isoDate)
+                    }
+                }
+            }
+
+            Rectangle {
+                width: 30
+                height: 30
+
+                color: 'lightsalmon'
+            }
+
+            Rectangle {
+                id: title
+
+                width: 160
+                height: 30
+
+                color: 'lightsalmon'
+
+                Text {
+                    anchors.fill: parent
+                    color: 'white'
+                    text: root.currentYearMonth
+                    font.family: 'Verdana'
+                    font.pixelSize: 16
+                    font.bold: true
+                    style: Text.Outline
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+            }
+
+            Rectangle {
+                width: 30
+                height: 30
+
+                color: 'lightsalmon'
+
+                Rectangle {
+                    width: 25
+                    height: 25
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    radius: 5
+
+                    color: 'yellow'
+
+                    Text {
+                        anchors.fill: parent
+                        color: 'white'
+                        text: 'T'
+                        font.family: 'Verdana'
+                        font.pixelSize: 16
+                        font.bold: true
+                        style: Text.Outline
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            let isoDate = getIsoDate(new Date())
+                            updateCalender(isoDate)
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                width: 30
+                height: 30
+
+                color: 'lightsalmon'
+
+                Text {
+                    anchors.fill: parent
+                    color: 'white'
+                    text: '>'
+                    font.family: 'Verdana'
+                    font.pixelSize: 16
+                    font.bold: true
+                    style: Text.Outline
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        let monthFirstIsoDate = root.currentYearMonth+'-01'
+                        let dateTime = getDateTime(monthFirstIsoDate)
+                        dateTime.setMonth(dateTime.getMonth()+1)
+                        let isoDate = getIsoDate(dateTime)
+                        updateCalender(isoDate)
+                    }
+                }
             }
         }
 
@@ -87,7 +193,13 @@ Item {
             columnSpacing: 0
 
             Repeater {
+                id: repeater
                 model: 42
+
+                onModelChanged: {
+                    console.log('repeater model changed')
+                }
+
                 delegate: Rectangle {
                     id: dateRectangle
                     property string isoDate: ''
@@ -95,7 +207,7 @@ Item {
                     implicitWidth: 40
                     implicitHeight: 40
                     border.color: 'black'
-                    color: root.currentIsoDate===isoDate ? 'lightskyblue'
+                    color: root.selectedIsoDate===isoDate ? 'lightskyblue'
                            : 'slategray'
 
                     Text {
@@ -116,8 +228,7 @@ Item {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            root.currentIsoDate = isoDate
-                            dateClicked(isoDate)
+                            updateCalender(isoDate)
                         }
                     }
 
@@ -134,15 +245,19 @@ Item {
 
     }
 
-    function getYearMonthOfToday() {
-        let today = new Date()
-        let isoDate = getIsoDate(today)
+    function getYearMonth(isoDate) {
         return isoDate.substring(0, 7)
     }
 
-    function getLeftTopDateTimeFromToday() {
-        let lefTop = new Date()
-        lefTop.setDate(lefTop.getDate()-lefTop.getDate()+1)
+    function getYearMonthOfToday() {
+        let today = new Date()
+        let isoDate = getIsoDate(today)
+        return getYearMonth(isoDate)
+    }
+
+    function getLeftTopDateTime(dateTime) {
+        let lefTop = new Date(dateTime)
+        lefTop.setDate(1)
         lefTop.setDate(lefTop.getDate()-lefTop.getDay())
         return lefTop
     }
@@ -152,5 +267,32 @@ Item {
         let local = new Date(dateTime)
         local.setMinutes(local.getMinutes()-local.getTimezoneOffset())
         return local.toISOString().split('T')[0].split(' ')[0]
+    }
+
+    function getDateTime(isoDate) {
+        let dateTime = new Date()
+        dateTime.setFullYear(Number(isoDate.split('-')[0]))
+        dateTime.setMonth(Number(isoDate.split('-')[1])-1)
+        dateTime.setDate(Number(isoDate.split('-')[2]))
+        return dateTime
+    }
+
+    function updateCalender(isoDate) {
+        console.log('updateCalender', isoDate)
+
+        root.selectedIsoDate = isoDate
+        if (currentYearMonth!==getYearMonth(isoDate))
+        {
+            let dateTime = getDateTime(isoDate)
+
+            root.leftTopDateTime = getLeftTopDateTime(dateTime)
+            root.iteratingDateTime = root.leftTopDateTime
+            root.currentYearMonth = getYearMonth(isoDate)
+
+            repeater.model = 0
+            repeater.model = 42
+        }
+
+        dateClicked(isoDate)
     }
 }
