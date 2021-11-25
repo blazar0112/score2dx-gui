@@ -36,9 +36,9 @@ updateActivity(const QString &iidxId,
         return;
     }
 
-    std::string testDate = "2021-11-20";
-    auto beginDateTime = testDate+" 00:00";
-    auto endDateTime = testDate+" 23:59";
+    auto isoDate = date.toStdString();
+    auto beginDateTime = isoDate+" 00:00";
+    auto endDateTime = isoDate+" 23:59";
 
     auto activeVersionIndex = score2dx::FindVersionIndexFromDateTime(beginDateTime);
 
@@ -52,7 +52,7 @@ updateActivity(const QString &iidxId,
     }
 
     mActivityPlayStyle = playStyleQStr;
-    mActivityDate = testDate.c_str();
+    mActivityDate = date;
 
     auto &activityAnalysis = *activityAnalysisPtr;
 
@@ -67,7 +67,7 @@ updateActivity(const QString &iidxId,
     for (auto &[dateTime, musicScoreById] : styleActivity)
     {
         auto tokens = icl_s2::SplitString(" ", dateTime);
-        if (tokens[0]!=testDate)
+        if (tokens[0]!=isoDate)
         {
             throw std::runtime_error("daily activity has incorrect date in datetime "+dateTime);
         }
@@ -190,9 +190,8 @@ updateActivity(const QString &iidxId,
                     chartActivity.Data[static_cast<int>(ChartActivityDataRole::newRecordDjLevel)] = ToString(chartScore.DjLevel).c_str();
                 }
 
-                if (chartScore.MissCount &&
-                        (!previousChartScore.MissCount.has_value()
-                            || chartScore.MissCount>previousChartScore.MissCount))
+                if (chartScore.MissCount
+                    && (!previousChartScore.MissCount || chartScore.MissCount<previousChartScore.MissCount))
                 {
                     chartActivity.Data[static_cast<int>(ChartActivityDataRole::newRecordMiss)] = QString::number(chartScore.MissCount.value());
                 }

@@ -551,7 +551,10 @@ ApplicationWindow
                             Text {
                                 id: activitySectionText
                                 anchors.centerIn: parent
-                                text: '['+ActivityManager.activityDate+'] '+ActivityManager.activityPlayStyle+' activity: '+ActivityListModel.rowItemCount
+                                text: '['+ActivityManager.activityDate+'] '
+                                      +ActivityManager.activityPlayStyle
+                                      +' Activity: '+ActivityListModel.rowItemCount
+                                      +' PlayCount: '+ActivityListModel.getTotalIncreasedPlayCount()
                                 font: fontMetrics.font
                             }
                         }

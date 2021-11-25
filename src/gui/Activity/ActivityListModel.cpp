@@ -23,6 +23,27 @@ getChartActivityListModel(int row)
 
 int
 ActivityListModel::
+getTotalIncreasedPlayCount()
+const
+{
+    int totalPlayCount = 0;
+    for (auto &activityData : mActivityList)
+    {
+        auto previousPlayCount = activityData.Data[static_cast<int>(ActivityDataRole::previousPlayCount)].toInt();
+        auto playCount = activityData.Data[static_cast<int>(ActivityDataRole::playCount)].toInt();
+        auto diff = playCount-previousPlayCount;
+        if (diff<0)
+        {
+            qDebug() << "previousPlayCount" << previousPlayCount << "> playCount" << playCount;
+            continue;
+        }
+        totalPlayCount += diff;
+    }
+    return totalPlayCount;
+}
+
+int
+ActivityListModel::
 rowCount(const QModelIndex &parent)
 const
 {

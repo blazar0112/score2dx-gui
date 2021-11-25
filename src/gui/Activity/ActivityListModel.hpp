@@ -38,6 +38,11 @@ public:
         ChartActivityListModel*
         getChartActivityListModel(int row);
 
+        Q_INVOKABLE
+        int
+        getTotalIncreasedPlayCount()
+        const;
+
         int
         rowCount(const QModelIndex &parent=QModelIndex{})
         const
