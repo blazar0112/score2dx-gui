@@ -201,14 +201,14 @@ Item {
                 Layout.row: 1
                 Layout.column: 3
                 Layout.maximumHeight: 30
-                text: 'Score Level'
+                text: 'Score Level Category'
                 font: fontMetrics.font
                 ButtonGroup.group: buttonGroupColumnType
 
                 onCheckedChanged: {
                     if (checked)
                     {
-                        columnType = 'ScoreLevel'
+                        columnType = 'ScoreLevelCategory'
                         optionChanged()
                     }
                 }
@@ -523,7 +523,7 @@ Item {
 
                 StatsChartHeader {
                     width: headerWidths[6]
-                    text: model.scoreLevelRangeDiff
+                    text: model.scoreLevelDiff
                 }
 
                 StatsChartHeader {
@@ -796,11 +796,11 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: model.scoreLevelRangeDiff
+                        text: model.scoreLevelDiff
                         font.family: 'Verdana'
                         font.pixelSize: 12
                         font.bold: true
-                        color: model.scoreLevelRangeDiff==='NP' ? 'yellow' : 'white'
+                        color: model.scoreLevelDiff==='NP' ? 'yellow' : 'white'
                     }
                 }
 

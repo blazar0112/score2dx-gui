@@ -158,7 +158,7 @@ updateActivity(const QString &iidxId,
                 chartActivity.Data[static_cast<int>(ChartActivityDataRole::previousScoreLevelDiff)] = "";
                 if (previousChartScore.ExScore!=0)
                 {
-                    auto previousScoreLevelDiff = score2dx::ToScoreLevelRangeDiffString(chartInfo.Note, previousChartScore.ExScore);
+                    auto previousScoreLevelDiff = score2dx::ToScoreLevelDiffString(chartInfo.Note, previousChartScore.ExScore);
                     chartActivity.Data[static_cast<int>(ChartActivityDataRole::previousScoreLevelDiff)] = previousScoreLevelDiff.c_str();
                 }
                 chartActivity.Data[static_cast<int>(ChartActivityDataRole::previousMiss)] = "N/A";
@@ -181,7 +181,7 @@ updateActivity(const QString &iidxId,
                 if (chartScore.ExScore>previousChartScore.ExScore)
                 {
                     chartActivity.Data[static_cast<int>(ChartActivityDataRole::newRecordScore)] = QString::number(chartScore.ExScore);
-                    auto scoreLevelDiff = score2dx::ToScoreLevelRangeDiffString(chartInfo.Note, chartScore.ExScore);
+                    auto scoreLevelDiff = score2dx::ToScoreLevelDiffString(chartInfo.Note, chartScore.ExScore);
                     chartActivity.Data[static_cast<int>(ChartActivityDataRole::newRecordScoreLevelDiff)] = scoreLevelDiff.c_str();
                 }
 

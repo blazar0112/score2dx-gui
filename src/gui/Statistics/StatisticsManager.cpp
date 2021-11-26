@@ -18,6 +18,8 @@ namespace s2Time = icl_s2::Time;
 namespace
 {
 
+//! @todo Move GetColors to QML side.
+
 //! @brief Return {Foreground, Background} color code.
 std::pair<QString, QString>
 GetColors(score2dx::Difficulty difficulty)
@@ -91,25 +93,25 @@ GetColors(score2dx::DjLevel djLevel)
 
 //! @brief Return {Foreground, Background} color code.
 std::pair<QString, QString>
-GetColors(score2dx::StatisticScoreLevelRange scoreLevel)
+GetColors(score2dx::ScoreLevelCategory scoreLevelCategory)
 {
-    switch (scoreLevel)
+    switch (scoreLevelCategory)
     {
-        case score2dx::StatisticScoreLevelRange::AMinus:
+        case score2dx::ScoreLevelCategory::AMinus:
             return {"black", "white"};
-        case score2dx::StatisticScoreLevelRange::AEqPlus:
+        case score2dx::ScoreLevelCategory::AEqPlus:
             return {"white", "#16A085"};
-        case score2dx::StatisticScoreLevelRange::AAMinus:
+        case score2dx::ScoreLevelCategory::AAMinus:
             return {"white", "#57E1C6"};
-        case score2dx::StatisticScoreLevelRange::AAEqPlus:
+        case score2dx::ScoreLevelCategory::AAEqPlus:
             return {"black", "#E6E6E6"};
-        case score2dx::StatisticScoreLevelRange::AAAMinus:
+        case score2dx::ScoreLevelCategory::AAAMinus:
             return {"white", "#CDC17B"};
-        case score2dx::StatisticScoreLevelRange::AAAEqPlus:
+        case score2dx::ScoreLevelCategory::AAAEqPlus:
             return {"white", "#F5B041"};
-        case score2dx::StatisticScoreLevelRange::MaxMinus:
+        case score2dx::ScoreLevelCategory::MaxMinus:
             return {"white", "red"};
-        case score2dx::StatisticScoreLevelRange::Max:
+        case score2dx::ScoreLevelCategory::Max:
             return {"black", "cyan"};
     }
 
@@ -145,7 +147,7 @@ StatisticsManager(const score2dx::Core &core, QObject *parent)
         "Title",
         "DJ Level",
         "Score",
-        "Score Level",
+        "SLC",
         "Miss",
         "PDBS Diff",
         "PDBS Ver",
@@ -233,9 +235,9 @@ updateStatsTable(const QString &iidxId,
             columnCount = score2dx::DjLevelSmartEnum::Size()+2;
             break;
         }
-        case StatsColumnType::ScoreLevel:
+        case StatsColumnType::ScoreLevelCategory:
         {
-            columnCount = score2dx::StatisticScoreLevelRangeSmartEnum::Size()+2;
+            columnCount = score2dx::ScoreLevelCategorySmartEnum::Size()+2;
             break;
         }
     }
@@ -305,15 +307,15 @@ updateStatsTable(const QString &iidxId,
             }
             break;
         }
-        case StatsColumnType::ScoreLevel:
+        case StatsColumnType::ScoreLevelCategory:
         {
-            for (auto scoreLevel : score2dx::StatisticScoreLevelRangeSmartEnum::ToRange())
+            for (auto category : score2dx::ScoreLevelCategorySmartEnum::ToRange())
             {
-                auto column = static_cast<int>(scoreLevel);
-                auto [foregroundColor, backgroundColor] = GetColors(scoreLevel);
+                auto column = static_cast<int>(category);
+                auto [foregroundColor, backgroundColor] = GetColors(category);
 
                 auto &data = horizontalHeader[0][column].Data;
-                data[static_cast<int>(StatsTableDataRole::display)] = ToPrettyString(scoreLevel).c_str();
+                data[static_cast<int>(StatsTableDataRole::display)] = ToPrettyString(category).c_str();
                 data[static_cast<int>(StatsTableDataRole::foreground)] = foregroundColor;
                 data[static_cast<int>(StatsTableDataRole::background)] = backgroundColor;
             }
@@ -408,9 +410,9 @@ updateStatsTable(const QString &iidxId,
                     value = statistics.ChartIdListByDjLevel.at(static_cast<score2dx::DjLevel>(column)).size();
                     break;
                 }
-                case StatsColumnType::ScoreLevel:
+                case StatsColumnType::ScoreLevelCategory:
                 {
-                    value = statistics.ChartIdListByScoreLevelRange.at(static_cast<score2dx::StatisticScoreLevelRange>(column)).size();
+                    value = statistics.ChartIdListByScoreLevelCategory.at(static_cast<score2dx::ScoreLevelCategory>(column)).size();
                     break;
                 }
             }
@@ -594,16 +596,16 @@ updateChartList(const QString &iidxId,
                 mChartListFilterList << "Chart: All DJ Level";
                 break;
             }
-            case StatsColumnType::ScoreLevel:
+            case StatsColumnType::ScoreLevelCategory:
             {
-                for (auto &[scoreLevel, colChartIdList] : statistics.ChartIdListByScoreLevelRange)
+                for (auto &[category, colChartIdList] : statistics.ChartIdListByScoreLevelCategory)
                 {
                     for (auto chartId : colChartIdList)
                     {
                         chartIdList.emplace(chartId);
                     }
                 }
-                mChartListFilterList << "Chart: All Score Level";
+                mChartListFilterList << "Chart: All Score Level Category";
                 break;
             }
         }
@@ -626,11 +628,11 @@ updateChartList(const QString &iidxId,
                 mChartListFilterList << QString{"Chart: DJ Level="}+ToString(djLevel).c_str();
                 break;
             }
-            case StatsColumnType::ScoreLevel:
+            case StatsColumnType::ScoreLevelCategory:
             {
-                auto scoreLevel = static_cast<score2dx::StatisticScoreLevelRange>(tableColumn);
-                chartIdList = statistics.ChartIdListByScoreLevelRange.at(scoreLevel);
-                mChartListFilterList << QString{"Chart: Score Level="}+ToPrettyString(scoreLevel).c_str();
+                auto category = static_cast<score2dx::ScoreLevelCategory>(tableColumn);
+                chartIdList = statistics.ChartIdListByScoreLevelCategory.at(category);
+                mChartListFilterList << QString{"Chart: Score Level Category="}+ToPrettyString(category).c_str();
                 break;
             }
         }
@@ -685,7 +687,7 @@ updateChartList(const QString &iidxId,
 
         auto &chartInfo = findChartInfo.value();
 
-        auto rangeDiff = score2dx::ToScoreLevelRangeDiffString(chartInfo.Note, chartScore.ExScore);
+        auto rangeDiff = score2dx::ToScoreLevelDiffString(chartInfo.Note, chartScore.ExScore);
 
         statsChartData.Data[static_cast<int>(StatsChartDataRole::level)] = QString::number(chartInfo.Level);
         statsChartData.Data[static_cast<int>(StatsChartDataRole::difficulty)] = ToString(difficulty)[0];
@@ -695,11 +697,11 @@ updateChartList(const QString &iidxId,
         statsChartData.Data[static_cast<int>(StatsChartDataRole::djLevel)] = ToString(chartScore.DjLevel).c_str();
         if (chartScore.ExScore!=0)
         {
-            statsChartData.Data[static_cast<int>(StatsChartDataRole::scoreLevelRangeDiff)] = rangeDiff.c_str();
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::scoreLevelDiff)] = rangeDiff.c_str();
         }
         else
         {
-            statsChartData.Data[static_cast<int>(StatsChartDataRole::scoreLevelRangeDiff)] = "NP";
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::scoreLevelDiff)] = "NP";
         }
 
         //'' intentioned failed with score 0 ?

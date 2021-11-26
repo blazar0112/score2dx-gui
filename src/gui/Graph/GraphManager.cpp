@@ -245,7 +245,7 @@ updatePlayerScore(const QString &iidxIdQStr,
         analysisList.emplace_back();
         auto &analysisData = analysisList.back();
 
-        analysisData.ScoreLevelRangeDiff = score2dx::ToScoreLevelRangeDiffString(note, chartScore.ExScore).c_str();
+        analysisData.ScoreLevelRangeDiff = score2dx::ToScoreLevelDiffString(note, chartScore.ExScore).c_str();
 
         //'' note: to compare clear type, record here is not space separated
         //'' convert to space separated after all data constructed.

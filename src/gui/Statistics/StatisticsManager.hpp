@@ -23,7 +23,7 @@ ICL_S2_SMART_ENUM(StatsTableType,
 ICL_S2_SMART_ENUM(StatsColumnType,
     Clear,
     DjLevel,
-    ScoreLevel
+    ScoreLevelCategory
 );
 
 ICL_S2_SMART_ENUM(StatsValueType,
