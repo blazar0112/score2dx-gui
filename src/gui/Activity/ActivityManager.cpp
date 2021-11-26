@@ -265,4 +265,46 @@ updateActivity(const QString &iidxId,
     emit activityPlayStyleChanged();
 }
 
+QString
+ActivityManager::
+findActivityDateType(const QString &iidxId,
+                     const QString &playStyleQStr,
+                     const QString &date)
+const
+{
+    if (iidxId.isEmpty()||playStyleQStr.isEmpty()||date.isEmpty())
+    {
+        return {};
+    }
+
+    auto* scoreAnalysisPtr = mGuiCore.GetScore2dxCore().FindAnalysis(iidxId.toStdString());
+    if (!scoreAnalysisPtr)
+    {
+        qDebug() << "Cannot find ScoreAnalysis for player " << iidxId;
+        return {};
+    }
+
+    auto &scoreAnalysis = *scoreAnalysisPtr;
+    auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
+
+    auto isoDate = date.toStdString();
+    auto dateTime = isoDate+" 00:00";
+
+    auto versionDateType = score2dx::FindVersionDateType(dateTime);
+    if (versionDateType==score2dx::VersionDateType::VersionBegin)
+    {
+        return ToString(ActivityDateType::VersionBegin).c_str();
+    }
+    if (versionDateType==score2dx::VersionDateType::VersionEnd)
+    {
+        return ToString(ActivityDateType::VersionEnd).c_str();
+    }
+    if (icl_s2::Find(scoreAnalysis.ActivityByDate.at(playStyle), isoDate))
+    {
+        return ToString(ActivityDateType::HasActivity).c_str();
+    }
+
+    return ToString(ActivityDateType::NoActivity).c_str();
+}
+
 }

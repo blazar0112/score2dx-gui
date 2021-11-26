@@ -15,6 +15,10 @@ Item {
     property string currentYearMonth: getYearMonthOfToday()
     property string selectedIsoDate: ''
 
+    //! @brief Control Date Text color, user can redefine to make new color. return '' to use default.
+    //! Default to use white for date in month, and gray for date out of month.
+    property var customColorFunction: function(isoDate) { return '' }
+
     readonly property var weekDays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
     signal dateClicked(string date)
@@ -196,10 +200,6 @@ Item {
                 id: repeater
                 model: 42
 
-                onModelChanged: {
-                    console.log('repeater model changed')
-                }
-
                 delegate: Rectangle {
                     id: dateRectangle
                     property string isoDate: ''
@@ -213,9 +213,11 @@ Item {
                     Text {
                         id: textDate
                         anchors.fill: parent
-                        color: dateRectangle.isoDate.startsWith(root.currentYearMonth)
-                               ? 'white'
-                               : 'silver'
+                        color: customColorFunction(dateRectangle.isoDate)
+                               ? customColorFunction(dateRectangle.isoDate)
+                               : dateRectangle.isoDate.startsWith(root.currentYearMonth)
+                                    ? 'white'
+                                    : 'silver'
                         text: weekDays[index]
                         font.family: 'Verdana'
                         font.pixelSize: 14
@@ -278,8 +280,6 @@ Item {
     }
 
     function updateCalender(isoDate) {
-        console.log('updateCalender', isoDate)
-
         root.selectedIsoDate = isoDate
         if (currentYearMonth!==getYearMonth(isoDate))
         {

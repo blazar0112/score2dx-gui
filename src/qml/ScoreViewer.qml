@@ -516,6 +516,18 @@ ApplicationWindow
                                 id: calendar
                                 Layout.fillWidth: true
 
+                                customColorFunction: function(isoDate) {
+                                    let dateType = ActivityManager.findActivityDateType(
+                                        comboBoxPlayer.currentText,
+                                        comboBoxPlayStyle.currentText,
+                                        isoDate
+                                    )
+                                    if (dateType==='VersionBegin') { return 'lime' }
+                                    if (dateType==='VersionEnd') { return 'red' }
+                                    if (dateType==='HasActivity') { return 'yellow' }
+                                    return ''
+                                }
+
                                 onDateClicked: {
                                     console.log('date clicked', date)
                                     ActivityManager.updateActivity(

@@ -2,8 +2,17 @@
 
 #include <QObject>
 
+#include "icl_s2/Common/SmartEnum.hxx"
+
 #include "gui/Activity/ActivityListModel.hpp"
 #include "gui/Core/Core.hpp"
+
+ICL_S2_SMART_ENUM(ActivityDateType,
+    VersionBegin,
+    VersionEnd,
+    HasActivity,
+    NoActivity
+);
 
 namespace gui
 {
@@ -22,6 +31,16 @@ public:
         updateActivity(const QString &iidxId,
                        const QString &playStyleQStr,
                        const QString &date);
+
+    //! @brief Return ToString(ActivityDateType), empty if anything is wrong.
+    //! Date may satisfy multiple criteria, priority is same as declare order:
+    //! VersionBegin>VersionEnd>HasActivity>NoActivity.
+        Q_INVOKABLE
+        QString
+        findActivityDateType(const QString &iidxId,
+                             const QString &playStyleQStr,
+                             const QString &date)
+        const;
 
         const QString & getActivityPlayStyle() const { return mActivityPlayStyle; }
         const QString & getActivityDate() const { return mActivityDate; }
