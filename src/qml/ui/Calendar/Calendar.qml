@@ -244,7 +244,6 @@ Item {
                 }
             }
         }
-
     }
 
     function getYearMonth(isoDate) {
@@ -268,7 +267,7 @@ Item {
     function getIsoDate(dateTime) {
         let local = new Date(dateTime)
         local.setMinutes(local.getMinutes()-local.getTimezoneOffset())
-        return local.toISOString().split('T')[0].split(' ')[0]
+        return local.toISOString().split('T')[0]
     }
 
     function getDateTime(isoDate) {

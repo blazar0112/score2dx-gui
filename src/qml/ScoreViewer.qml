@@ -529,7 +529,6 @@ ApplicationWindow
                                 }
 
                                 onDateClicked: {
-                                    console.log('date clicked', date)
                                     ActivityManager.updateActivity(
                                         comboBoxPlayer.currentText,
                                         comboBoxPlayStyle.currentText,

@@ -36,6 +36,8 @@ updateActivity(const QString &iidxId,
         return;
     }
 
+    auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
+
     auto isoDate = date.toStdString();
     auto beginDateTime = isoDate+" 00:00";
     auto endDateTime = isoDate+" 23:59";
@@ -55,9 +57,6 @@ updateActivity(const QString &iidxId,
     mActivityDate = date;
 
     auto &activityAnalysis = *activityAnalysisPtr;
-
-    auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
-
     auto &styleActivity = activityAnalysis.ActivityByDateTime.at(playStyle);
 
     std::vector<ActivityData> activityList;
@@ -86,6 +85,7 @@ updateActivity(const QString &iidxId,
     }
 
     auto &scoreAnalysis = *scoreAnalysisPtr;
+    auto &database = mGuiCore.GetScore2dxCore().GetMusicDatabase();
 
     std::size_t index = 0;
     for (auto &[dateTime, musicScoreById] : styleActivity)
@@ -95,21 +95,41 @@ updateActivity(const QString &iidxId,
 
         for (auto &[musicId, musicScore] : musicScoreById)
         {
+            auto &snapshotData = activityAnalysis.ActivitySnapshotByDateTime.at(playStyle).at(dateTime).at(musicId);
+
+            auto allChartScoreSame = true;
+            for (auto &[difficulty, chartScore] : musicScore.GetChartScores())
+            {
+                auto* previousChartScorePtr = snapshotData.PreviousMusicScore->FindChartScore(difficulty);
+                if (!previousChartScorePtr)
+                {
+                    musicScore.Print();
+                    qDebug() << "previous difficulty not found";
+                    continue;
+                }
+
+                if (chartScore!=*previousChartScorePtr)
+                {
+                    allChartScoreSame = false;
+                    break;
+                }
+            }
+
+            if (allChartScoreSame)
+            {
+                continue;
+            }
+
+            auto versionIndex = musicId/1000;
+            auto versionString = score2dx::ToVersionString(versionIndex);
+            auto title = database.GetLatestMusicInfo(musicId).GetField(score2dx::MusicInfoField::Title);
+
             activityList.emplace_back();
             auto &activityData = activityList.back();
 
             activityData.Data[static_cast<int>(ActivityDataRole::time)] = time.c_str();
-
-            auto &database = mGuiCore.GetScore2dxCore().GetMusicDatabase();
-            auto title = database.GetLatestMusicInfo(musicId).GetField(score2dx::MusicInfoField::Title);
-
             activityData.Data[static_cast<int>(ActivityDataRole::title)] = title.c_str();
-            auto versionIndex = musicId/1000;
-            auto versionString = score2dx::ToVersionString(versionIndex);
             activityData.Data[static_cast<int>(ActivityDataRole::version)] = versionString.c_str();
-
-            auto &snapshotData = activityAnalysis.ActivitySnapshotByDateTime.at(playStyle).at(dateTime).at(musicId);
-
             activityData.Data[static_cast<int>(ActivityDataRole::previousPlayCount)] = QString::number(snapshotData.PreviousMusicScore->GetPlayCount());
             activityData.Data[static_cast<int>(ActivityDataRole::playCount)] = QString::number(musicScore.GetPlayCount());
 
@@ -277,14 +297,15 @@ const
         return {};
     }
 
-    auto* scoreAnalysisPtr = mGuiCore.GetScore2dxCore().FindAnalysis(iidxId.toStdString());
-    if (!scoreAnalysisPtr)
+    auto* activityAnalysisPtr = mGuiCore.GetScore2dxCore().FindVersionActivityAnalysis(iidxId.toStdString());
+    if (!activityAnalysisPtr)
     {
-        qDebug() << "Cannot find ScoreAnalysis for player " << iidxId;
+        qDebug() << "Cannot find ActivityAnalysis for player " << iidxId;
         return {};
     }
 
-    auto &scoreAnalysis = *scoreAnalysisPtr;
+    auto &versionActivityAnalysis = *activityAnalysisPtr;
+
     auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
 
     auto isoDate = date.toStdString();
@@ -299,9 +320,13 @@ const
     {
         return ToString(ActivityDateType::VersionEnd).c_str();
     }
-    if (icl_s2::Find(scoreAnalysis.ActivityByDate.at(playStyle), isoDate))
+
+    for (auto &[dateTime, musicScoreById] : versionActivityAnalysis.ActivityByDateTime.at(playStyle))
     {
-        return ToString(ActivityDateType::HasActivity).c_str();
+        if (icl_s2::Find(dateTime, isoDate))
+        {
+            return ToString(ActivityDateType::HasActivity).c_str();
+        }
     }
 
     return ToString(ActivityDateType::NoActivity).c_str();
