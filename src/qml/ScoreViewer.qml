@@ -10,6 +10,7 @@ import Score2dx.Gui 1.0
 import '../qml/ui/Activity'
 import '../qml/ui/Calendar'
 import '../qml/ui/Score'
+import '../qml/ui/Statistics'
 import '../qml/ui/Style'
 
 ApplicationWindow
@@ -472,7 +473,7 @@ ApplicationWindow
                         }
                     }
 
-                    StatsView {
+                    StatisticsView {
                         id: statsView
 
                         Layout.fillWidth: true
