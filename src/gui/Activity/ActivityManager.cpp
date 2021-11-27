@@ -42,7 +42,13 @@ updateActivity(const QString &iidxId,
     auto beginDateTime = isoDate+" 00:00";
     auto endDateTime = isoDate+" 23:59";
 
-    auto activeVersionIndex = score2dx::FindVersionIndexFromDateTime(beginDateTime);
+    auto findVersionIndex = score2dx::FindVersionIndexFromDateTime(beginDateTime);
+    if (!findVersionIndex)
+    {
+        qDebug() << "cannot find version index from " << date;
+        return;
+    }
+    auto activeVersionIndex = findVersionIndex.value();
 
     mGuiCore.AnalyzeActivity(iidxId.toStdString(), beginDateTime, endDateTime);
 
@@ -330,6 +336,33 @@ const
     }
 
     return ToString(ActivityDateType::NoActivity).c_str();
+}
+
+QString
+ActivityManager::
+getVersionDateTimeRange(const QString &date)
+const
+{
+    if (date.isEmpty())
+    {
+        return "Version: N/A";
+    }
+    auto dateTime = date.toStdString()+" 00:00";
+    auto findVersionIndex = score2dx::FindVersionIndexFromDateTime(dateTime);
+    if (!findVersionIndex)
+    {
+        return "Version: N/A";
+    }
+    auto versionIndex = findVersionIndex.value();
+    auto dateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
+    auto &begin = dateTimeRange.at(icl_s2::RangeSide::Begin);
+    auto &end = dateTimeRange.at(icl_s2::RangeSide::End);
+    auto text = "Version: "+score2dx::VersionNames.at(versionIndex)
+                +" ("+score2dx::ToVersionString(versionIndex)
+                +") ["+begin
+                +", "+end
+                +"]";
+    return text.c_str();
 }
 
 }

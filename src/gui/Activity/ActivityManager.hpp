@@ -42,6 +42,11 @@ public:
                              const QString &date)
         const;
 
+        Q_INVOKABLE
+        QString
+        getVersionDateTimeRange(const QString &date)
+        const;
+
         const QString & getActivityPlayStyle() const { return mActivityPlayStyle; }
         const QString & getActivityDate() const { return mActivityDate; }
 

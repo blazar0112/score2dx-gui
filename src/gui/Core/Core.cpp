@@ -198,16 +198,24 @@ downloadIst(const QString &iidxId,
     process->start(command, args);
 }
 
-void
+QString
 Core::
 setActiveVersion(const QString &iidxId,
                  const QString &activeVersionIndex)
 {
-    if (iidxId.isEmpty()||activeVersionIndex.isEmpty()) { return; }
+    if (iidxId.isEmpty()||activeVersionIndex.isEmpty()) { return {}; }
 
     mCore.SetActiveVersionIndex(activeVersionIndex.toULongLong());
     mCore.Analyze(iidxId.toStdString());
+
+    auto dateTimeRange = score2dx::GetVersionDateTimeRange(activeVersionIndex.toULongLong());
+    auto &begin = dateTimeRange.at(icl_s2::RangeSide::Begin);
+    auto tokens = icl_s2::SplitString(" ", begin);
+    if (tokens.empty()) { return {}; }
+
     std::cout << std::flush;
+
+    return tokens[0].c_str();
 }
 
 const score2dx::Core &

@@ -279,6 +279,8 @@ Item {
     }
 
     function updateCalender(isoDate) {
+        if (!isoDate) { return; }
+
         root.selectedIsoDate = isoDate
         if (currentYearMonth!==getYearMonth(isoDate))
         {

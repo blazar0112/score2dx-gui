@@ -93,7 +93,7 @@ ApplicationWindow
                             if (succeeded)
                             {
                                 text = ''
-                                generateScoreAnalysis()
+                                updateActiveVersion()
                             }
                         }
                     }
@@ -141,7 +141,7 @@ ApplicationWindow
                         model: StatisticsManager.activeVersionList
 
                         onActivated: {
-                            generateScoreAnalysis()
+                            updateActiveVersion()
                         }
                     }
 
@@ -550,7 +550,7 @@ ApplicationWindow
                                            ? activityView.activityListView.implicitWidth
                                            : activityView.implicitWidth
                             Layout.alignment: Qt.AlignHCenter
-                            height: 30
+                            height: 40
                             border.color: 'black'
 
                             gradient: Gradient {
@@ -562,11 +562,13 @@ ApplicationWindow
                             Text {
                                 id: activitySectionText
                                 anchors.centerIn: parent
-                                text: '['+ActivityManager.activityDate+'] '
+                                text: '['+calendar.selectedIsoDate+'] '
                                       +ActivityManager.activityPlayStyle
                                       +' Activity: '+ActivityListModel.rowItemCount
                                       +' PlayCount: '+ActivityListModel.getTotalIncreasedPlayCount()
+                                      +'\n'+ActivityManager.getVersionDateTimeRange(calendar.selectedIsoDate)
                                 font: fontMetrics.font
+                                horizontalAlignment: Text.AlignHCenter
                             }
                         }
 
@@ -619,7 +621,7 @@ ApplicationWindow
     function updatePlayer()
     {
         updateMusicScore()
-        generateScoreAnalysis()
+        updateActiveVersion()
     }
 
     function updateMusicScore()
@@ -641,11 +643,12 @@ ApplicationWindow
         scoreChartView.width -= 1
     }
 
-    function generateScoreAnalysis()
+    function updateActiveVersion()
     {
-        Core.setActiveVersion(comboBoxPlayer.currentText, comboBoxActiveVersion.currentText)
+        let versionBeginDate = Core.setActiveVersion(comboBoxPlayer.currentText, comboBoxActiveVersion.currentText)
         StatisticsManager.updateDifficultyVersionList()
         updateStatsTable()
+        calendar.updateCalender(versionBeginDate)
     }
 
     function updateStatsTable()

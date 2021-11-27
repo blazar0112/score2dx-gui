@@ -44,8 +44,9 @@ public:
                     bool runInPowerShell);
 
     //! @brief Set active version and re-analyze ScoreAnalysis for player with iidxId.
+    //! @return version begin date.
         Q_INVOKABLE
-        void
+        QString
         setActiveVersion(const QString &iidxId,
                          const QString &activeVersionIndex);
 
