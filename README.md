@@ -86,8 +86,8 @@
 
 ## GUI Manual
 
-- <span style="color:darkviolet">██</span> UI section bar with triangle `▼`: click section bar to collapse below section.
-- <span style="color:#B2D2A4">██</span> Green background ComboBox: click and select items in dropdown menu.
+- Purple UI section bar with triangle `▼`: click section bar to collapse below section.
+- Green background ComboBox: click and select items in dropdown menu.
     - **IIDX ID**
     - **Play Style**
     - **Difficulty**

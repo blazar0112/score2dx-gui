@@ -82,8 +82,8 @@
 
 ## GUI 操作手冊
 
-- <span style="color:darkviolet">██</span> 有三角形 `▼` 的介面區塊條: 點區塊條可以摺疊下方區塊。
-- <span style="color:#B2D2A4">██</span> 綠色背景的 ComboBox (下拉式組合方塊)： 點了後從下拉式選單中選取。
+- 有三角形 `▼` 的紫色介面區塊條: 點區塊條可以摺疊下方區塊。
+- 綠色背景的 ComboBox (下拉式組合方塊)： 點了後從下拉式選單中選取。
     - **IIDX ID**
     - **Play Style** (遊玩風格)
     - **Difficulty** (譜面難易度)
