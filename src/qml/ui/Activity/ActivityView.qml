@@ -37,30 +37,6 @@ Item {
         font.bold: true
     }
 
-    Gradient {
-        id: gradientAAA
-        GradientStop { position: 0.0; color: 'white' }
-        GradientStop { position: 1.0; color: 'gold' }
-    }
-
-    Gradient {
-        id: gradientAA
-        GradientStop { position: 0.0; color: 'white' }
-        GradientStop { position: 1.0; color: 'silver' }
-    }
-
-    Gradient {
-        id: gradientA
-        GradientStop { position: 0.0; color: 'white' }
-        GradientStop { position: 1.0; color: '#2ECC71' }
-    }
-
-    Gradient {
-        id: gradientAMinus
-        GradientStop { position: 0.0; color: 'white' }
-        GradientStop { position: 1.0; color: '#8E44AD' }
-    }
-
     ColumnLayout {
         width: parent.width
         height: parent.height

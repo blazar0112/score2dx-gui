@@ -8,6 +8,7 @@ import '../Statistics'
 import '../Style'
 
 Item {
+    id: root
     property alias horizontalHeaderView: horizontalHeaderView
     property alias verticalHeaderView: verticalHeaderView
     property alias tableView: tableView
@@ -242,71 +243,23 @@ Item {
             color: 'transparent'
         }
 
-        Rectangle {
-            id: rectTableSection
-            property bool expanded: true
-
+        CollapsibleGridLayout {
             implicitWidth: horizontalHeaderView.contentWidth+verticalHeaderView.contentWidth
-            implicitHeight: gridLayoutTable.implicitHeight ? 30 : 0
             Layout.alignment: Qt.AlignHCenter
+
+            title: 'Statistics Table'
             visible: tableView.model.rowItemCount!==0
 
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: 'white' }
-                GradientStop { position: 0.125; color: '#D7BDE2' }
-                GradientStop { position: 1.0; color: '#512E5F' }
-            }
-
-            Image {
-                id: image
-                width: 20
-                height: 20
-                x: verticalHeaderView.x+verticalHeaderView.width/2-width/2
-                anchors.verticalCenter: parent.verticalCenter
-                source: rectTableSection.expanded ? 'qrc:/qml/image/sidebar_expanded.png' : 'qrc:/qml/image/sidebar_collapsed.png'
-            }
-
-            Text {
-                anchors.centerIn: parent
-                text: 'Statistics Table'
-                font: fontMetrics.font
-                color: 'black'
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    rectTableSection.expanded = !rectTableSection.expanded
-                }
-            }
-        }
-
-        GridLayout {
-            id: gridLayoutTable
-
-            implicitWidth: horizontalHeaderView.contentWidth+verticalHeaderView.contentWidth
-            implicitHeight: 0
-            Layout.fillWidth: true
-            Layout.minimumWidth: 10
-            Layout.alignment: Qt.AlignHCenter
-
-            visible: rectTableSection.expanded
-
-            rows: 2
-            columns: 2
-            rowSpacing: 0
-            columnSpacing: 0
+            gridLayout.rows: 2
+            gridLayout.columns: 2
+            gridLayout.rowSpacing: 0
+            gridLayout.columnSpacing: 0
 
             Rectangle {
                 implicitWidth: verticalHeaderView.contentWidth
                 implicitHeight: horizontalHeaderView.contentHeight
-
-                gradient: Gradient {
-                    orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: 'white' }
-                    GradientStop { position: 1; color: '#D7BDE2' }
-                }
+                border.color: 'black'
+                color: 'gray'
             }
 
             TableView {
@@ -381,6 +334,7 @@ Item {
                     }
                 }
             }
+
         }
 
         Rectangle {
@@ -389,21 +343,15 @@ Item {
             color: 'transparent'
         }
 
-        Rectangle {
-            id: rectChartListSection
-            property bool expanded: true
+        SectionRectangle {
+            id: chartListSection
 
             implicitWidth: chartListHeader.implicitWidth
             implicitHeight: chartList.model.rowItemCount===0 ? 0 : 40
             Layout.alignment: Qt.AlignHCenter
             visible: chartList.model.rowItemCount!==0
 
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: 'white' }
-                GradientStop { position: 0.125; color: '#D7BDE2' }
-                GradientStop { position: 1.0; color: '#512E5F' }
-            }
+            innerText.text: ''
 
             ColumnLayout {
                 anchors.fill: parent
@@ -411,9 +359,10 @@ Item {
                 Text {
                     Layout.fillWidth: true
 
-                    text: 'Chart List'
-                    font: fontMetrics.font
                     color: 'black'
+                    text: 'Chart List'
+                    font.family: 'Verdana'
+                    font.pixelSize: 16
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -445,13 +394,6 @@ Item {
                             }
                         }
                     }
-                }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    rectChartListSection.expanded = !rectChartListSection.expanded
                 }
             }
         }
@@ -611,6 +553,9 @@ Item {
                 TitleRectangle {
                     width: headerWidths[3]
                     height: chartList.rowHeight
+
+                    version: model.version
+                    activeVersion: root.activeVersion
 
                     innerText.text: model.title
                 }

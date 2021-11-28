@@ -28,5 +28,6 @@
         <file>qml/ui/Score/CareerBestMissDiffRectangle.qml</file>
         <file>qml/ui/Statistics/StatisticsView.qml</file>
         <file>qml/ui/Statistics/StatisticsChartListHeader.qml</file>
+        <file>qml/ui/Style/SectionRectangle.qml</file>
     </qresource>
 </RCC>

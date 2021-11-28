@@ -545,32 +545,21 @@ ApplicationWindow
                             color: 'transparent'
                         }
 
-                        Rectangle {
+                        SectionRectangle {
                             id: activitySection
+
                             implicitWidth: activityView.activityListView.implicitWidth
                                            ? activityView.activityListView.implicitWidth
                                            : activityView.implicitWidth
-                            Layout.alignment: Qt.AlignHCenter
                             height: 40
-                            border.color: 'black'
+                            Layout.alignment: Qt.AlignHCenter
 
-                            gradient: Gradient {
-                                orientation: Gradient.Horizontal
-                                GradientStop { position: 0.0; color: 'white' }
-                                GradientStop { position: 1.0; color: '#512E5F' }
-                            }
-
-                            Text {
-                                id: activitySectionText
-                                anchors.centerIn: parent
-                                text: '['+calendar.selectedIsoDate+'] '
-                                      +ActivityManager.activityPlayStyle
-                                      +' Activity: '+ActivityListModel.rowItemCount
-                                      +' PlayCount: '+ActivityListModel.getTotalIncreasedPlayCount()
-                                      +'\n'+ActivityManager.getVersionDateTimeRange(calendar.selectedIsoDate)
-                                font: fontMetrics.font
-                                horizontalAlignment: Text.AlignHCenter
-                            }
+                            innerText.font.pixelSize: 16
+                            innerText.text: '['+calendar.selectedIsoDate+'] '
+                                            +ActivityManager.activityPlayStyle
+                                            +' Activity: '+ActivityListModel.rowItemCount
+                                            +' PlayCount: '+ActivityListModel.getTotalIncreasedPlayCount()
+                                            +'\n'+ActivityManager.getVersionDateTimeRange(calendar.selectedIsoDate)
                         }
 
                         ActivityView {

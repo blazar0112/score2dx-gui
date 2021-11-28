@@ -2,9 +2,14 @@
 
 - Ongoing:
     - Add Activity tab.
-    - score2dx fixes:
+        - Add Calendar.
+        - Add ActivityView.
+    - Link ActiveVersion to version begin date in calendar.
+    - score2dx fixes and updates:
         - Non-FC Miss = 0 from import data should be recognized as failed without miss.
         - Revival music mistakenly inherit clear mark before. Should reset to NO PLAY after revival.
+        - Update Music DB to 29050.
+    - Update README.
 
 - 1.3.0 [2021-11-17] (score2dx-2.4.0):
     - Statistics table add collapsible heading and adjust resize behavior.
