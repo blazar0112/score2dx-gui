@@ -97,7 +97,12 @@ updateActivity(const QString &iidxId,
     for (auto &[dateTime, musicScoreById] : styleActivity)
     {
         auto tokens = icl_s2::SplitString(" ", dateTime);
-        auto &time = tokens[1];
+        auto time = tokens[1];
+        //! @todo fix ist script so it does not contain seconds.
+        if (time.size()!=5)
+        {
+            time = time.substr(0, 5);
+        }
 
         for (auto &[musicId, musicScore] : musicScoreById)
         {

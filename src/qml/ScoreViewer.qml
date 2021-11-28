@@ -600,7 +600,7 @@ ApplicationWindow
     FileDialog {
         id: fileDialog
         title: 'Select directory'
-        folder: 'file:///E:/project_document/score2dx'
+        //folder: 'file:///E:/project_document/score2dx'
         selectFolder: true
         onAccepted: {
             Core.loadDirectory(fileDialog.fileUrl)

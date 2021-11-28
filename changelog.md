@@ -1,6 +1,6 @@
 # Changelog of score2dx-gui
 
-- Ongoing:
+- 1.4.0 [2021-11-28] (score2dx-2.5.0):
     - Add Activity tab.
         - Add Calendar.
         - Add ActivityView.

@@ -6,8 +6,9 @@
 
 ## 螢幕截圖
 
-![screenshot_1.3.0_graph](../doc/image/ScoreViewer-1.3.0_graph.png "ScoreViewer 1.3.0 圖表")
-![screenshot_1.3.0_stats_score_level](../doc/image/ScoreViewer-1.3.0_stats_score_level.png "ScoreViewer 1.3.0 統計表格與譜面清單")
+![screenshot_1.4.0_graph](../doc/image/ScoreViewer-1.4.0_graph.png "ScoreViewer 1.4.0 圖表")
+![screenshot_1.4.0_statistics](../doc/image/ScoreViewer-1.4.0_statistics.png "ScoreViewer 1.4.0 統計表格與譜面清單")
+![screenshot_1.4.0_activity](../doc/image/ScoreViewer-1.4.0_activity.png "ScoreViewer 1.4.0 活躍")
 
 ## 需求
 
@@ -75,13 +76,14 @@
     - Chrome 瀏覽器安裝在 `C:\Program Files`。
     - Chrome 瀏覽器的版本必須跟 chromedriver 一致。
         - `ist_scraper.exe` 會幫你檢查版本有無一致，可在 PowerShell 模式中得知。
-    - 目前發布版本內附上 v95 的 `chromedriver.exe`.
+    - 目前發布版本內附上 v96 的 `chromedriver.exe`.
         - 如果你的版本不一致，從 [官方下載頁面](https://chromedriver.chromium.org/downloads) 下載版本一致的 chromedriver，因為 Chrome 可能日後會需要更新，或者你使用未更新的 Chrome 版本。
             - 把跟 `ScoreViewer.exe` 同資料夾中附的 `chromedriver.exe` 取代成下載的 `chromedriver.exe`。
 
 ## GUI 操作手冊
 
-- 綠色背景的 ComboBox (下拉式組合方塊)： 點了後從下拉式選單中選取。
+- <span style="color:darkviolet">██</span> 有三角形 `▼` 的介面區塊條: 點區塊條可以摺疊下方區塊。
+- <span style="color:#B2D2A4">██</span> 綠色背景的 ComboBox (下拉式組合方塊)： 點了後從下拉式選單中選取。
     - **IIDX ID**
     - **Play Style** (遊玩風格)
     - **Difficulty** (譜面難易度)
@@ -110,7 +112,9 @@
         - **Difficulty** (譜面難易度): 只影響 Graph(圖表)。
 - **Download from IST** (從 IST 下載)：
     - 已在 [使用方式](#使用方式) 中說明。
+
 - **Graph** (圖表)：
+![screenshot_1.4.0_graph](../doc/image/ScoreViewer-1.4.0_graph.png "ScoreViewer 1.4.0 圖表")
     - 用左側的 **Play Style** (遊玩風格)與 **Difficulty** (譜面難易度)選擇對應的分數資料。
     - 選擇歌曲：
         - 點 **Version Folder** (版本資料夾，天藍色按鈕)可以展開與關閉該版本的歌曲。
@@ -146,8 +150,9 @@
         - **Timeline begin** (時間軸起點)：選擇圖表時間開始的版本，可讓時間軸更契合你的資料：
             - 預設時間起點版本： `IIDX 23 copula`，最早有 CSV 服務的版本。
             - 可以選的起點版本範圍： `IIDX 17 SIRIUS` 至 `IIDX 28 BISTOVER`。
+
 - **Statistics** (統計)：
-![screenshot_1.3.0_stats_29dpa](../doc/image/ScoreViewer-1.3.0_stats_29dpa.png "ScoreViewer 1.3.0 統計 29 DPA")
+![screenshot_1.4.0_statistics](../doc/image/ScoreViewer-1.4.0_statistics.png "ScoreViewer 1.4.0 統計表格與譜面清單")
     - 呈現統計數字表，會由下列因素影響：
         - ActiveVersion (啟用版本)
         - Table (表格)
@@ -184,7 +189,7 @@
             - A
             - AA
             - AAA
-        - Score Level (分數等級):
+        - Score Level Category (分數等級分類):
             - A-
             - A+
             - AA-
@@ -212,7 +217,7 @@
         | Title | 譜面歌曲的曲名(Title)。 | |
         | DJ Level | 譜面分數的 DJ 等級(DJ level)。 | 如果 `NO PLAY` 預設成 `F`。 |
         | Score | 譜面的分數(EX Score)。 | 如果 `NO PLAY` 預設成 `0`。 |
-        | Score Level | 譜面的分數等級(Score Level)與實際差距值。<br>例如 `MAX-20` | 如果 `NO PLAY` 預設成 `NP`。 |
+        | SL Diff | 譜面的分數等級(Score Level)與實際差距值。<br>例如 `MAX-20` | 如果 `NO PLAY` 預設成 `NP`。 |
         | Miss | 譜面成績的失誤數(Miss count)。 | 如果 `NO PLAY` 預設成 `N/A`。 |
         | PDBS Diff | 與 `Personal Diffable Best Score` (個人可差別最佳分數)的差距值(Diff)，PDBS 為最佳或者次佳分數(如果目前分數是個人最佳)。 | 如果 `NO PLAY` 預設成 `NP`。如果沒有任何可取得 PDBS 紀錄的話設成 `PB`。<br>如果成績較佳(`+`, 上升)用綠色上色，如果成績較糟(`-`, 下降)用紅色上色。 |
         | PDBS Ver | `Personal Diffable Best Score` (個人可差別最佳分數)紀錄時間的版本(Version)(並非歌曲版本)。 | 如果沒有任何可取得 PDBS 紀錄的話設成 `N/A`。 |
@@ -222,3 +227,32 @@
         | PDB Miss | `Personal Diffable Best Miss` (個人可差別最佳失誤數)的數值。 | 如果沒有任何可取得 PDBM 紀錄的話設成 `N/A`。 |
 
         - 附註：`可差別`的意思是數值上必須要有差異值，所以同數值的其他紀錄會被忽略，因此有可能找不到可差別的紀錄。
+
+- **Activity** (活躍)：
+![screenshot_1.4.0_activity](../doc/image/ScoreViewer-1.4.0_activity.png "ScoreViewer 1.4.0 活躍")
+- **Calendar** (日曆)
+    - 點選日期觀看活躍內容。
+    - 有活躍的日期會以黃字標示。
+    - 切換啟用版本或直接跳至該版本開始日期。
+    - **按鈕 <**: 跳至上個月。
+    - **按鈕 >**: 跳至下個月。
+    - **按鈕 T**: 跳至今日。
+    - 點選不在版本內的日期可能還是有活躍內容。
+        - 但可能不會跟正確的個人最佳成績比較。
+        - 樂曲/譜面可能被刪除/復活/新增，啟用版本不對則無法正確包含對應樂曲/譜面。
+        - 請設定啟用版本並選取版本內的黃色日期。
+
+- **Activity List** (活躍清單)
+    - 顯示選取日期的樂曲活躍內容。
+    - Activity (活躍)：樂曲更新時間在選取日期內。
+        - 樂曲可能有多個譜面更新，但只列為同一樂曲活躍。
+    - 活躍時間為 CSV 或匯入資料中的更新時間，請注意並無法反映真實遊玩歷史：
+        - 例如：
+            - 同一樂曲玩了六次，CSV 只會列出最後更新時間。
+            - 在同一日中下載了兩個時間點的 CSV，樂曲就可能會出現在清單中兩次，分別為 CSV 中的更新時間點。
+    - Play Count (遊玩次數)：樂曲遊玩次數，**並非** 玩家遊玩次數(道數/打數)。
+        - CSV 只有記錄各樂曲遊玩次數。
+        - 可以除以四來大致估計玩家遊玩次數。
+    - 如果資料從 IST 下載：日期時間會是執行腳本時間，遊玩次數會是零。
+    - New Record (新紀錄)：只會列出有更新的欄位。
+    - PDBS/PDBM diff：與統計中的欄位相同，請看 **統計譜面清單** 的說明。

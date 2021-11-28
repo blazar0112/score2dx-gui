@@ -147,7 +147,7 @@ StatisticsManager(const score2dx::Core &core, QObject *parent)
         "Title",
         "DJ Level",
         "Score",
-        "SLC",
+        "SL Diff",
         "Miss",
         "PDBS Diff",
         "PDBS Ver",
