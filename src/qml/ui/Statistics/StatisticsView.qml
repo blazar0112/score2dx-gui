@@ -3,10 +3,12 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.12
 import QtGraphicalEffects 1.0
 
+import '../Score'
+import '../Statistics'
 import '../Style'
-import '.'
 
 Item {
+    id: root
     property alias horizontalHeaderView: horizontalHeaderView
     property alias verticalHeaderView: verticalHeaderView
     property alias tableView: tableView
@@ -36,30 +38,6 @@ Item {
         font.family: 'Verdana'
         font.pixelSize: 16
         font.bold: true
-    }
-
-    Gradient {
-        id: gradientAAA
-        GradientStop { position: 0.0; color: 'white' }
-        GradientStop { position: 1.0; color: 'gold' }
-    }
-
-    Gradient {
-        id: gradientAA
-        GradientStop { position: 0.0; color: 'white' }
-        GradientStop { position: 1.0; color: 'silver' }
-    }
-
-    Gradient {
-        id: gradientA
-        GradientStop { position: 0.0; color: 'white' }
-        GradientStop { position: 1.0; color: '#2ECC71' }
-    }
-
-    Gradient {
-        id: gradientAMinus
-        GradientStop { position: 0.0; color: 'white' }
-        GradientStop { position: 1.0; color: '#8E44AD' }
     }
 
     ColumnLayout {
@@ -201,14 +179,14 @@ Item {
                 Layout.row: 1
                 Layout.column: 3
                 Layout.maximumHeight: 30
-                text: 'Score Level'
+                text: 'Score Level Category'
                 font: fontMetrics.font
                 ButtonGroup.group: buttonGroupColumnType
 
                 onCheckedChanged: {
                     if (checked)
                     {
-                        columnType = 'ScoreLevel'
+                        columnType = 'ScoreLevelCategory'
                         optionChanged()
                     }
                 }
@@ -265,71 +243,23 @@ Item {
             color: 'transparent'
         }
 
-        Rectangle {
-            id: rectTableSection
-            property bool expanded: true
-
+        CollapsibleGridLayout {
             implicitWidth: horizontalHeaderView.contentWidth+verticalHeaderView.contentWidth
-            implicitHeight: gridLayoutTable.implicitHeight ? 30 : 0
             Layout.alignment: Qt.AlignHCenter
+
+            title: 'Statistics Table'
             visible: tableView.model.rowItemCount!==0
 
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: 'white' }
-                GradientStop { position: 0.125; color: '#D7BDE2' }
-                GradientStop { position: 1.0; color: '#512E5F' }
-            }
-
-            Image {
-                id: image
-                width: 20
-                height: 20
-                x: verticalHeaderView.x+verticalHeaderView.width/2-width/2
-                anchors.verticalCenter: parent.verticalCenter
-                source: rectTableSection.expanded ? 'qrc:/qml/image/sidebar_expanded.png' : 'qrc:/qml/image/sidebar_collapsed.png'
-            }
-
-            Text {
-                anchors.centerIn: parent
-                text: 'Statistics Table'
-                font: fontMetrics.font
-                color: 'black'
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    rectTableSection.expanded = !rectTableSection.expanded
-                }
-            }
-        }
-
-        GridLayout {
-            id: gridLayoutTable
-
-            implicitWidth: horizontalHeaderView.contentWidth+verticalHeaderView.contentWidth
-            implicitHeight: 0
-            Layout.fillWidth: true
-            Layout.minimumWidth: 10
-            Layout.alignment: Qt.AlignHCenter
-
-            visible: rectTableSection.expanded
-
-            rows: 2
-            columns: 2
-            rowSpacing: 0
-            columnSpacing: 0
+            gridLayout.rows: 2
+            gridLayout.columns: 2
+            gridLayout.rowSpacing: 0
+            gridLayout.columnSpacing: 0
 
             Rectangle {
                 implicitWidth: verticalHeaderView.contentWidth
                 implicitHeight: horizontalHeaderView.contentHeight
-
-                gradient: Gradient {
-                    orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: 'white' }
-                    GradientStop { position: 1; color: '#D7BDE2' }
-                }
+                border.color: 'black'
+                color: 'gray'
             }
 
             TableView {
@@ -404,6 +334,7 @@ Item {
                     }
                 }
             }
+
         }
 
         Rectangle {
@@ -412,21 +343,15 @@ Item {
             color: 'transparent'
         }
 
-        Rectangle {
-            id: rectChartListSection
-            property bool expanded: true
+        SectionRectangle {
+            id: chartListSection
 
             implicitWidth: chartListHeader.implicitWidth
             implicitHeight: chartList.model.rowItemCount===0 ? 0 : 40
             Layout.alignment: Qt.AlignHCenter
             visible: chartList.model.rowItemCount!==0
 
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: 'white' }
-                GradientStop { position: 0.125; color: '#D7BDE2' }
-                GradientStop { position: 1.0; color: '#512E5F' }
-            }
+            innerText.text: ''
 
             ColumnLayout {
                 anchors.fill: parent
@@ -434,9 +359,10 @@ Item {
                 Text {
                     Layout.fillWidth: true
 
-                    text: 'Chart List'
-                    font: fontMetrics.font
                     color: 'black'
+                    text: 'Chart List'
+                    font.family: 'Verdana'
+                    font.pixelSize: 16
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                 }
@@ -470,13 +396,6 @@ Item {
                     }
                 }
             }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    rectChartListSection.expanded = !rectChartListSection.expanded
-                }
-            }
         }
 
         ListView {
@@ -490,81 +409,81 @@ Item {
             visible: chartList.model.rowItemCount!==0
 
             delegate: Row {
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[0]
-                    text: model.version
+                    innerText.text: model.version
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[1]
-                    text: model.clear
+                    innerText.text: model.clear
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[2]
-                    text: model.level
+                    innerText.text: model.level
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[3]
-                    text: model.title
+                    innerText.text: model.title
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[4]
-                    text: model.djLevel
-                    font.pixelSize: 14
+                    innerText.text: model.djLevel
+                    innerText.font.pixelSize: 14
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[5]
-                    text: model.score
+                    innerText.text: model.score
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[6]
-                    text: model.scoreLevelRangeDiff
+                    innerText.text: model.scoreLevelDiff
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[7]
-                    text: model.miss
+                    innerText.text: model.miss
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[8]
-                    text: model.careerDiffableBestScoreDiff
-                    font.pixelSize: 12
+                    innerText.text: model.careerDiffableBestScoreDiff
+                    innerText.font.pixelSize: 12
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[9]
-                    text: model.careerDiffableBestScoreVersion
-                    font.pixelSize: 12
+                    innerText.text: model.careerDiffableBestScoreVersion
+                    innerText.font.pixelSize: 12
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[10]
-                    text: model.careerDiffableBestScore
-                    font.pixelSize: 14
+                    innerText.text: model.careerDiffableBestScore
+                    innerText.font.pixelSize: 14
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[11]
-                    text: model.careerDiffableBestMissDiff
-                    font.pixelSize: 12
+                    innerText.text: model.careerDiffableBestMissDiff
+                    innerText.font.pixelSize: 12
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[12]
-                    text: model.careerDiffableBestMissVersion
-                    font.pixelSize: 12
+                    innerText.text: model.careerDiffableBestMissVersion
+                    innerText.font.pixelSize: 12
                 }
 
-                StatsChartHeader {
+                StatisticsChartListHeader {
                     width: headerWidths[13]
-                    text: model.careerDiffableBestMiss
-                    font.pixelSize: 14
+                    innerText.text: model.careerDiffableBestMiss
+                    innerText.font.pixelSize: 14
                 }
             }
         }
@@ -603,88 +522,11 @@ Item {
                     }
                 }
 
-                Rectangle {
-                    id: rectClear
+                ClearLampRectangle {
                     width: headerWidths[1]
                     height: chartList.rowHeight
-                    border.color: 'black'
-                    color: 'white'
-
-                    states: [
-                        State {
-                            name: 'No Play'
-                            when: model.clear==='NO PLAY'
-                            PropertyChanges { target: rectClear; color: '#17202A' }
-                        },
-                        State {
-                            name: 'Fail'
-                            when: model.clear==='FAILED'
-                            PropertyChanges { target: failAnimation; running: true }
-                        },
-                        State {
-                            name: 'Assist'
-                            when: model.clear==='ASSIST'
-                            PropertyChanges { target: rectClear; color: '#BB8FCE' }
-                        },
-                        State {
-                            name: 'Easy'
-                            when: model.clear==='EASY'
-                            PropertyChanges { target: rectClear; color: '#58D68D' }
-                        },
-                        State {
-                            name: 'Clear'
-                            when: model.clear==='CLEAR'
-                            PropertyChanges {
-                                target: rectClear
-                                color: model.difficulty==='L' ? '#f500ff'
-                                       : model.difficulty==='A' ? 'red'
-                                       : model.difficulty==='H' ? '#ffb746'
-                                       : '#3498DB'
-                            }
-                        },
-                        State {
-                            name: 'Hard'
-                            when: model.clear==='HARD'
-                            PropertyChanges { target: rectClear; color: 'white' }
-
-                        },
-                        State {
-                            name: 'EX'
-                            when: model.clear==='EX HARD'
-                            PropertyChanges { target: exAnimation; running: true }
-                        },
-                        State {
-                            name: 'FC'
-                            when: model.clear==='FC'
-                            PropertyChanges { target: fcAnimation; running: true }
-                        }
-                    ]
-
-                    SequentialAnimation on color {
-                        id: fcAnimation
-                        running: false
-                        loops: Animation.Infinite
-                        ColorAnimation { from: 'white'; to: 'cyan'; duration: 150 }
-                        ColorAnimation { from: 'cyan'; to: 'white'; duration: 150 }
-                        ColorAnimation { from: 'white'; to: 'yellow'; duration: 150 }
-                    }
-
-                    SequentialAnimation on color {
-                        id: exAnimation
-                        running: false
-                        loops: Animation.Infinite
-                        ColorAnimation { from: 'red'; to: 'yellow'; duration: 150 }
-                        ColorAnimation { from: 'yellow'; to: 'white'; duration: 150 }
-                        ColorAnimation { from: 'white'; to: 'red'; duration: 150 }
-                    }
-
-                    SequentialAnimation on color {
-                        id: failAnimation
-                        running: false
-                        loops: Animation.Infinite
-                        ColorAnimation { from: '#1C2833'; to: '#A93226'; duration: 150 }
-                        ColorAnimation { from: '#A93226'; to: '#1C2833'; duration: 150 }
-                    }
+                    clear: model.clear
+                    difficulty: model.difficulty
                 }
 
                 Rectangle {
@@ -708,70 +550,21 @@ Item {
                     }
                 }
 
-                Rectangle {
+                TitleRectangle {
                     width: headerWidths[3]
                     height: chartList.rowHeight
-                    implicitWidth: width
-                    implicitHeight: height
-                    border.color: 'black'
-                    color: '#34495E'
 
-                    Rectangle {
-                        id: rectPadding
-                        width: 10
-                        height: parent.height
-                        anchors {
-                            left: parent.left
-                            top: parent.top
-                        }
-                        color: 'transparent'
-                    }
+                    version: model.version
+                    activeVersion: root.activeVersion
 
-                    Text {
-                        id: titleText
-                        width: parent.width-rectPadding.width*2
-                        anchors.centerIn: parent
-
-                        text: model.title
-                        color: 'white'
-                        font: fontMetrics.font
-                        minimumPixelSize: 8
-                        fontSizeMode: Text.Fit
-                        visible: false
-                    }
-
-                    LinearGradient {
-                        anchors.fill: titleText
-                        source: titleText
-                        gradient: Gradient {
-                            GradientStop { position: 0; color: model.version===activeVersion ? '#AED6F1' : '#F9E79F' }
-                            GradientStop { position: 1; color: model.version===activeVersion ? '#13A2FF' : '#F4D03F' }
-                        }
-                    }
+                    innerText.text: model.title
                 }
 
-                Rectangle {
+                DjLevelRectangle {
                     width: headerWidths[4]
                     height: chartList.rowHeight
-                    border.color: 'black'
-                    color: '#34495E'
-
-                    Text {
-                        id: djLevelText
-                        anchors.centerIn: parent
-                        text: model.djLevel
-                        font: fontMetrics.font
-                        color: 'red'
-                    }
-
-                    LinearGradient {
-                        anchors.fill: djLevelText
-                        source: djLevelText
-                        gradient: model.djLevel==='AAA' ? gradientAAA
-                                  : model.djLevel==='AA' ? gradientAA
-                                  : model.djLevel==='A' ? gradientA
-                                  : gradientAMinus
-                    }
+                    innerText.text: model.djLevel
+                    innerText.font.pixelSize: 16
                 }
 
                 Rectangle {
@@ -788,20 +581,10 @@ Item {
                     }
                 }
 
-                Rectangle {
+                ScoreLevelCategoryRectangle {
                     width: headerWidths[6]
                     height: chartList.rowHeight
-                    border.color: 'black'
-                    color: '#34495E'
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: model.scoreLevelRangeDiff
-                        font.family: 'Verdana'
-                        font.pixelSize: 12
-                        font.bold: true
-                        color: model.scoreLevelRangeDiff==='NP' ? 'yellow' : 'white'
-                    }
+                    innerText.text: model.scoreLevelDiff
                 }
 
                 Rectangle {

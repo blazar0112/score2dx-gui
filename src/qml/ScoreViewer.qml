@@ -7,7 +7,10 @@ import QtQuick.Window 2.0
 
 import Score2dx.Gui 1.0
 
+import '../qml/ui/Activity'
+import '../qml/ui/Calendar'
 import '../qml/ui/Score'
+import '../qml/ui/Statistics'
 import '../qml/ui/Style'
 
 ApplicationWindow
@@ -45,7 +48,7 @@ ApplicationWindow
                 Layout.alignment: Qt.AlignTop
                 spacing: 0
 
-                SideBarItem {
+                CollapsibleGridLayout {
                     Layout.fillWidth: true
                     title: 'Player'
 
@@ -91,7 +94,7 @@ ApplicationWindow
                             if (succeeded)
                             {
                                 text = ''
-                                generateScoreAnalysis()
+                                updateActiveVersion()
                             }
                         }
                     }
@@ -119,7 +122,7 @@ ApplicationWindow
                     }
                 }
 
-                SideBarItem {
+                CollapsibleGridLayout {
                     Layout.fillWidth: true
                     title: 'View Setting'
 
@@ -139,7 +142,7 @@ ApplicationWindow
                         model: StatisticsManager.activeVersionList
 
                         onActivated: {
-                            generateScoreAnalysis()
+                            updateActiveVersion()
                         }
                     }
 
@@ -180,7 +183,7 @@ ApplicationWindow
                     }
                 }
 
-                SideBarItem {
+                CollapsibleGridLayout {
                     Layout.fillWidth: true
 
                     title: 'IST'
@@ -322,13 +325,26 @@ ApplicationWindow
                         width: 150
                         height: parent.height
                         anchors.verticalCenter: parent.verticalCenter
+                        text: 'Activity'
+                        font: fontMetrics.font
+
+                        background: Rectangle {
+                            color: tabBar.currentIndex==2 ? tabBar.activeTabColor : tabBar.inactiveTabColor
+                            radius: 5
+                        }
+                    }
+
+                    TabButton {
+                        width: 150
+                        height: parent.height
+                        anchors.verticalCenter: parent.verticalCenter
                         text: 'Browse'
                         font: fontMetrics.font
 
                         enabled: false
 
                         background: Rectangle {
-                            color: tabBar.currentIndex==2 ? tabBar.activeTabColor : tabBar.inactiveTabColor
+                            color: tabBar.currentIndex==3 ? tabBar.activeTabColor : tabBar.inactiveTabColor
                             radius: 5
                         }
                     }
@@ -343,7 +359,7 @@ ApplicationWindow
                         enabled: false
 
                         background: Rectangle {
-                            color: tabBar.currentIndex==3 ? tabBar.activeTabColor : tabBar.inactiveTabColor
+                            color: tabBar.currentIndex==4 ? tabBar.activeTabColor : tabBar.inactiveTabColor
                             radius: 5
                         }
                     }
@@ -457,7 +473,7 @@ ApplicationWindow
                         }
                     }
 
-                    StatsView {
+                    StatisticsView {
                         id: statsView
 
                         Layout.fillWidth: true
@@ -479,6 +495,80 @@ ApplicationWindow
                         }
                         onCellClicked: {
                             updateStatsChartList(row, column)
+                        }
+                    }
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        spacing: 0
+
+                        CollapsibleGridLayout {
+                            width: 280
+                            height: 30
+                            Layout.alignment: Qt.AlignHCenter
+
+                            title: 'Calendar'
+
+                            gridLayout.columns: 1
+                            gridLayout.rows: 1
+
+                            Calendar {
+                                id: calendar
+                                Layout.fillWidth: true
+
+                                customColorFunction: function(isoDate) {
+                                    let dateType = ActivityManager.findActivityDateType(
+                                        comboBoxPlayer.currentText,
+                                        comboBoxPlayStyle.currentText,
+                                        isoDate
+                                    )
+                                    if (dateType==='VersionBegin') { return 'lime' }
+                                    if (dateType==='VersionEnd') { return 'red' }
+                                    if (dateType==='HasActivity') { return 'yellow' }
+                                    return ''
+                                }
+
+                                onDateClicked: {
+                                    ActivityManager.updateActivity(
+                                        comboBoxPlayer.currentText,
+                                        comboBoxPlayStyle.currentText,
+                                        date
+                                    )
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 10
+                            color: 'transparent'
+                        }
+
+                        SectionRectangle {
+                            id: activitySection
+
+                            implicitWidth: activityView.activityListView.implicitWidth
+                                           ? activityView.activityListView.implicitWidth
+                                           : activityView.implicitWidth
+                            height: 40
+                            Layout.alignment: Qt.AlignHCenter
+
+                            innerText.font.pixelSize: 16
+                            innerText.text: '['+calendar.selectedIsoDate+'] '
+                                            +ActivityManager.activityPlayStyle
+                                            +' Activity: '+ActivityListModel.rowItemCount
+                                            +' PlayCount: '+ActivityListModel.getTotalIncreasedPlayCount()
+                                            +'\n'+ActivityManager.getVersionDateTimeRange(calendar.selectedIsoDate)
+                        }
+
+                        ActivityView {
+                            id: activityView
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+
+                            activityListView.model: ActivityListModel
+                            activeVersion: comboBoxActiveVersion.currentText
                         }
                     }
 
@@ -521,7 +611,7 @@ ApplicationWindow
     function updatePlayer()
     {
         updateMusicScore()
-        generateScoreAnalysis()
+        updateActiveVersion()
     }
 
     function updateMusicScore()
@@ -543,11 +633,12 @@ ApplicationWindow
         scoreChartView.width -= 1
     }
 
-    function generateScoreAnalysis()
+    function updateActiveVersion()
     {
-        Core.setActiveVersion(comboBoxPlayer.currentText, comboBoxActiveVersion.currentText)
+        let versionBeginDate = Core.setActiveVersion(comboBoxPlayer.currentText, comboBoxActiveVersion.currentText)
         StatisticsManager.updateDifficultyVersionList()
         updateStatsTable()
+        calendar.updateCalender(versionBeginDate)
     }
 
     function updateStatsTable()

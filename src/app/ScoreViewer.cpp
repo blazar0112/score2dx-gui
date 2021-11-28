@@ -5,6 +5,7 @@
 #include <QQmlContext>
 #include <QQmlDebuggingEnabler>
 
+#include "gui/Activity/ActivityManager.hpp"
 #include "gui/Core/Core.hpp"
 #include "gui/Core/MusicListModel.hpp"
 #include "gui/Graph/GraphManager.hpp"
@@ -23,10 +24,14 @@ int main(int argc, char *argv[])
 
     //QQmlDebuggingEnabler enabler;
 
+    qRegisterMetaType<gui::ChartActivityListModel*>("ChartActivityListModel*");
+    //qmlRegisterAnonymousType<gui::MusicActivityListModel*>("Score2dx.Gui", 1);
+
     gui::Core core;
     gui::MusicListModel musicListModel{core.GetScore2dxCore()};
     gui::GraphManager graphManager{core.GetScore2dxCore()};
     gui::StatisticsManager statisticsManager{core.GetScore2dxCore()};
+    gui::ActivityManager activityManager{core};
 
     auto begin = s2Time::Now();
     QQmlApplicationEngine engine;
@@ -44,6 +49,9 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonInstance<gui::StatsTableModel>("Score2dx.Gui", 1, 0, "StatsTableModel", &statisticsManager.GetTableModel());
     qmlRegisterSingletonInstance<gui::StatsChartListModel>("Score2dx.Gui", 1, 0, "StatsChartListHeaderModel", &statisticsManager.GetChartListHeaderModel());
     qmlRegisterSingletonInstance<gui::StatsChartListModel>("Score2dx.Gui", 1, 0, "StatsChartListModel", &statisticsManager.GetChartListModel());
+
+    qmlRegisterSingletonInstance<gui::ActivityManager>("Score2dx.Gui", 1, 0, "ActivityManager", &activityManager);
+    qmlRegisterSingletonInstance<gui::ActivityListModel>("Score2dx.Gui", 1, 0, "ActivityListModel", &activityManager.GetActivityListModel());
 
     engine.load(QUrl("qrc:/qml/ScoreViewer.qml"));
 

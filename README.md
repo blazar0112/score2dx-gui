@@ -10,8 +10,9 @@
 
 ## Screenshot
 
-![screenshot_1.3.0_graph](./doc/image/ScoreViewer-1.3.0_graph.png "ScoreViewer 1.3.0 Graph")
-![screenshot_1.3.0_stats_score_level](./doc/image/ScoreViewer-1.3.0_stats_score_level.png "ScoreViewer 1.3.0 Statistics Table & ChartList")
+![screenshot_1.4.0_graph](./doc/image/ScoreViewer-1.4.0_graph.png "ScoreViewer 1.4.0 Graph")
+![screenshot_1.4.0_statistics](./doc/image/ScoreViewer-1.4.0_statistics.png "ScoreViewer 1.4.0 Statistics Table & ChartList")
+![screenshot_1.4.0_activity](./doc/image/ScoreViewer-1.4.0_activity.png "ScoreViewer 1.4.0 Activity")
 
 ## Requirement
 
@@ -79,12 +80,13 @@
     - Chrome browser installed in `C:\Program Files`.
     - Chrome browser version same as chromedriver.
         - `ist_scraper.exe` will check version for you, you can see if version mismatch in PowerShell mode.
-    - Current release bundle a v95 `chromedriver.exe`.
+    - Current release bundle a v96 `chromedriver.exe`.
         - Download chromedriver from [official download](https://chromedriver.chromium.org/downloads) and to match your Chrome version if needed, since Chrome may update or you did not update your Chome.
             - Replace bundled `chromedriver.exe` with downloaded one in same directory of `ScoreViewer.exe`.
 
 ## GUI Manual
 
+- Purple UI section bar with triangle `▼`: click section bar to collapse below section.
 - Green background ComboBox: click and select items in dropdown menu.
     - **IIDX ID**
     - **Play Style**
@@ -114,7 +116,9 @@
         - **Difficulty**: only affect Graph.
 - **Download from IST**:
     - Already covered in [How to use](#How-to-use).
+
 - **Graph**:
+![screenshot_1.4.0_graph](./doc/image/ScoreViewer-1.4.0_graph.png "ScoreViewer 1.4.0 Graph")
     - Use left side **Play Style** and **Difficulty** to select style-difficulty data.
     - Selecting music:
         - Click **Version Folder** (cyan color button) to expand and collapse musics inside that version.
@@ -150,8 +154,9 @@
         - **Timeline begin**: select chartview begin version, so timeline matches your data properly.
             - Default version: `IIDX 23 copula`, earliest of CSV service.
             - Selectable range: `IIDX 17 SIRIUS` to `IIDX 28 BISTOVER`.
+
 - **Statistics**:
-![screenshot_1.3.0_stats_29dpa](./doc/image/ScoreViewer-1.3.0_stats_29dpa.png "ScoreViewer 1.3.0 Statistics 29 DPA")
+![screenshot_1.4.0_statistics](./doc/image/ScoreViewer-1.4.0_statistics.png "ScoreViewer 1.4.0 Statistics Table & ChartList")
     - Show statistics table, which affected by
         - ActiveVersion
         - Table
@@ -188,7 +193,7 @@
             - A
             - AA
             - AAA
-        - By Score Level:
+        - By Score Level Category:
             - A-
             - A+
             - AA-
@@ -216,7 +221,7 @@
         | Title | Title of chart's music. | |
         | DJ Level | DJ level of chart's score. | `F` if `NO PLAY`. |
         | Score | EX Score of chart. | `0` if `NO PLAY`. |
-        | Score Level | Difference from Score Level of chart's score.<br>e.g. `MAX-20` | `NP` if `NO PLAY`. |
+        | SL Diff | Difference from Score Level of chart's score.<br>e.g. `MAX-20` | `NP` if `NO PLAY`. |
         | Miss | Miss count of chart's score. | `N/A` if `NO PLAY`. |
         | PDBS Diff | Difference of Score from `Personal Diffable Best Score`, which is best or second-best score (if current is Personal Best). | `NP` if `NO PLAY`, `PB` if no any PDBS record available. <br>Colored green if better (`+`, increased), red if worser (`-`, decreased). |
         | PDBS Ver | Version of `Personal Diffable Best Score` record datetime (not music's). | `N/A` if no any PDBS record available. |
@@ -226,3 +231,31 @@
         | PDB Miss | Value of `Personal Diffable Best Miss`. | `N/A` if no any PDBM record available. |
 
         - Note: `Diffable` means must have difference in value, so same value records are ignored, therefore Diffable record may not be available.
+
+- **Activity**:
+![screenshot_1.4.0_activity](./doc/image/ScoreViewer-1.4.0_activity.png "ScoreViewer 1.4.0 Activity")
+- **Calendar**
+    - Click date to view activity.
+    - Date with activity display in yellow text.
+    - Switch active version jump to version begin date.
+    - **Button <**: jump to previous month.
+    - **Button >**: jump to next month.
+    - **Button T**: jump to today.
+    - Date not in version but with activity can still click and show activity list.
+        - But it may not compare to correct Personal Best data.
+        - Music/chart may be deleted/revived/added so not include in list correctly.
+        - Please use active version to show activity in that version and click yellow dates.
+- **Activity List**
+    - Show each music activity in selected date.
+    - Activity: music with update time in selected date.
+        - Music may have different chart scores updating, but sum up in single music activity.
+    - Activity time is last update time in CSV/imported data, please note that it does not reflect actual play history.
+        - e.g.
+            - Play one music 6 times, CSV only record last update time.
+            - Download CSV two different time in a day, music can appear at list with two time point from each CSV.
+    - Play Count: music play count, **not** player play count (credit count).
+        - CSV only records each music play count.
+        - Can divide by 4 to estimate player play count.
+    - If data is downloaded from IST: datetime is script running time, and play count is zero.
+    - New Record: only shows column with updated value.
+    - PDBS/PDBM diff: same as in statistics, see explanation in **Statistics Chart List**.

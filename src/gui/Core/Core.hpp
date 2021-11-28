@@ -1,3 +1,5 @@
+#pragma once
+
 #include <QObject>
 #include <QtCharts/QXYSeries>
 #include <QStringList>
@@ -42,8 +44,9 @@ public:
                     bool runInPowerShell);
 
     //! @brief Set active version and re-analyze ScoreAnalysis for player with iidxId.
+    //! @return version begin date.
         Q_INVOKABLE
-        void
+        QString
         setActiveVersion(const QString &iidxId,
                          const QString &activeVersionIndex);
 
@@ -56,6 +59,10 @@ public:
         GetScore2dxCore()
         const;
 
+        void
+        AnalyzeActivity(const std::string &iidxId,
+                        const std::string &beginDateTime,
+                        const std::string &endDateTime);
 signals:
         void playerListChanged();
         void isDownloadingIstChanged();

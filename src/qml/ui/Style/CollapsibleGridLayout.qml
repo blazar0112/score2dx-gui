@@ -3,6 +3,8 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.12
 
+import '../Style'
+
 Rectangle {
     id: root
     property alias gridLayout: gridLayout
@@ -13,17 +15,14 @@ Rectangle {
 
     color: 'transparent'
 
-    Rectangle {
+    SectionRectangle {
         id: barSection
-        width: parent.width
-        height: 30
+
         property bool expanded: true
 
-        gradient: Gradient {
-            orientation: Gradient.Horizontal
-            GradientStop { position: 0.0; color: 'white' }
-            GradientStop { position: 1.0; color: '#512E5F' }
-        }
+        width: parent.width
+        height: 30
+        innerText.text: ''
 
         Row {
             Rectangle {
@@ -48,10 +47,6 @@ Rectangle {
 
             Text {
                 id: titleText
-
-                font.family: 'Verdana'
-                font.pixelSize: 20
-                color: 'black'
             }
         }
 
@@ -61,10 +56,17 @@ Rectangle {
                 barSection.expanded = !barSection.expanded
             }
         }
+
+        Component.onCompleted: {
+            titleText.font.family = barSection.innerText.font.family
+            titleText.font.pixelSize = barSection.innerText.font.pixelSize
+            titleText.color = barSection.innerText.color
+        }
     }
 
     Rectangle {
         id: item
+
         width: parent.width
         implicitHeight: gridLayout.implicitHeight
 

@@ -7,12 +7,27 @@
         <file>qml/ui/Score/MusicListView.qml</file>
         <file>qml/ui/Score/ScoreChartView.qml</file>
         <file>qml/ui/Style/StyledComboBox.qml</file>
-        <file>qml/ui/Score/StatsView.qml</file>
         <file>qml/image/icon.png</file>
-        <file>qml/ui/Style/SideBarItem.qml</file>
+        <file>qml/ui/Style/CollapsibleGridLayout.qml</file>
         <file>qml/image/sidebar_collapsed.png</file>
         <file>qml/image/sidebar_expanded.png</file>
         <file>qml/ui/Style/SideBarText.qml</file>
-        <file>qml/ui/Score/StatsChartHeader.qml</file>
+        <file>qml/ui/Calendar/Calendar.qml</file>
+        <file>qml/ui/Activity/ActivityView.qml</file>
+        <file>qml/ui/Score/ClearLampRectangle.qml</file>
+        <file>qml/ui/Activity/ChartActivityHeaderRectangle.qml</file>
+        <file>qml/ui/Activity/ChartActivityRectangle.qml</file>
+        <file>qml/ui/Activity/ActivityHeaderRectangle.qml</file>
+        <file>qml/ui/Activity/ActivityRectangle.qml</file>
+        <file>qml/ui/Score/TitleRectangle.qml</file>
+        <file>qml/ui/Score/ClearRectangle.qml</file>
+        <file>qml/ui/Score/DjLevelRectangle.qml</file>
+        <file>qml/ui/Score/MissRectangle.qml</file>
+        <file>qml/ui/Score/ScoreLevelCategoryRectangle.qml</file>
+        <file>qml/ui/Score/CareerBestScoreDiffRectangle.qml</file>
+        <file>qml/ui/Score/CareerBestMissDiffRectangle.qml</file>
+        <file>qml/ui/Statistics/StatisticsView.qml</file>
+        <file>qml/ui/Statistics/StatisticsChartListHeader.qml</file>
+        <file>qml/ui/Style/SectionRectangle.qml</file>
     </qresource>
 </RCC>
