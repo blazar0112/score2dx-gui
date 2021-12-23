@@ -111,6 +111,8 @@ ApplicationWindow
                     font.pixelSize: 20
                     font.bold: true
 
+                    enabled: !Core.isDownloadingIst && !Core.isDownloadingMe
+
                     onClicked: {
                         fileDialog.open();
                     }
@@ -186,10 +188,116 @@ ApplicationWindow
                 CollapsibleGridLayout {
                     Layout.fillWidth: true
 
-                    title: 'IST'
+                    title: 'ME (iidx.me)'
 
                     gridLayout.columns: 2
                     gridLayout.rows: 4
+
+                    Button {
+                        id: buttonDownloadMe
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 60
+                        Layout.columnSpan: 2
+
+                        text: 'Download from ME'
+                        font.family: 'Verdana'
+                        font.pixelSize: 20
+
+                        enabled: currentMeUser.text!='' && !Core.isDownloadingIst && !Core.isDownloadingMe
+
+                        background: Rectangle {
+                            radius: 10
+                            color: parent.down ? '#FCF3CF'
+                                               : (parent.hovered ? '#B4F8C8' : '#F1948A')
+                        }
+
+                        onClicked: {
+                            progressBarMe.value = 0
+                            progressBarMeTimer.running = true
+                            Core.downloadMe(currentMeUser.text)
+                        }
+
+                        ProgressBar {
+                            id: progressBarMe
+
+                            anchors.bottom: parent.bottom
+                            width: parent.width
+
+                            visible: Core.isDownloadingMe
+
+                            from: 0
+                            to: 3800
+                            value: 0
+                        }
+
+                        Timer {
+                            id: progressBarMeTimer
+                            interval: 100
+                            repeat: true
+                            running: false
+                            onTriggered: progressBarMe.value < progressBarMe.to ? progressBarMe.value += 1.0 : progressBarMe.value = progressBarMe.to
+                        }
+                    }
+
+                    SideBarText {
+                        text: 'Enter User'
+                    }
+
+                    TextField {
+                        id: textFieldMeUser
+
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 30
+                        Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+
+                        placeholderText: 'e.g. blazar'
+                        font: fontMetrics.font
+                        selectByMouse: true
+                        horizontalAlignment: TextInput.AlignRight
+
+                        enabled: !Core.isDownloadingMe
+
+                        onAccepted: {
+                            let iidxId = Core.findMeUserIidxId(text)
+                            currentMeUser.text = ''
+                            currentMeIidxId.text = ''
+                            if (iidxId!=='')
+                            {
+                                currentMeUser.text = text
+                                currentMeIidxId.text = iidxId
+                                text = ''
+                            }
+                        }
+                    }
+
+                    SideBarText {
+                        text: 'ME User'
+                    }
+
+                    SideBarText {
+                        id: currentMeUser
+                        text: ''
+                        color: 'wheat'
+                    }
+
+                    SideBarText {
+                        text: 'IIDX ID'
+                    }
+
+                    SideBarText {
+                        id: currentMeIidxId
+                        text: ''
+                        color: 'wheat'
+                    }
+                }
+
+                CollapsibleGridLayout {
+                    Layout.fillWidth: true
+
+                    title: 'IST (score.iidx.app)'
+
+                    gridLayout.columns: 2
+                    gridLayout.rows: 5
 
                     Button {
                         id: buttonDownloadIst
@@ -204,7 +312,7 @@ ApplicationWindow
                         font.family: 'Verdana'
                         font.pixelSize: 20
 
-                        enabled: comboBoxPlayer.currentText!='' && !Core.isDownloadingIst
+                        enabled: comboBoxPlayer.currentText!='' && !Core.isDownloadingIst && !Core.isDownloadingMe
 
                         onClicked: {
                             Core.downloadIst(comboBoxPlayer.currentText,
@@ -600,7 +708,7 @@ ApplicationWindow
     FileDialog {
         id: fileDialog
         title: 'Select directory'
-        //folder: 'file:///E:/project_document/score2dx'
+        folder: 'file:///E:/project_document/score2dx'
         selectFolder: true
         onAccepted: {
             Core.loadDirectory(fileDialog.fileUrl)

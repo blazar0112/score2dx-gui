@@ -1,5 +1,11 @@
 # Changelog of score2dx-gui
 
+- Ongoing [2021-12-24]
+    - Add IIDX ME support.
+    - score2dx updates:
+        - Add IIDX ME download functionalities using official API.
+        - Update Music DB to 29056.
+
 - 1.4.0 [2021-11-28] (score2dx-2.5.0):
     - Add Activity tab.
         - Add Calendar.
