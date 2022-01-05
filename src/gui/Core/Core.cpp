@@ -61,7 +61,7 @@ Core::
 getScore2dxVersion()
 const
 {
-    static const std::string annotate = "EarlyAccess";
+    static const std::string annotate = "";
     auto version =
         QString::number(SCORE_2DX_GUI_VERSION_MAJOR)
         +"."+QString::number(SCORE_2DX_GUI_VERSION_MINOR)
