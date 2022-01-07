@@ -19,6 +19,7 @@ class Core : public QObject
     Q_PROPERTY(QStringList difficultyList READ getDifficultyList CONSTANT)
     Q_PROPERTY(QStringList versionNameList READ getVersionNameList CONSTANT)
     Q_PROPERTY(bool isDownloadingIst MEMBER mIsDownloadingIst NOTIFY isDownloadingIstChanged)
+    Q_PROPERTY(bool isDownloadingMe MEMBER mIsDownloadingMe NOTIFY isDownloadingMeChanged)
 
 public:
         explicit Core(QObject* parent=nullptr);
@@ -35,6 +36,14 @@ public:
         Q_INVOKABLE
         void
         loadDirectory(const QString &fileUrl);
+
+        Q_INVOKABLE
+        QString
+        findMeUserIidxId(const QString &inputMeUserName);
+
+        Q_INVOKABLE
+        void
+        downloadMe(const QString &meUserName);
 
         Q_INVOKABLE
         void
@@ -66,6 +75,7 @@ public:
 signals:
         void playerListChanged();
         void isDownloadingIstChanged();
+        void isDownloadingMeChanged();
 
 private:
     score2dx::Core mCore;
@@ -75,6 +85,7 @@ private:
     QStringList mVersionNameList;
 
     bool mIsDownloadingIst{false};
+    bool mIsDownloadingMe{false};
 
         void
         UpdateChart(const std::map<std::string, const score2dx::Csv*> &csvs);

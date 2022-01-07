@@ -1,14 +1,14 @@
-# Score2dx GUI
+# IIDX ScoreViewer
 
-- Score2dx GUI 是使用 [score2dx](https://github.com/blazar0112/score2dx) 函式庫分析與視覺化 IIDX 玩家 CSV 分數成績的圖形使用者介面專案。
-- Score2dx GUI 產品：
-    - ScoreViewer 工具。
+- ScoreViewer 是一個透過從官方 CSV 檔案或第三方成績網站取得資料，用來視覺化呈現玩家在 Konami Beatmania IIDX 遊戲中成績的工具。
+
+- 此 GUI 專案內部利用了 [score2dx](https://github.com/blazar0112/score2dx) 函式庫。
 
 ## 螢幕截圖
 
-![screenshot_1.4.0_graph](../doc/image/ScoreViewer-1.4.0_graph.png "ScoreViewer 1.4.0 圖表")
-![screenshot_1.4.0_statistics](../doc/image/ScoreViewer-1.4.0_statistics.png "ScoreViewer 1.4.0 統計表格與譜面清單")
-![screenshot_1.4.0_activity](../doc/image/ScoreViewer-1.4.0_activity.png "ScoreViewer 1.4.0 活躍")
+![screenshot_1.5.0_graph](../doc/image/ScoreViewer-1.5.0_graph.png "ScoreViewer 1.5.0 圖表")
+![screenshot_1.5.0_statistics](../doc/image/ScoreViewer-1.5.0_statistics.png "ScoreViewer 1.5.0 統計表格與譜面清單")
+![screenshot_1.5.0_activity](../doc/image/ScoreViewer-1.5.0_activity.png "ScoreViewer 1.5.0 活躍")
 
 ## 需求
 
@@ -16,46 +16,73 @@
 
 ## 使用方式
 
-- 如果你手邊已經有 Konami CSV 檔案：
-    - 下載 CSV 檔案需要購買 e-amusement 的高級會員(プレミアムコース)。
+- ScoreViewer 提供三種讀取資料的方式：
+    - 從 Konami CSV 檔案讀取。
+    - 從 [IIDX ME (ME)](https://iidx.me/) 網站下載。
+    - 從 [IIDX Score Table (IST)](https://score.iidx.app/) 網站下載。
+- 服務比較：
+    - ScoreViewer 加 CSV 檔案：
+        - :chart_with_upwards_trend: 讀取非常快速。
+        - :chart_with_upwards_trend: 自己備份資料。
+        - :chart_with_upwards_trend: 版本內的進度變化能透過多個 CSV 呈現。
+        - :chart_with_downwards_trend: :heavy_dollar_sign::heavy_dollar_sign: 需要購買 e-amusement 的高級會員(プレミアムコース)。
+        - :chart_with_downwards_trend: 只有電腦版，不像網站服務可以在遊玩時使用。
+    - 直接使用 ME 網站或者用 ScoreViewer 搭配從 ME 下載資料：
+        - :chart_with_upwards_trend: 可以讀取最早至 tricoro 的資料。
+        - :chart_with_upwards_trend: 使用第三方服務備份資料。
+        - :chart_with_upwards_trend: :heavy_dollar_sign: 更新資料只需購買 e-amusement 的基本會員(但速度較慢)。
+        - :chart_with_upwards_trend: :heavy_dollar_sign::heavy_dollar_sign: 如果有高級會員也支援使用 CSV 的方式同步。
+        - :chart_with_upwards_trend: 提供網站 API 讓 ScoreViewer 可以用約六分鐘的時間下載玩家的歷史資料。
+        - :chart_with_downwards_trend: 部分細節資料可能無法下載。
+        - :chart_with_downwards_trend: 各先前版本只會保留最終資料。
+        - :chart_with_downwards_trend: 可能有第三方網站結束服務的風險。
+    - 直接使用 IST 網站或者用 ScoreViewer 搭配從 IST 下載資料：
+        - :chart_with_upwards_trend: 可以讀取現存的資料(最早至 tricoro?)。
+            - 註：IST 之前有提供與 IIDX ME 同步的功能。
+        - :chart_with_upwards_trend: 使用第三方服務備份資料。
+        - :chart_with_upwards_trend: :heavy_dollar_sign: 更新資料只需購買 e-amusement 的基本會員(但速度較慢)。
+        - :chart_with_upwards_trend: :heavy_dollar_sign::heavy_dollar_sign: 如果有高級會員也支援使用 CSV 的方式同步。
+        - :chart_with_downwards_trend: 部分細節資料可能無法下載。
+        - :chart_with_downwards_trend: 各先前版本只會保留最終資料。
+        - :chart_with_downwards_trend: 可能有第三方網站結束服務的風險。
+        - :chart_with_downwards_trend: 沒有網站 API，以 ScoreViewer 現在的下載方式非常緩慢。
+- 如何從 CSV 檔案讀取資料：
     - [IIDX 29 CSV 下載頁面](https://p.eagate.573.jp/game/2dx/29/djdata/score_download.html)。
-    - 將 CSV 檔案放在同一個資料夾。
-        - 資料夾名稱必須跟 IIDX ID 一樣。
+    - 將 CSV 檔案存檔在一個資料夾中。
+        - 資料夾必須以 IIDX ID 的方式命名。
             - 例如：`5483-7391`。
-        - CSV 檔案內會有你每一首歌曲的最後更新資料。
-            - 建議每個月固定下載 CSV 存檔，才能讓 **Graph** 功能發揮。
-        - 預設檔名是像：`5483-7391_dp_score.csv`.
-            - 為了能在同一個資料夾內放不同的 CSV 檔案，建議在檔名中 `_score` 後面加上下載的日期。
+        - 預設的檔案名稱如 `5483-7391_dp_score.csv`。
+            - 建議在檔名的 `_score` 後加上日期。
             - 例如：`5483-7391_dp_score_2020-11-21.csv`。
-    - 點 **Load Directory** (讀取資料夾)按鈕並且選取上述資料夾。
+    - 點 **Load Directory** 按鈕並且選擇上述資料夾。
         - **Graph** (圖表)會顯示你的分數折線圖。
         - 請看 [GUI 操作手冊](#GUI-操作手冊) 了解更多使用細節。
-    - 發布版本內有提供範例資料夾 `Example/5483-7391` 提供測試讀取資料夾功能。
-- 如果你沒有 CSV 檔案，也不想購買高級會員，有下面的替代方案：
-    - 從 [IIDX Score Table (IST)](https://score.iidx.app/) 下載現有資料夾(如果你有在使用IST)。
-        - 或者從現在開始使用 IST：
-            - 使用 IST 提供的 [javascript](https://score.iidx.app/helps/usage) 從 e-amusement 網站讀取資料到 IST 中。
-            - 如果你曾經利用 IST 同步過已經停止服務的成績網站 [IIDX ME](https://iidx.me/) 的話更好。
-            - 注意 IST 只會保留每個 IIDX 版本的最佳成績。
-                - 使用 CSV 的話則會保留版本中的變動。
-    - 如何使用 ScoreViewer 從 IST 下載資料：
-        - 在執行腳本前先檢查滿足 [下載 IST 需求](#下載-IST-需求)。
-        - 在 **Add Player** 的右方輸入你的 IIDX ID，然後按下 `Enter` 以加入至 **IIDX ID** 名單。
-        - 設定下載的版本名單與遊玩風格名單，以逗號隔開。
-            - 預設 **Versions** (版本名單)為 `28, 29`，你可以編輯成 IST 使用者頁面中顯示有資料的版本名單。
-                - [範例使用者頁面](https://score.iidx.app/users/5483-7391)，在這例子中可以改為 `26, 27, 28`。
-            - 預設 **Styles** (遊玩風格名單)為 `SP, DP`，如果你只想要其中一種，也可以編輯名單。
-        - 點 **Download from IST** (從 IST 下載)按鈕，根據目前的 IIDX ID 玩家來從 IST 下載資料。
-            - 會在背景執行。
-                - 下載中會將按鈕停用。
-            - 建議使用 **Run in PowerShell** (在 PowerShell 中執行)模式，如此會新開一個 PowerShell，執行腳本 `ist_scraper.exe`。會顯示進度並且完成後會自動關閉，如此便可得知下載完成。
-            - 需要大概 1 分鐘才能啟動背景下載腳本。
-            - 每個 版本-遊玩風格 需要約 5 分鐘下載全部資料 (是為了避免被認為攻擊 IST 刻意加上的延遲)。
-                - 如果你的資料量沒那麼多的話當然會快一點。
-                - 例如：使用 `27, 28` 與 `SP, DP` 設定，需要約 20 分鐘下載。
-            - 下載完成後就可以馬上在 **Graph** 看到。
-            - 也同時會匯出資料成 score2dx 匯出 Json 格式至 `IST/<IIDX_ID>` 子資料夾中，檔名如 `score2dx_export_SP_2021-09-14_IST_28.json`。
-                - 之後可以直接 **Load Directory** 該資料夾，不用再重新下載。
+    - ScoreViewer 發布版本內有提供範例資料夾 `Example/5483-7391` 提供嘗試讀取資料夾功能。
+    - **Load Directory** 也可以用來讀取 ScoreViewer 從第三方網站(ME/IST)下載後的匯出檔案資料。
+- 如何從 [IIDX ME (ME)](https://iidx.me/) 網站下載資料：
+    - 在 **Enter User** 右方的輸入欄內輸入你的 ME 使用者名稱，然後按下 `Enter` 鍵。
+    - 如果 ME 有此使用者，會顯示在 **ME User** 與其對應的 **IIDX ID**。
+    - 點 **Download from ME** 按鈕。(當 ME 的 **IIDX ID** 不是空白的時候會啟用。)
+    - 等約六至七分鐘。(參考進度條。)
+    - 下載的資料會匯出至 `ME/<IIDX_ID>` 資料夾，並且下載後會自動讀取。
+    - 之後可以只用 **Load Directory** 讀取已經下載的資料夾。
+- 如何從 [IIDX Score Table (IST)](https://score.iidx.app/) 網站下載資料：
+    - 在執行腳本前先檢查滿足 [下載 IST 需求](#下載-IST-需求)。
+    - 在 **Add Player** 的右方輸入你的 IIDX ID，然後按下 `Enter` 以加入至 **IIDX ID** 名單。
+    - 設定下載的版本名單與遊玩風格名單，以逗號隔開。
+    - 預設 **Versions** (版本名單)為 `28, 29`，你可以編輯成 IST 使用者頁面中顯示有資料的版本名單。
+        - [範例 IST 使用者頁面](https://score.iidx.app/users/5483-7391)，在這例子中可以改為 `26, 27, 28`。
+    - 預設 **Styles** (遊玩風格名單)為 `SP, DP`，如果你只想要其中一種，也可以編輯名單。
+    - 點 **Download from IST** (從 IST 下載)按鈕，根據目前的 IIDX ID 玩家來從 IST 下載資料。
+        - 會在背景執行。
+            - 下載中會將按鈕停用。
+        - 建議使用 **Run in PowerShell** (在 PowerShell 中執行)模式，如此會新開一個 PowerShell，執行腳本 `ist_scraper.exe`。會顯示進度並且完成後會自動關閉，如此便可得知下載完成。
+        - 需要大概 1 分鐘才能啟動背景下載腳本。
+        - 每個 版本-遊玩風格 需要約 5 分鐘下載全部資料 (是為了避免被認為攻擊 IST 刻意加上的延遲)。
+            - 如果你的資料量沒那麼多的話當然會快一點。
+            - 例如：使用 `27, 28` 與 `SP, DP` 設定，需要約 20 分鐘下載。
+    - 下載的資料會匯出至 `IST/<IIDX_ID>` 資料夾，並且下載後會自動讀取。
+    - 之後可以只用 **Load Directory** 讀取已經下載的資料夾。
 - 從不同來源的資料均會被合併：
     - 範例：
         - 在 24 代的時候曾經同步 IIDX ME 至 IST。
@@ -66,8 +93,8 @@
 
 ## 重要提醒
 
-- 保持對 IST 網站的禮節：
-    - 你應該只偶爾從 IST 下載過往資料，如果你現在能用 CSV 方式的話，可以直接讀取下載的資料跟 CSV，而不應該再執行下載。
+- 保持對第三方服務網站(ME/IST)的禮節：
+    - 你應該只偶爾從 ME/IST 下載過往資料，如果你現在能用 CSV 方式的話，可以直接讀取下載的資料跟 CSV，而不應該再執行下載。
     - 請勿使用此工具頻繁下載自己或者大量下載他人的資料。
 
 ## 下載 IST 需求

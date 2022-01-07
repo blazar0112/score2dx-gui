@@ -9,6 +9,7 @@ set_property(GLOBAL PROPERTY
     PROP_SOURCES
     ${SOURCES}
     ${CMAKE_CURRENT_SOURCE_DIR}/Core.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/MeWorkerThread.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/MusicListModel.cpp
 )
 

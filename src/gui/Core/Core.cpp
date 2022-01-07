@@ -16,11 +16,15 @@
 #include "icl_s2/Common/SmartEnum.hxx"
 #include "icl_s2/StdUtil/Find.hxx"
 #include "icl_s2/String/SplitString.hpp"
+#include "icl_s2/Time/TimeUtilFormat.hxx"
 
 #include "score2dx/Iidx/Definition.hpp"
 #include "score2dx/Iidx/Version.hpp"
 
 #include "gui/version.hpp"
+#include "gui/Core/MeWorkerThread.hpp"
+
+namespace s2Time = icl_s2::Time;
 
 namespace gui
 {
@@ -57,10 +61,15 @@ Core::
 getScore2dxVersion()
 const
 {
+    static const std::string annotate = "";
     auto version =
         QString::number(SCORE_2DX_GUI_VERSION_MAJOR)
         +"."+QString::number(SCORE_2DX_GUI_VERSION_MINOR)
         +"."+QString::number(SCORE_2DX_GUI_VERSION_PATCH);
+    if (!annotate.empty())
+    {
+        version += ("-"+annotate).c_str();
+    }
     return version;
 }
 
@@ -94,6 +103,40 @@ loadDirectory(const QString &fileUrl)
     std::cout << std::flush;
 
     UpdatePlayerList();
+}
+
+QString
+Core::
+findMeUserIidxId(const QString &inputMeUserName)
+{
+    auto iidxId = mCore.AddIidxMeUser(inputMeUserName.toStdString());
+    return iidxId.c_str();
+}
+
+void
+Core::
+downloadMe(const QString &meUserName)
+{
+    mIsDownloadingMe = true;
+    emit isDownloadingMeChanged();
+
+    auto *workerThread = new MeWorkerThread(mCore, meUserName, this);
+    connect(workerThread, &MeWorkerThread::ResultReady,
+            [this](const QString &errorMessage)
+            {
+                if (!errorMessage.isEmpty())
+                {
+                    qDebug() << "Download ME error: " << errorMessage;
+                }
+
+                UpdatePlayerList();
+
+                mIsDownloadingMe = false;
+                emit isDownloadingMeChanged();
+            }
+    );
+    connect(workerThread, &MeWorkerThread::finished, workerThread, &QObject::deleteLater);
+    workerThread->start();
 }
 
 void
