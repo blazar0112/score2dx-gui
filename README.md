@@ -21,10 +21,9 @@
 ## How to use
 
 - ScoreViewer provide 3 methods to load data:
-    - Load from official Konami CSV files.
+    - Load from Konami CSV files.
     - Download from [IIDX ME (ME)](https://iidx.me/).
     - Download from [IIDX Score Table (IST)](https://score.iidx.app/).
-
 - Service comparison:
     - ScoreViewer with CSV files:
         - :chart_with_upwards_trend: Loading is very fast.
@@ -51,7 +50,6 @@
         - :chart_with_downwards_trend: Only keep final data of each previous versions.
         - :chart_with_downwards_trend: Risk for third party site to end service.
         - :chart_with_downwards_trend: No API, ScoreViewer using scrapper to download IST data is extremely slow.
-
 - How to load data from CSV files:
     - [IIDX 29 CSV download link](https://p.eagate.573.jp/game/2dx/29/djdata/score_download.html).
     - Save CSV files in a directory.
