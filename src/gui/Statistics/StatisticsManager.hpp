@@ -4,7 +4,7 @@
 #include <QStandardItemModel>
 #include <QStringList>
 
-#include "icl_s2/Common/SmartEnum.hxx"
+#include "ies/Common/SmartEnum.hxx"
 
 #include "score2dx/Core/Core.hpp"
 
@@ -14,19 +14,19 @@
 namespace gui
 {
 
-ICL_S2_SMART_ENUM(StatsTableType,
+IES_SMART_ENUM(StatsTableType,
     Level,
     AllDifficulty,
     VersionDifficulty
 );
 
-ICL_S2_SMART_ENUM(StatsColumnType,
+IES_SMART_ENUM(StatsColumnType,
     Clear,
     DjLevel,
     ScoreLevelCategory
 );
 
-ICL_S2_SMART_ENUM(StatsValueType,
+IES_SMART_ENUM(StatsValueType,
     Count,
     Percentage
 );

@@ -2,12 +2,12 @@
 
 #include <QAbstractTableModel>
 
-#include "icl_s2/Common/SmartEnum.hxx"
+#include "ies/Common/SmartEnum.hxx"
 
 namespace gui
 {
 
-ICL_S2_SMART_ENUM(StatsTableDataRole,
+IES_SMART_ENUM(StatsTableDataRole,
     display,
     foreground,
     background

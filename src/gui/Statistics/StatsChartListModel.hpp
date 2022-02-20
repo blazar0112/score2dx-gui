@@ -4,12 +4,12 @@
 
 #include <QAbstractListModel>
 
-#include "icl_s2/Common/SmartEnum.hxx"
+#include "ies/Common/SmartEnum.hxx"
 
 namespace gui
 {
 
-ICL_S2_SMART_ENUM(StatsChartDataRole,
+IES_SMART_ENUM(StatsChartDataRole,
     version,
     clear,
     level,

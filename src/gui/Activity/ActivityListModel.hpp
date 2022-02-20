@@ -5,14 +5,14 @@
 
 #include <QAbstractListModel>
 
-#include "icl_s2/Common/SmartEnum.hxx"
+#include "ies/Common/SmartEnum.hxx"
 
 #include "gui/Activity/ChartActivityListModel.hpp"
 
 namespace gui
 {
 
-ICL_S2_SMART_ENUM(ActivityDataRole,
+IES_SMART_ENUM(ActivityDataRole,
     time,
     title,
     version,

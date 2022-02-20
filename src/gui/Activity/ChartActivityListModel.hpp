@@ -4,13 +4,13 @@
 
 #include <QAbstractListModel>
 
-#include "icl_s2/Common/SmartEnum.hxx"
+#include "ies/Common/SmartEnum.hxx"
 
 namespace gui
 {
 
 //! @note Previous must exist, if has no new record then it's empty string.
-ICL_S2_SMART_ENUM(ChartActivityDataRole,
+IES_SMART_ENUM(ChartActivityDataRole,
     level,
     difficulty,
     previousClear,

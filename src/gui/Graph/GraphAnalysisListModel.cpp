@@ -2,7 +2,7 @@
 
 #include <cctype>
 
-#include "icl_s2/Common/IntegralRangeUsing.hpp"
+#include "ies/Common/IntegralRangeUsing.hpp"
 
 #include "score2dx/Iidx/Version.hpp"
 
@@ -97,7 +97,7 @@ ResetList(const std::vector<GraphAnalysisData> &dataList)
 
     beginResetModel();
 
-    for (auto rowIndex : IndexRange{0, mDataList.size(), icl_s2::EmptyPolicy::Allow})
+    for (auto rowIndex : IndexRange{0, mDataList.size(), ies::EmptyPolicy::Allow})
     {
         auto modelIndex = createIndex(rowIndex, 0);
         auto &data = mDataList[rowIndex];

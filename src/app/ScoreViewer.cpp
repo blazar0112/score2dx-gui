@@ -11,9 +11,9 @@
 #include "gui/Graph/GraphManager.hpp"
 #include "gui/Statistics/StatisticsManager.hpp"
 
-#include "icl_s2/Time/TimeUtilFormat.hxx"
+#include "ies/Time/TimeUtilFormat.hxx"
 
-namespace s2Time = icl_s2::Time;
+namespace s2Time = ies::Time;
 
 int main(int argc, char *argv[])
 {

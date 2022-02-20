@@ -7,8 +7,8 @@
 #include <QDebug>
 #include <QtCharts/QLegendMarker>
 
-#include "icl_s2/Common/IntegralRangeUsing.hpp"
-#include "icl_s2/String/RecursiveReplace.hpp"
+#include "ies/Common/IntegralRangeUsing.hpp"
+#include "ies/String/RecursiveReplace.hpp"
 
 #include "score2dx/Iidx/Version.hpp"
 #include "score2dx/Score/ScoreLevel.hpp"
@@ -19,7 +19,7 @@ namespace
 QDateTime
 ToQDateTime(const std::string &dateTime)
 {
-    auto tokens = icl_s2::SplitString("- :", dateTime, 5);
+    auto tokens = ies::SplitString("- :", dateTime, 5);
 
     QDateTime qDateTime;
     qDateTime.setDate({std::stoi(tokens[0]), std::stoi(tokens[1]), std::stoi(tokens[2])});
@@ -281,14 +281,14 @@ updatePlayerScore(const QString &iidxIdQStr,
         {
             auto underscoreStr = clearRecord.Record.toStdString();
             auto spaceSeparated = ToSpaceSeparated(score2dx::ToClearType(underscoreStr));
-            icl_s2::RecursiveReplace(spaceSeparated, " CLEAR", "");
+            ies::RecursiveReplace(spaceSeparated, " CLEAR", "");
             clearRecord.Record = spaceSeparated.c_str();
         }
         if (!clearRecord.PreviousRecord.isEmpty())
         {
             auto underscoreStr = clearRecord.PreviousRecord.toStdString();
             auto spaceSeparated = ToSpaceSeparated(score2dx::ToClearType(underscoreStr));
-            icl_s2::RecursiveReplace(spaceSeparated, " CLEAR", "");
+            ies::RecursiveReplace(spaceSeparated, " CLEAR", "");
             clearRecord.PreviousRecord = spaceSeparated.c_str();
         }
     }
@@ -319,7 +319,7 @@ updateTimelineBeginVersion(const QString &timelineBeginVersion)
 
     auto versionIndex = findVersionIndex.value();
     auto versionDateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
-    auto versionBeginDateTime = ToQDateTime(versionDateTimeRange.at(icl_s2::RangeSide::Begin));
+    auto versionBeginDateTime = ToQDateTime(versionDateTimeRange.at(ies::RangeSide::Begin));
 
     if (mDateTimeAxis)
     {
@@ -346,7 +346,7 @@ updateTimelineBeginVersion(const QString &timelineBeginVersion)
                 continue;
             }
 
-            auto &versionEndDateTime = versionDateTimeRange.at(icl_s2::RangeSide::End);
+            auto &versionEndDateTime = versionDateTimeRange.at(ies::RangeSide::End);
             auto endMSecs = versionAxis.max();
             if (!versionEndDateTime.empty())
             {
@@ -379,10 +379,10 @@ InitializeChart()
     }
     auto beginVersionIndex = findBeginVersionIndex.value();
     auto beginVersionDateTimeRange = score2dx::GetVersionDateTimeRange(beginVersionIndex);
-    auto beginDateTime = ToQDateTime(beginVersionDateTimeRange.at(icl_s2::RangeSide::Begin));
+    auto beginDateTime = ToQDateTime(beginVersionDateTimeRange.at(ies::RangeSide::Begin));
 
     auto latestVersionDateTimeRange = score2dx::GetVersionDateTimeRange(score2dx::GetLatestVersionIndex());
-    auto latestVersionBeginDateTime = ToQDateTime(latestVersionDateTimeRange.at(icl_s2::RangeSide::Begin));
+    auto latestVersionBeginDateTime = ToQDateTime(latestVersionDateTimeRange.at(ies::RangeSide::Begin));
     auto endDateTime = latestVersionBeginDateTime.addYears(1);
 
     if (mLegend)
@@ -459,7 +459,7 @@ InitializeChart()
             }
 
             auto qVersionEndDateTime = endDateTime;
-            auto &versionEndDateTime = versionDateTimeRange.at(icl_s2::RangeSide::End);
+            auto &versionEndDateTime = versionDateTimeRange.at(ies::RangeSide::End);
             if (!versionEndDateTime.empty())
             {
                 qVersionEndDateTime = ToQDateTime(versionEndDateTime);

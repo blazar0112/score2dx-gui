@@ -2,7 +2,7 @@
 
 #include <cctype>
 
-#include "icl_s2/Common/IntegralRangeUsing.hpp"
+#include "ies/Common/IntegralRangeUsing.hpp"
 
 #include "score2dx/Iidx/Version.hpp"
 
@@ -61,7 +61,7 @@ ResetModel(std::vector<StatsChartData> &&chartList)
 
         beginResetModel();
 
-        for (auto row : IntRange{0, static_cast<int>(mChartList.size()), icl_s2::EmptyPolicy::Allow})
+        for (auto row : IntRange{0, static_cast<int>(mChartList.size()), ies::EmptyPolicy::Allow})
         {
             auto modelIndex = createIndex(row, 0);
             for (auto role : IndexRange{0, StatsChartDataRoleSmartEnum::Size()})

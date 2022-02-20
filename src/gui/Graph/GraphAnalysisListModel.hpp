@@ -4,7 +4,7 @@
 
 #include <QAbstractListModel>
 
-#include "icl_s2/Common/SmartEnum.hxx"
+#include "ies/Common/SmartEnum.hxx"
 
 namespace gui
 {
@@ -16,14 +16,14 @@ namespace gui
 //! Score: int, EX Score
 //! DjLevel: string format <AAA|AA|A|B|...|F>.
 //! MissCount: int, can be empty.
-ICL_S2_SMART_ENUM(GraphAnalysisType,
+IES_SMART_ENUM(GraphAnalysisType,
     Clear,
     Score,
     DjLevel,
     MissCount
 );
 
-ICL_S2_SMART_ENUM(GraphAnalysisRecordField,
+IES_SMART_ENUM(GraphAnalysisRecordField,
     Record,
     PreviousRecord,
     NewRecord
