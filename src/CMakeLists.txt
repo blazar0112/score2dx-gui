@@ -4,11 +4,15 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(ENV{icl_s2_DIR} $ENV{INSTALL_ROOT}/icl_s2/2.0.0/mingw64-10.2.0)
-find_package(icl_s2)
+set(ENV{ies_DIR} $ENV{INSTALL_ROOT}/ies/latest/mingw64-11.2.0)
+find_package(ies REQUIRED)
+file(TO_CMAKE_PATH $ENV{ies_DIR} IES_PATH)
+message(STATUS "Found ies: " ${IES_PATH})
 
-set(ENV{score2dx_DIR} $ENV{INSTALL_ROOT}/score2dx)
+set(ENV{score2dx_DIR} $ENV{INSTALL_ROOT}/score2dx/latest/mingw64-11.2.0)
 find_package(score2dx REQUIRED)
+file(TO_CMAKE_PATH $ENV{score2dx_DIR} SCORE_2DX_PATH)
+message(STATUS "Found score2dx: " ${SCORE_2DX_PATH})
 
 # Header only libraries
 set(FMT_INCLUDE_DIRS $ENV{FMT_ROOT}/include)
@@ -25,7 +29,7 @@ foreach(LIB ${MINGW_LIBRARY_NAMES})
     if (EXISTS ${MINGW_LIB_PATH} AND NOT IS_DIRECTORY ${MINGW_LIB_PATH})
         file(TO_CMAKE_PATH ${MINGW_LIB_PATH} FOUND_MINGW_LIB)
         list(APPEND MINGW_LIBRARIES ${FOUND_MINGW_LIB})
-        message("Found MINGW Lib: ${FOUND_MINGW_LIB}")
+        message(STATUS "Found MINGW Lib: ${FOUND_MINGW_LIB}")
     endif()
 endforeach(LIB)
 
@@ -65,7 +69,7 @@ target_include_directories(ScoreViewer PUBLIC
 )
 target_link_libraries(ScoreViewer
     stdc++fs
-    icl_s2::icl_s2
+    ies::ies
     curl
     score2dx::score2dx
     Qt5::Widgets
@@ -76,7 +80,7 @@ target_link_libraries(ScoreViewer
 
 add_custom_command(TARGET ScoreViewer POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${MINGW_LIBRARIES} $<TARGET_FILE:icl_s2::icl_s2> $<TARGET_FILE:score2dx::score2dx> ${GTEST_LIBRARY}
+        ${MINGW_LIBRARIES} $<TARGET_FILE:ies::ies> $<TARGET_FILE:score2dx::score2dx> ${GTEST_LIBRARY}
         $ENV{MINGW64_ROOT}/ssl/certs/ca-bundle.crt
         $<TARGET_FILE_DIR:ScoreViewer>
     COMMAND ${CMAKE_COMMAND} -E copy_directory

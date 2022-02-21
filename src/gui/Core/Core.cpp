@@ -12,11 +12,11 @@
 #include <QTimer>
 #include <QUrl>
 
-#include "icl_s2/Common/IntegralRangeUsing.hpp"
-#include "icl_s2/Common/SmartEnum.hxx"
-#include "icl_s2/StdUtil/Find.hxx"
-#include "icl_s2/String/SplitString.hpp"
-#include "icl_s2/Time/TimeUtilFormat.hxx"
+#include "ies/Common/IntegralRangeUsing.hpp"
+#include "ies/Common/SmartEnum.hxx"
+#include "ies/StdUtil/Find.hxx"
+#include "ies/String/SplitString.hpp"
+#include "ies/Time/TimeUtilFormat.hxx"
 
 #include "score2dx/Iidx/Definition.hpp"
 #include "score2dx/Iidx/Version.hpp"
@@ -24,12 +24,12 @@
 #include "gui/version.hpp"
 #include "gui/Core/MeWorkerThread.hpp"
 
-namespace s2Time = icl_s2::Time;
+namespace s2Time = ies::Time;
 
 namespace gui
 {
 
-ICL_S2_SMART_ENUM(CsvTableColumn,
+IES_SMART_ENUM(CsvTableColumn,
     DateTime,
     Filename,
     Version,
@@ -71,6 +71,17 @@ const
         version += ("-"+annotate).c_str();
     }
     return version;
+}
+
+QString
+Core::
+getDbFilename()
+const
+{
+    QString path{mCore.GetMusicDatabase().GetFilename().c_str()};
+    //'' remove 'table/'.
+    auto filename = path.right(path.size()-6);
+    return filename;
 }
 
 bool
@@ -153,7 +164,7 @@ downloadIst(const QString &iidxId,
     std::set<score2dx::PlayStyleAcronym> scrapStyles;
 
     auto versionsStr = versions.toStdString();
-    auto splitVerions = icl_s2::SplitString(", ", versionsStr);
+    auto splitVerions = ies::SplitString(", ", versionsStr);
     for (auto &v : splitVerions)
     {
         if (v.size()==2&&std::all_of(v.begin(), v.end(), ::isdigit))
@@ -168,7 +179,7 @@ downloadIst(const QString &iidxId,
     }
 
     auto stylesStr = styles.toStdString();
-    auto splitStyles = icl_s2::SplitString(", ", stylesStr);
+    auto splitStyles = ies::SplitString(", ", stylesStr);
     for (auto &style : splitStyles)
     {
         if (score2dx::PlayStyleAcronymSmartEnum::Has(style))
@@ -252,8 +263,8 @@ setActiveVersion(const QString &iidxId,
     mCore.Analyze(iidxId.toStdString());
 
     auto dateTimeRange = score2dx::GetVersionDateTimeRange(activeVersionIndex.toULongLong());
-    auto &begin = dateTimeRange.at(icl_s2::RangeSide::Begin);
-    auto tokens = icl_s2::SplitString(" ", begin);
+    auto &begin = dateTimeRange.at(ies::RangeSide::Begin);
+    auto tokens = ies::SplitString(" ", begin);
     if (tokens.empty()) { return {}; }
 
     std::cout << std::flush;

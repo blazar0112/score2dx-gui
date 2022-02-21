@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "icl_s2/Common/IntegralRangeUsing.hpp"
+#include "ies/Common/IntegralRangeUsing.hpp"
 
 namespace gui
 {

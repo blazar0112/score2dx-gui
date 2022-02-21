@@ -2,9 +2,9 @@
 
 #include <QDebug>
 
-#include "icl_s2/Common/IntegralRangeUsing.hpp"
-#include "icl_s2/StdUtil/Find.hxx"
-#include "icl_s2/Time/TimeUtilFormat.hxx"
+#include "ies/Common/IntegralRangeUsing.hpp"
+#include "ies/StdUtil/Find.hxx"
+#include "ies/Time/TimeUtilFormat.hxx"
 
 #include "fmt/format.h"
 
@@ -13,7 +13,7 @@
 
 #include "gui/Activity/ChartActivityListModel.hpp"
 
-namespace s2Time = icl_s2::Time;
+namespace s2Time = ies::Time;
 
 namespace gui
 {
@@ -71,7 +71,7 @@ updateActivity(const QString &iidxId,
     std::size_t musicScoreCount = 0;
     for (auto &[dateTime, musicScoreById] : styleActivity)
     {
-        auto tokens = icl_s2::SplitString(" ", dateTime);
+        auto tokens = ies::SplitString(" ", dateTime);
         if (tokens[0]!=isoDate)
         {
             throw std::runtime_error("daily activity has incorrect date in datetime "+dateTime);
@@ -96,7 +96,7 @@ updateActivity(const QString &iidxId,
     std::size_t index = 0;
     for (auto &[dateTime, musicScoreById] : styleActivity)
     {
-        auto tokens = icl_s2::SplitString(" ", dateTime);
+        auto tokens = ies::SplitString(" ", dateTime);
         auto time = tokens[1];
         //! @todo fix ist script so it does not contain seconds.
         if (time.size()!=5)
@@ -242,7 +242,7 @@ updateActivity(const QString &iidxId,
                 chartActivity.Data[static_cast<int>(ChartActivityDataRole::careerDiffableBestScoreDiff)] = "N/A";
                 chartActivity.Data[static_cast<int>(ChartActivityDataRole::careerDiffableBestMissDiff)] = "N/A";
 
-                auto findBestScoreData = icl_s2::Find(scoreAnalysis.MusicBestScoreData, musicId);
+                auto findBestScoreData = ies::Find(scoreAnalysis.MusicBestScoreData, musicId);
                 if (!findBestScoreData)
                 {
                     qDebug() << "cannot find best score data of music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
@@ -334,7 +334,7 @@ const
 
     for (auto &[dateTime, musicScoreById] : versionActivityAnalysis.ActivityByDateTime.at(playStyle))
     {
-        if (icl_s2::Find(dateTime, isoDate))
+        if (ies::Find(dateTime, isoDate))
         {
             return ToString(ActivityDateType::HasActivity).c_str();
         }
@@ -360,8 +360,8 @@ const
     }
     auto versionIndex = findVersionIndex.value();
     auto dateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
-    auto &begin = dateTimeRange.at(icl_s2::RangeSide::Begin);
-    auto &end = dateTimeRange.at(icl_s2::RangeSide::End);
+    auto &begin = dateTimeRange.at(ies::RangeSide::Begin);
+    auto &end = dateTimeRange.at(ies::RangeSide::End);
     auto text = "Version: "+score2dx::VersionNames.at(versionIndex)
                 +" ("+score2dx::ToVersionString(versionIndex)
                 +") ["+begin

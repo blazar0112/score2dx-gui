@@ -2,12 +2,12 @@
 
 #include <QObject>
 
-#include "icl_s2/Common/SmartEnum.hxx"
+#include "ies/Common/SmartEnum.hxx"
 
 #include "gui/Activity/ActivityListModel.hpp"
 #include "gui/Core/Core.hpp"
 
-ICL_S2_SMART_ENUM(ActivityDateType,
+IES_SMART_ENUM(ActivityDateType,
     VersionBegin,
     VersionEnd,
     HasActivity,

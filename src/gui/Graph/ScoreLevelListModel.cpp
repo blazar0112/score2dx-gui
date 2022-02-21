@@ -1,6 +1,6 @@
 #include "gui/Graph/ScoreLevelListModel.hpp"
 
-#include "icl_s2/Common/IntegralRangeUsing.hpp"
+#include "ies/Common/IntegralRangeUsing.hpp"
 
 #include "score2dx/Iidx/Version.hpp"
 

@@ -1,6 +1,6 @@
 #include "gui/Activity/ChartActivityListModel.hpp"
 
-#include "icl_s2/Common/IntegralRangeUsing.hpp"
+#include "ies/Common/IntegralRangeUsing.hpp"
 
 namespace gui
 {
@@ -57,7 +57,7 @@ ResetModel(std::vector<ChartActivityData> &&chartActivityList)
 
         beginResetModel();
 
-        for (auto row : IntRange{0, static_cast<int>(mChartActivityList.size()), icl_s2::EmptyPolicy::Allow})
+        for (auto row : IntRange{0, static_cast<int>(mChartActivityList.size()), ies::EmptyPolicy::Allow})
         {
             auto modelIndex = createIndex(row, 0);
             for (auto role : IndexRange{0, ChartActivityDataRoleSmartEnum::Size()})

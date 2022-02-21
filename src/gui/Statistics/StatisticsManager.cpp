@@ -4,16 +4,16 @@
 
 #include <QDebug>
 
-#include "icl_s2/Common/IntegralRangeUsing.hpp"
-#include "icl_s2/StdUtil/Find.hxx"
-#include "icl_s2/Time/TimeUtilFormat.hxx"
+#include "ies/Common/IntegralRangeUsing.hpp"
+#include "ies/StdUtil/Find.hxx"
+#include "ies/Time/TimeUtilFormat.hxx"
 
 #include "fmt/format.h"
 
 #include "score2dx/Iidx/Version.hpp"
 #include "score2dx/Analysis/Analyzer.hpp"
 
-namespace s2Time = icl_s2::Time;
+namespace s2Time = ies::Time;
 
 namespace
 {
@@ -653,7 +653,7 @@ updateChartList(const QString &iidxId,
 
         statsChartData.Data[static_cast<int>(StatsChartDataRole::version)] = score2dx::ToVersionString(versionIndex).c_str();
 
-        auto findBestScoreData = icl_s2::Find(scoreAnalysis.MusicBestScoreData, musicId);
+        auto findBestScoreData = ies::Find(scoreAnalysis.MusicBestScoreData, musicId);
         if (!findBestScoreData)
         {
             qDebug() << "cannot find best score data of music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";

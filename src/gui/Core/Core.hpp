@@ -30,6 +30,11 @@ public:
         const;
 
         Q_INVOKABLE
+        QString
+        getDbFilename()
+        const;
+
+        Q_INVOKABLE
         bool
         addPlayer(const QString &iidxId);
 
