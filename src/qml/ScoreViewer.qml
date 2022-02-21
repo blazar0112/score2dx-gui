@@ -691,6 +691,32 @@ ApplicationWindow
             }
         }
 
+        Rectangle {
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+
+            width: textDbFilename.contentWidth
+            height: textDbFilename.contentHeight
+
+            color: '#A0000000'
+            radius: 3
+
+            Text {
+                id: textDbFilename
+                anchors.fill: parent
+
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+
+                font.family: 'Verdana'
+                font.pixelSize: 12
+                font.bold: true
+
+                text: 'DB: '+Core.getDbFilename()
+                color: 'MediumSeaGreen'
+            }
+        }
+
         Keys.onPressed: {
             if (event.key === Qt.Key_S)
             {

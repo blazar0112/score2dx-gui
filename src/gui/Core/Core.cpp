@@ -73,6 +73,17 @@ const
     return version;
 }
 
+QString
+Core::
+getDbFilename()
+const
+{
+    QString path{mCore.GetMusicDatabase().GetFilename().c_str()};
+    //'' remove 'table/'.
+    auto filename = path.right(path.size()-6);
+    return filename;
+}
+
 bool
 Core::
 addPlayer(const QString &iidxId)

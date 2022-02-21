@@ -286,3 +286,18 @@
     - If data is downloaded from IST: datetime is script running time, and play count is zero.
     - New Record: only shows column with updated value.
     - PDBS/PDBM diff: same as in statistics, see explanation in **Statistics Chart List**.
+
+## Custom DB path
+
+- Since 1.6.0 user can manually update music DB by only download new DB instead of new release.
+- At left bottom ScoreViewer shows current using DB path.
+- To use new music DB:
+    - Add file `usingDB.txt` in `table/` directory.
+    - Add new music DB in `table/`, e.g. `table/MusicDatabase37_2030-02-20.json`
+    - Edit `usingDB.txt` with `MusicDatabase37_2030-02-20.json` in first line.
+    - `table/usingDB.txt`
+
+        ```
+        MusicDatabase37_2030-02-20.json
+        ```
+    - If path is invalid, will use default path instead. Check left bottom path to make sure new DB path is used.

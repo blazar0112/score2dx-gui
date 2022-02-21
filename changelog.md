@@ -1,7 +1,9 @@
 # Changelog of score2dx-gui
 
-- Ongoing:
+- 1.6.0 [2022-02-21] (score2dx-2.7.0):
     - Update dependent library `icl_s2` to rebrand and open-source version `ies`.
+    - Have message box to display exception instead of silent crash.
+    - Display which Music DB path used to support score2dx customizable DB path function.
 
 - 1.5.0 [2022-01-06] (score2dx-2.6.0):
     - Add IIDX ME support.
