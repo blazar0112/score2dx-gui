@@ -109,9 +109,9 @@ updateActivity(const QString &iidxId,
             auto &snapshotData = activityAnalysis.ActivitySnapshotByDateTime.at(playStyle).at(dateTime).at(musicId);
 
             auto allChartScoreSame = true;
-            for (auto &[difficulty, chartScore] : musicScore.GetChartScores())
+            for (auto &[difficulty, chartScorePtr] : musicScore.GetChartScores())
             {
-                auto* previousChartScorePtr = snapshotData.PreviousMusicScore->FindChartScore(difficulty);
+                auto* previousChartScorePtr = snapshotData.PreviousMusicScore->GetChartScore(difficulty);
                 if (!previousChartScorePtr)
                 {
                     musicScore.Print();
@@ -119,7 +119,7 @@ updateActivity(const QString &iidxId,
                     continue;
                 }
 
-                if (chartScore!=*previousChartScorePtr)
+                if (chartScorePtr!=previousChartScorePtr)
                 {
                     allChartScoreSame = false;
                     break;
@@ -152,9 +152,10 @@ updateActivity(const QString &iidxId,
             auto &chartActivityList = musicChartActivityList.at(index);
             chartActivityList.reserve(score2dx::DifficultySmartEnum::Size());
 
-            for (auto &[difficulty, chartScore] : musicScore.GetChartScores())
+            for (auto &[difficulty, chartScorePtr] : musicScore.GetChartScores())
             {
-                auto* previousChartScorePtr = snapshotData.PreviousMusicScore->FindChartScore(difficulty);
+                auto &chartScore = *chartScorePtr;
+                auto* previousChartScorePtr = snapshotData.PreviousMusicScore->GetChartScore(difficulty);
                 if (!previousChartScorePtr)
                 {
                     musicScore.Print();
@@ -171,14 +172,14 @@ updateActivity(const QString &iidxId,
                 auto &chartActivity = chartActivityList.back();
                 auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
 
-                auto findChartInfo = database.FindChartInfo(versionIndex, title, styleDifficulty, activeVersionIndex);
+                auto findChartInfo = database.FindChartInfo(musicId, styleDifficulty, activeVersionIndex);
                 if (!findChartInfo)
                 {
                     qDebug() << "cannot find chart info music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
                     continue;
                 }
 
-                auto &chartInfo = findChartInfo.value();
+                auto &chartInfo = *findChartInfo;
                 auto &previousChartScore = *previousChartScorePtr;
 
                 chartActivity.Data[static_cast<int>(ChartActivityDataRole::level)] = QString::number(chartInfo.Level);
@@ -250,8 +251,8 @@ updateActivity(const QString &iidxId,
                 }
 
                 auto &bestScoreData = (findBestScoreData.value()->second).at(playStyle);
-                auto findChartScore = bestScoreData.GetVersionBestMusicScore().FindChartScore(difficulty);
-                if (!findChartScore)
+                auto* bestChartScorePtr = bestScoreData.GetVersionBestMusicScore().GetChartScore(difficulty);
+                if (!bestChartScorePtr)
                 {
                     qDebug() << "cannot find chart score music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
                     continue;
