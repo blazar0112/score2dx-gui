@@ -661,14 +661,14 @@ updateChartList(const QString &iidxId,
         }
 
         auto &bestScoreData = (findBestScoreData.value()->second).at(playStyle);
-        auto findChartScore = bestScoreData.GetVersionBestMusicScore().FindChartScore(difficulty);
-        if (!findChartScore)
+        auto* chartScorePtr = bestScoreData.GetVersionBestMusicScore().GetChartScore(difficulty);
+        if (!chartScorePtr)
         {
             qDebug() << "cannot find chart score music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
             continue;
         }
 
-        auto &chartScore = *findChartScore;
+        auto &chartScore = *chartScorePtr;
 
         statsChartData.Data[static_cast<int>(StatsChartDataRole::clear)] = ToPrettyString(chartScore.ClearType).c_str();
 
@@ -678,14 +678,14 @@ updateChartList(const QString &iidxId,
         {
             qDebug() << "title is empty music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
         }
-        auto findChartInfo = database.FindChartInfo(versionIndex, title, styleDifficulty, activeVersionIndex);
+        auto findChartInfo = database.FindChartInfo(musicId, styleDifficulty, activeVersionIndex);
         if (!findChartInfo)
         {
             qDebug() << "cannot find chart info music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
             continue;
         }
 
-        auto &chartInfo = findChartInfo.value();
+        auto &chartInfo = *findChartInfo;
 
         auto rangeDiff = score2dx::ToScoreLevelDiffString(chartInfo.Note, chartScore.ExScore);
 
