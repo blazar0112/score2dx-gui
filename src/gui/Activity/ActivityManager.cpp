@@ -133,7 +133,7 @@ updateActivity(const QString &iidxId,
 
             auto versionIndex = musicId/1000;
             auto versionString = score2dx::ToVersionString(versionIndex);
-            auto title = database.GetLatestMusicInfo(musicId).GetField(score2dx::MusicInfoField::Title);
+            auto &title = database.GetTitle(musicId);
 
             activityList.emplace_back();
             auto &activityData = activityList.back();

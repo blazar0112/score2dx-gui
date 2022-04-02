@@ -73,7 +73,8 @@ GraphManager::
 updatePlayerScore(const QString &iidxIdQStr,
                   const QString &playStyleQStr,
                   int musicId,
-                  const QString &difficultyQStr)
+                  const QString &difficultyQStr,
+                  const QString &activeVersionQStr)
 {
     if (iidxIdQStr.isEmpty()||playStyleQStr.isEmpty()||difficultyQStr.isEmpty())
     {
@@ -104,9 +105,11 @@ updatePlayerScore(const QString &iidxIdQStr,
     auto difficulty = score2dx::ToDifficulty(difficultyQStr.toStdString());
     auto chartScores = playerScore.GetChartScores(musicId, playStyle, difficulty);
 
-    auto info = mCore.GetMusicDatabase().GetLatestMusicInfo(musicId);
-    auto chartInfo = info.FindChartInfo(playStyle, difficulty);
-    if (!chartInfo)
+    auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
+    auto activeVersionIndex = std::stoull(activeVersionQStr.toStdString());
+
+    auto* chartInfoPtr = mCore.GetMusicDatabase().FindChartInfo(musicId, styleDifficulty, activeVersionIndex);
+    if (!chartInfoPtr)
     {
         std::cout << "Cannot find chart info of Music [" << musicId
                   << "]["+ToString(playStyle)+"]["+ToString(difficulty)+"]"
@@ -114,7 +117,7 @@ updatePlayerScore(const QString &iidxIdQStr,
         return;
     }
 
-    auto note = chartInfo->Note;
+    auto note = chartInfoPtr->Note;
     auto maxScore = 2*note;
 
     scoreAxis.setMin(0);

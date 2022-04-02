@@ -754,7 +754,8 @@ ApplicationWindow
             comboBoxPlayer.currentText,
             comboBoxPlayStyle.currentText,
             musicListView.musicId,
-            comboBoxDifficulty.currentText
+            comboBoxDifficulty.currentText,
+            comboBoxActiveVersion.currentText
         )
 
         triggerScoreChartViewUpdate()
