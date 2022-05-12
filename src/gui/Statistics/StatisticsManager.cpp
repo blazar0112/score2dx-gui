@@ -497,6 +497,7 @@ updateChartList(const QString &iidxId,
     mChartListFilterList.clear();
 
     auto &scoreAnalysis = *scoreAnalysisPtr;
+    auto &careerRecord = *scoreAnalysis.CareerRecordPtr;
 
     auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
     auto tableType = ToStatsTableType(tableTypeQStr.toStdString());
@@ -653,22 +654,15 @@ updateChartList(const QString &iidxId,
 
         statsChartData.Data[static_cast<int>(StatsChartDataRole::version)] = score2dx::ToVersionString(versionIndex).c_str();
 
-        auto findBestScoreData = ies::Find(scoreAnalysis.MusicBestScoreData, musicId);
-        if (!findBestScoreData)
+        score2dx::ChartScore defaultChartScore;
+        const auto* usingChartScorePtr = &defaultChartScore;
+
+        if (auto* versionBestRecordPtr = careerRecord.GetRecord(chartId, score2dx::BestType::VersionBest, score2dx::RecordType::Score))
         {
-            qDebug() << "cannot find best score data of music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
-            continue;
+            usingChartScorePtr = &versionBestRecordPtr->ChartScoreProp;
         }
 
-        auto &bestScoreData = (findBestScoreData.value()->second).at(playStyle);
-        auto* chartScorePtr = bestScoreData.GetVersionBestMusicScore().GetChartScore(difficulty);
-        if (!chartScorePtr)
-        {
-            qDebug() << "cannot find chart score music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
-            continue;
-        }
-
-        auto &chartScore = *chartScorePtr;
+        auto &chartScore = *usingChartScorePtr;
 
         statsChartData.Data[static_cast<int>(StatsChartDataRole::clear)] = ToPrettyString(chartScore.ClearType).c_str();
 
@@ -722,19 +716,17 @@ updateChartList(const QString &iidxId,
             statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissDiff)] = "N/A";
         }
 
-        if (auto* findCareerDiffableBestScore =
-                bestScoreData.FindDiffableChartScoreRecord(score2dx::DiffableBestScoreType::ExScore, difficulty))
+        if (auto* otherBestScoreRecordPtr = careerRecord.GetRecord(chartId, score2dx::BestType::OtherBest, score2dx::RecordType::Score))
         {
-            auto &careerBestDiffableScoreRecord = *findCareerDiffableBestScore;
-            auto scoreDiff = chartScore.ExScore-careerBestDiffableScoreRecord.ChartScoreProp.ExScore;
+            auto scoreDiff = chartScore.ExScore-otherBestScoreRecordPtr->ChartScoreProp.ExScore;
             auto scoreDiffStr = fmt::format("{:+d}", scoreDiff);
 
             statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreDiff)] =
                 scoreDiffStr.c_str();
             statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreVersion)] =
-                score2dx::ToVersionString(careerBestDiffableScoreRecord.VersionIndex).c_str();
+                score2dx::ToVersionString(otherBestScoreRecordPtr->VersionIndex).c_str();
             statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScore)] =
-                QString::number(careerBestDiffableScoreRecord.ChartScoreProp.ExScore);
+                QString::number(otherBestScoreRecordPtr->ChartScoreProp.ExScore);
         }
 
         //'' intented non-hard/exhard failed? is it possible with retire mechanism ?
@@ -743,38 +735,24 @@ updateChartList(const QString &iidxId,
             statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestScoreDiff)] = "NP";
         }
 
-        if (auto* findCareerDiffableBestMiss =
-                bestScoreData.FindDiffableChartScoreRecord(score2dx::DiffableBestScoreType::Miss, difficulty))
+        if (auto* otherBestMissRecordPtr = careerRecord.GetRecord(chartId, score2dx::BestType::OtherBest, score2dx::RecordType::Miss))
         {
-            auto &careerBestDiffableMissRecord = *findCareerDiffableBestMiss;
-            if (!chartScore.MissCount.has_value() || !careerBestDiffableMissRecord.ChartScoreProp.MissCount.has_value())
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissVersion)] =
+                score2dx::ToVersionString(otherBestMissRecordPtr->VersionIndex).c_str();
+            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMiss)] =
+                QString::number(otherBestMissRecordPtr->ChartScoreProp.MissCount.value());
+
+            if (!chartScore.MissCount.has_value())
             {
-                qDebug() << "Music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "] find PB differ miss but not both miss available.";
+                //qDebug() << "Music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "] find PB differ miss but not both miss available.";
+                continue;
             }
 
-            auto missDiff = chartScore.MissCount.value()-careerBestDiffableMissRecord.ChartScoreProp.MissCount.value();
+            auto missDiff = chartScore.MissCount.value()-otherBestMissRecordPtr->ChartScoreProp.MissCount.value();
             auto missDiffStr = fmt::format("{:+d}", missDiff);
 
             statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissDiff)] =
                 missDiffStr.c_str();
-            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissVersion)] =
-                score2dx::ToVersionString(careerBestDiffableMissRecord.VersionIndex).c_str();
-            statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMiss)] =
-                QString::number(careerBestDiffableMissRecord.ChartScoreProp.MissCount.value());
-        }
-        else
-        {
-            if (auto* findCareerBestMiss = bestScoreData.FindBestChartScoreRecord(score2dx::BestScoreType::BestMiss, difficulty))
-            {
-                auto &careerBestMiss = *findCareerBestMiss;
-                if (!chartScore.MissCount.has_value() && careerBestMiss.ChartScoreProp.MissCount.has_value())
-                {
-                    statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMissVersion)] =
-                        score2dx::ToVersionString(careerBestMiss.VersionIndex).c_str();
-                    statsChartData.Data[static_cast<int>(StatsChartDataRole::careerDiffableBestMiss)] =
-                        QString::number(careerBestMiss.ChartScoreProp.MissCount.value());
-                }
-            }
         }
     }
 
