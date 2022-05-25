@@ -8,6 +8,7 @@
 #include <QtCharts/QLegendMarker>
 
 #include "ies/Common/IntegralRangeUsing.hpp"
+#include "ies/StdUtil/Find.hxx"
 #include "ies/String/RecursiveReplace.hpp"
 
 #include "score2dx/Iidx/Version.hpp"
@@ -103,7 +104,6 @@ updatePlayerScore(const QString &iidxIdQStr,
     auto &playerScore = mCore.GetPlayerScores().at(iidxIdQStr.toStdString());
     auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
     auto difficulty = score2dx::ToDifficulty(difficultyQStr.toStdString());
-    auto chartScores = playerScore.GetChartScores(musicId, playStyle, difficulty);
 
     auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
     auto activeVersionIndex = std::stoull(activeVersionQStr.toStdString());
@@ -143,7 +143,30 @@ updatePlayerScore(const QString &iidxIdQStr,
     mScoreLevelListModel.ResetList(scoreLevelPointList);
 
     std::vector<GraphAnalysisData> analysisList;
-    analysisList.reserve(chartScores.size());
+    //auto chartScores = playerScore.GetChartScores(musicId, playStyle, difficulty);
+    auto findVersionScoreTable = ies::Find(playerScore.GetVersionScoreTables(), musicId);
+    if (!findVersionScoreTable)
+    {
+        std::cout << "Cannot find VersionScoreTable of Music [" << musicId
+                  << "]["+ToString(playStyle)+"]["+ToString(difficulty)+"]"
+                  << std::endl;
+        return;
+    }
+    auto &versionScoreTable = findVersionScoreTable.value()->second;
+
+    std::size_t chartScoreCount = 0;
+    for (auto scoreVersionIndex : score2dx::GetSupportScoreVersionRange())
+    {
+        for (auto &[dateTime, musicScore] : versionScoreTable.GetMusicScores(scoreVersionIndex, playStyle))
+        {
+            if (musicScore.GetChartScore(difficulty))
+            {
+                ++chartScoreCount;
+            }
+        }
+    }
+
+    analysisList.reserve(chartScoreCount);
 
     //'' chartScore may be empty, because no difficulty is played.
     //'' if any difficulty is played, then a ChartScore is created.
@@ -226,55 +249,64 @@ updatePlayerScore(const QString &iidxIdQStr,
         }
     };
 
-    for (auto &[dateTime, chartScorePtr] : chartScores)
+    for (auto scoreVersionIndex : score2dx::GetSupportScoreVersionRange())
     {
-        auto &chartScore = *chartScorePtr;
-
-        //'' always record first unless it's NO PLAY.
-        if (isFirst&&chartScore.ClearType==score2dx::ClearType::NO_PLAY)
+        for (auto &[dateTime, musicScore] : versionScoreTable.GetMusicScores(scoreVersionIndex, playStyle))
         {
-            continue;
-        }
-
-        //'' skip non-first 0 score entry.
-        if (!isFirst&&chartScore.ExScore==0)
-        {
-            continue;
-        }
-
-        auto qDateTime = ToQDateTime(dateTime);
-        series.append(qDateTime.toMSecsSinceEpoch(), chartScore.ExScore);
-
-        analysisList.emplace_back();
-        auto &analysisData = analysisList.back();
-
-        analysisData.ScoreLevelRangeDiff = score2dx::ToScoreLevelDiffString(note, chartScore.ExScore).c_str();
-
-        //'' note: to compare clear type, record here is not space separated
-        //'' convert to space separated after all data constructed.
-        analysisData.GetRecord(GraphAnalysisType::Clear).Record = ToString(chartScore.ClearType).c_str();
-        analysisData.GetRecord(GraphAnalysisType::Score).Record = std::to_string(chartScore.ExScore).c_str();
-        analysisData.GetRecord(GraphAnalysisType::DjLevel).Record = ToString(chartScore.DjLevel).c_str();
-        if (chartScore.MissCount)
-        {
-            analysisData.GetRecord(GraphAnalysisType::MissCount).Record = std::to_string(chartScore.MissCount.value()).c_str();
-        }
-
-        for (auto analysisType : GraphAnalysisTypeSmartEnum::ToRange())
-        {
-            auto &compareFunction = compareBestFunctions[analysisType];
-            if (compareFunction(analysisType, analysisData))
+            auto* chartScorePtr = musicScore.GetChartScore(difficulty);
+            if (!chartScorePtr)
             {
-                auto &currentRecord = analysisData.GetRecord(analysisType);
-                auto &bestRecord = bestRecordData.GetRecord(analysisType);
-
-                currentRecord.PreviousRecord = bestRecord.Record;
-                bestRecord.Record = currentRecord.Record;
-                currentRecord.NewRecord = true;
+                continue;
             }
-        }
 
-        isFirst = false;
+            auto &chartScore = *chartScorePtr;
+
+            //'' always record first unless it's NO PLAY.
+            if (isFirst&&chartScore.ClearType==score2dx::ClearType::NO_PLAY)
+            {
+                continue;
+            }
+
+            //'' skip non-first 0 score entry.
+            if (!isFirst&&chartScore.ExScore==0)
+            {
+                continue;
+            }
+
+            auto qDateTime = ToQDateTime(dateTime);
+            series.append(qDateTime.toMSecsSinceEpoch(), chartScore.ExScore);
+
+            analysisList.emplace_back();
+            auto &analysisData = analysisList.back();
+
+            analysisData.ScoreLevelRangeDiff = score2dx::ToScoreLevelDiffString(note, chartScore.ExScore).c_str();
+
+            //'' note: to compare clear type, record here is not space separated
+            //'' convert to space separated after all data constructed.
+            analysisData.GetRecord(GraphAnalysisType::Clear).Record = ToString(chartScore.ClearType).c_str();
+            analysisData.GetRecord(GraphAnalysisType::Score).Record = std::to_string(chartScore.ExScore).c_str();
+            analysisData.GetRecord(GraphAnalysisType::DjLevel).Record = ToString(chartScore.DjLevel).c_str();
+            if (chartScore.MissCount)
+            {
+                analysisData.GetRecord(GraphAnalysisType::MissCount).Record = std::to_string(chartScore.MissCount.value()).c_str();
+            }
+
+            for (auto analysisType : GraphAnalysisTypeSmartEnum::ToRange())
+            {
+                auto &compareFunction = compareBestFunctions[analysisType];
+                if (compareFunction(analysisType, analysisData))
+                {
+                    auto &currentRecord = analysisData.GetRecord(analysisType);
+                    auto &bestRecord = bestRecordData.GetRecord(analysisType);
+
+                    currentRecord.PreviousRecord = bestRecord.Record;
+                    bestRecord.Record = currentRecord.Record;
+                    currentRecord.NewRecord = true;
+                }
+            }
+
+            isFirst = false;
+        }
     }
 
     for (auto &analysisData : analysisList)
@@ -321,8 +353,8 @@ updateTimelineBeginVersion(const QString &timelineBeginVersion)
     }
 
     auto versionIndex = findVersionIndex.value();
-    auto versionDateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
-    auto versionBeginDateTime = ToQDateTime(versionDateTimeRange.at(ies::RangeSide::Begin));
+    auto &versionDateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
+    auto versionBeginDateTime = ToQDateTime(versionDateTimeRange.Get(ies::RangeSide::Begin));
 
     if (mDateTimeAxis)
     {
@@ -343,13 +375,9 @@ updateTimelineBeginVersion(const QString &timelineBeginVersion)
         {
             auto &versionName = score2dx::VersionNames[versionIndex];
 
-            auto versionDateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
-            if (versionDateTimeRange.empty())
-            {
-                continue;
-            }
+            auto &versionDateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
 
-            auto &versionEndDateTime = versionDateTimeRange.at(ies::RangeSide::End);
+            auto &versionEndDateTime = versionDateTimeRange.Get(ies::RangeSide::End);
             auto endMSecs = versionAxis.max();
             if (!versionEndDateTime.empty())
             {
@@ -381,11 +409,11 @@ InitializeChart()
         return;
     }
     auto beginVersionIndex = findBeginVersionIndex.value();
-    auto beginVersionDateTimeRange = score2dx::GetVersionDateTimeRange(beginVersionIndex);
-    auto beginDateTime = ToQDateTime(beginVersionDateTimeRange.at(ies::RangeSide::Begin));
+    auto &beginVersionDateTimeRange = score2dx::GetVersionDateTimeRange(beginVersionIndex);
+    auto beginDateTime = ToQDateTime(beginVersionDateTimeRange.Get(ies::RangeSide::Begin));
 
-    auto latestVersionDateTimeRange = score2dx::GetVersionDateTimeRange(score2dx::GetLatestVersionIndex());
-    auto latestVersionBeginDateTime = ToQDateTime(latestVersionDateTimeRange.at(ies::RangeSide::Begin));
+    auto &latestVersionDateTimeRange = score2dx::GetVersionDateTimeRange(score2dx::GetLatestVersionIndex());
+    auto latestVersionBeginDateTime = ToQDateTime(latestVersionDateTimeRange.Get(ies::RangeSide::Begin));
     auto endDateTime = latestVersionBeginDateTime.addYears(1);
 
     if (mLegend)
@@ -453,16 +481,12 @@ InitializeChart()
         versionAxis.setLineVisible(false);
         versionAxis.setLabelsColor({"cyan"});
 
-        for (auto versionIndex : IndexRange{0, score2dx::VersionNames.size()})
+        for (auto versionIndex : score2dx::GetSupportScoreVersionRange())
         {
-            auto versionDateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
-            if (versionDateTimeRange.empty())
-            {
-                continue;
-            }
+            auto &versionDateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
 
             auto qVersionEndDateTime = endDateTime;
-            auto &versionEndDateTime = versionDateTimeRange.at(ies::RangeSide::End);
+            auto &versionEndDateTime = versionDateTimeRange.Get(ies::RangeSide::End);
             if (!versionEndDateTime.empty())
             {
                 qVersionEndDateTime = ToQDateTime(versionEndDateTime);

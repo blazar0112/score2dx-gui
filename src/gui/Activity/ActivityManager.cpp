@@ -342,9 +342,9 @@ const
         return "Version: N/A";
     }
     auto versionIndex = findVersionIndex.value();
-    auto dateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
-    auto &begin = dateTimeRange.at(ies::RangeSide::Begin);
-    auto &end = dateTimeRange.at(ies::RangeSide::End);
+    auto &dateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
+    auto &begin = dateTimeRange.Get(ies::RangeSide::Begin);
+    auto &end = dateTimeRange.Get(ies::RangeSide::End);
     auto text = "Version: "+score2dx::VersionNames.at(versionIndex)
                 +" ("+score2dx::ToVersionString(versionIndex)
                 +") ["+begin

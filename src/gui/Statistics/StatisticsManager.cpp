@@ -369,19 +369,19 @@ updateStatsTable(const QString &iidxId,
         {
             case StatsTableType::Level:
             {
-                statisticsPtr = &scoreAnalysis.StatisticsByStyleLevel.at(playStyle)[row+1];
+                statisticsPtr = &scoreAnalysis.StatisticsByStyleLevel[static_cast<std::size_t>(playStyle)][row+1];
                 break;
             }
             case StatsTableType::AllDifficulty:
             {
                 auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, static_cast<score2dx::Difficulty>(row+1));
-                statisticsPtr = &scoreAnalysis.StatisticsByStyleDifficulty.at(styleDifficulty);
+                statisticsPtr = &scoreAnalysis.StatisticsByStyleDifficulty[static_cast<std::size_t>(styleDifficulty)];
                 break;
             }
             case StatsTableType::VersionDifficulty:
             {
                 auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, static_cast<score2dx::Difficulty>(row+1));
-                statisticsPtr = &scoreAnalysis.StatisticsByVersionStyleDifficulty.at(difficultyVersionIndex).at(styleDifficulty);
+                statisticsPtr = &scoreAnalysis.StatisticsByVersionStyleDifficulty[difficultyVersionIndex][static_cast<std::size_t>(styleDifficulty)];
                 break;
             }
         }
@@ -402,17 +402,17 @@ updateStatsTable(const QString &iidxId,
             {
                 case StatsColumnType::Clear:
                 {
-                    value = statistics.ChartIdListByClearType.at(static_cast<score2dx::ClearType>(column)).size();
+                    value = statistics.ChartIdListByClearType[column].size();
                     break;
                 }
                 case StatsColumnType::DjLevel:
                 {
-                    value = statistics.ChartIdListByDjLevel.at(static_cast<score2dx::DjLevel>(column)).size();
+                    value = statistics.ChartIdListByDjLevel[column].size();
                     break;
                 }
                 case StatsColumnType::ScoreLevelCategory:
                 {
-                    value = statistics.ChartIdListByScoreLevelCategory.at(static_cast<score2dx::ScoreLevelCategory>(column)).size();
+                    value = statistics.ChartIdListByScoreLevelCategory[column].size();
                     break;
                 }
             }
@@ -500,6 +500,7 @@ updateChartList(const QString &iidxId,
     auto &careerRecord = *scoreAnalysis.CareerRecordPtr;
 
     auto playStyle = score2dx::ToPlayStyle(playStyleQStr.toStdString());
+    auto playStyleIndex = static_cast<std::size_t>(playStyle);
     auto tableType = ToStatsTableType(tableTypeQStr.toStdString());
     auto difficultyVersionIndex = difficultyVersionQStr.toULongLong();
     auto statsColumnType = ToStatsColumnType(columnTypeQStr.toStdString());
@@ -514,12 +515,12 @@ updateChartList(const QString &iidxId,
     {
         if (tableType!=StatsTableType::VersionDifficulty)
         {
-            statisticsPtr = &scoreAnalysis.StatisticsByStyle.at(playStyle);
+            statisticsPtr = &scoreAnalysis.StatisticsByStyle[playStyleIndex];
             mChartListFilterList << "Version: All";
         }
         else
         {
-            statisticsPtr = &scoreAnalysis.StatisticsByVersionStyle.at(difficultyVersionIndex).at(playStyle);
+            statisticsPtr = &scoreAnalysis.StatisticsByVersionStyle[difficultyVersionIndex][playStyleIndex];
             mChartListFilterList << "Version: "+difficultyVersionQStr;
         }
     }
@@ -529,7 +530,7 @@ updateChartList(const QString &iidxId,
         {
             case StatsTableType::Level:
             {
-                statisticsPtr = &scoreAnalysis.StatisticsByStyleLevel.at(playStyle)[tableRow+1];
+                statisticsPtr = &scoreAnalysis.StatisticsByStyleLevel[playStyleIndex][tableRow+1];
                 mChartListFilterList << "Version: All";
                 mChartListFilterList << "Level: "+QString::number(tableRow+1);
                 break;
@@ -538,7 +539,7 @@ updateChartList(const QString &iidxId,
             {
                 auto difficulty = static_cast<score2dx::Difficulty>(tableRow+1);
                 auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
-                statisticsPtr = &scoreAnalysis.StatisticsByStyleDifficulty.at(styleDifficulty);
+                statisticsPtr = &scoreAnalysis.StatisticsByStyleDifficulty[static_cast<std::size_t>(styleDifficulty)];
                 mChartListFilterList << "Version: All";
                 mChartListFilterList << QString{"Difficulty: "}+ToString(difficulty).c_str();
                 break;
@@ -547,7 +548,7 @@ updateChartList(const QString &iidxId,
             {
                 auto difficulty = static_cast<score2dx::Difficulty>(tableRow+1);
                 auto styleDifficulty = score2dx::ConvertToStyleDifficulty(playStyle, difficulty);
-                statisticsPtr = &scoreAnalysis.StatisticsByVersionStyleDifficulty.at(difficultyVersionIndex).at(styleDifficulty);
+                statisticsPtr = &scoreAnalysis.StatisticsByVersionStyleDifficulty[difficultyVersionIndex][static_cast<std::size_t>(styleDifficulty)];
                 mChartListFilterList << "Version: "+difficultyVersionQStr;
                 mChartListFilterList << QString{"Difficulty: "}+ToString(difficulty).c_str();
                 break;
@@ -575,7 +576,7 @@ updateChartList(const QString &iidxId,
         {
             case StatsColumnType::Clear:
             {
-                for (auto &[clearType, colChartIdList] : statistics.ChartIdListByClearType)
+                for (auto &colChartIdList : statistics.ChartIdListByClearType)
                 {
                     for (auto chartId : colChartIdList)
                     {
@@ -587,7 +588,7 @@ updateChartList(const QString &iidxId,
             }
             case StatsColumnType::DjLevel:
             {
-                for (auto &[djLevel, colChartIdList] : statistics.ChartIdListByDjLevel)
+                for (auto &colChartIdList : statistics.ChartIdListByDjLevel)
                 {
                     for (auto chartId : colChartIdList)
                     {
@@ -599,7 +600,7 @@ updateChartList(const QString &iidxId,
             }
             case StatsColumnType::ScoreLevelCategory:
             {
-                for (auto &[category, colChartIdList] : statistics.ChartIdListByScoreLevelCategory)
+                for (auto &colChartIdList : statistics.ChartIdListByScoreLevelCategory)
                 {
                     for (auto chartId : colChartIdList)
                     {
@@ -618,21 +619,21 @@ updateChartList(const QString &iidxId,
             case StatsColumnType::Clear:
             {
                 auto clear = static_cast<score2dx::ClearType>(tableColumn);
-                chartIdList = statistics.ChartIdListByClearType.at(clear);
+                chartIdList = statistics.ChartIdListByClearType[tableColumn];
                 mChartListFilterList << QString{"Chart: Clear="}+ToPrettyString(clear).c_str();
                 break;
             }
             case StatsColumnType::DjLevel:
             {
                 auto djLevel = static_cast<score2dx::DjLevel>(tableColumn);
-                chartIdList = statistics.ChartIdListByDjLevel.at(djLevel);
+                chartIdList = statistics.ChartIdListByDjLevel[tableColumn];
                 mChartListFilterList << QString{"Chart: DJ Level="}+ToString(djLevel).c_str();
                 break;
             }
             case StatsColumnType::ScoreLevelCategory:
             {
                 auto category = static_cast<score2dx::ScoreLevelCategory>(tableColumn);
-                chartIdList = statistics.ChartIdListByScoreLevelCategory.at(category);
+                chartIdList = statistics.ChartIdListByScoreLevelCategory[tableColumn];
                 mChartListFilterList << QString{"Chart: Score Level Category="}+ToPrettyString(category).c_str();
                 break;
             }

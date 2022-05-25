@@ -262,8 +262,8 @@ setActiveVersion(const QString &iidxId,
     mCore.SetActiveVersionIndex(activeVersionIndex.toULongLong());
     mCore.Analyze(iidxId.toStdString());
 
-    auto dateTimeRange = score2dx::GetVersionDateTimeRange(activeVersionIndex.toULongLong());
-    auto &begin = dateTimeRange.at(ies::RangeSide::Begin);
+    auto &dateTimeRange = score2dx::GetVersionDateTimeRange(activeVersionIndex.toULongLong());
+    auto &begin = dateTimeRange.Get(ies::RangeSide::Begin);
     auto tokens = ies::SplitString(" ", begin);
     if (tokens.empty()) { return {}; }
 
