@@ -1,5 +1,12 @@
 # Changelog of score2dx-gui
 
+- 1.7.0 [2022-06-06] (score2dx-3.1.1):
+    - Update to score2dx 3.1.1 changes:
+        - Optimize performance.
+        - Update Music DB to 29086 [2022-06-08].
+    - Display Chrome Status and disable IST if version not match.
+    - Fix IST and ME not update player after download.
+
 - 1.6.0 [2022-02-21] (score2dx-2.7.0):
     - Update dependent library `icl_s2` to rebrand and open-source version `ies`.
     - Have message box to display exception instead of silent crash.

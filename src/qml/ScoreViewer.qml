@@ -69,7 +69,6 @@ ApplicationWindow
                         model: Core.playerList
 
                         onActivated: {
-                            console.log('onActivated')
                             updatePlayer()
                         }
 
@@ -782,7 +781,6 @@ ApplicationWindow
 
     function updatePlayer()
     {
-        console.log('updatePlayer')
         updateMusicScore()
         updateActiveVersion()
     }
