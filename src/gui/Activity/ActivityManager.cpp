@@ -55,7 +55,7 @@ updateActivity(const QString &iidxId,
     auto* activityAnalysisPtr = mGuiCore.GetScore2dxCore().FindActivityAnalysis(iidxId.toStdString());
     if (!activityAnalysisPtr)
     {
-        qDebug() << "Cannot find ActivityAnalysis for player " << iidxId;
+        qDebug() << "updateActivity: Cannot find ActivityAnalysis for player " << iidxId;
         return;
     }
 
@@ -133,7 +133,7 @@ updateActivity(const QString &iidxId,
 
             auto versionIndex = musicId/1000;
             auto versionString = score2dx::ToVersionString(versionIndex);
-            auto title = database.GetLatestMusicInfo(musicId).GetField(score2dx::MusicInfoField::Title);
+            auto &title = database.GetTitle(musicId);
 
             activityList.emplace_back();
             auto &activityData = activityList.back();
@@ -243,47 +243,29 @@ updateActivity(const QString &iidxId,
                 chartActivity.Data[static_cast<int>(ChartActivityDataRole::careerDiffableBestScoreDiff)] = "N/A";
                 chartActivity.Data[static_cast<int>(ChartActivityDataRole::careerDiffableBestMissDiff)] = "N/A";
 
-                auto findBestScoreData = ies::Find(scoreAnalysis.MusicBestScoreData, musicId);
-                if (!findBestScoreData)
-                {
-                    qDebug() << "cannot find best score data of music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
-                    continue;
-                }
+                auto &careerRecord = *scoreAnalysis.CareerRecordPtr;
 
-                auto &bestScoreData = (findBestScoreData.value()->second).at(playStyle);
-                auto* bestChartScorePtr = bestScoreData.GetVersionBestMusicScore().GetChartScore(difficulty);
-                if (!bestChartScorePtr)
-                {
-                    qDebug() << "cannot find chart score music id" << musicId << "[" << ToString(styleDifficulty).c_str() << "].";
-                    continue;
-                }
+                auto chartId = score2dx::ToChartId(musicId, playStyle, difficulty);
 
-                if (auto* findCareerDiffableBestScore =
-                        bestScoreData.FindDiffableChartScoreRecord(score2dx::DiffableBestScoreType::ExScore, difficulty))
+                if (auto* otherBestScoreRecordPtr = careerRecord.GetRecord(chartId, score2dx::BestType::OtherBest, score2dx::RecordType::Score))
                 {
-                    auto &careerBestDiffableScoreRecord = *findCareerDiffableBestScore;
-                    auto scoreDiff = betterScore-careerBestDiffableScoreRecord.ChartScoreProp.ExScore;
+                    auto scoreDiff = betterScore-otherBestScoreRecordPtr->ChartScoreProp.ExScore;
                     auto scoreDiffStr = fmt::format("{:+d}", scoreDiff);
-
-                    chartActivity.Data[static_cast<int>(ChartActivityDataRole::careerDiffableBestScoreDiff)] =
-                        scoreDiffStr.c_str();
+                    auto diffIndex = static_cast<int>(ChartActivityDataRole::careerDiffableBestScoreDiff);
+                    chartActivity.Data[diffIndex] = scoreDiffStr.c_str();
                 }
 
-                if (auto* findCareerDiffableBestMiss =
-                        bestScoreData.FindDiffableChartScoreRecord(score2dx::DiffableBestScoreType::Miss, difficulty))
+                if (auto* otherBestMissRecordPtr = careerRecord.GetRecord(chartId, score2dx::BestType::OtherBest, score2dx::RecordType::Miss))
                 {
-                    auto &careerBestDiffableMissRecord = *findCareerDiffableBestMiss;
-                    //'' fail at this version, has previous two miss record, it's possible.
-                    if (!betterMiss.has_value() || !careerBestDiffableMissRecord.ChartScoreProp.MissCount.has_value())
+                    if (!betterMiss.has_value())
                     {
                         continue;
                     }
 
-                    auto missDiff = betterMiss.value()-careerBestDiffableMissRecord.ChartScoreProp.MissCount.value();
+                    auto missDiff = betterMiss.value()-otherBestMissRecordPtr->ChartScoreProp.MissCount.value();
                     auto missDiffStr = fmt::format("{:+d}", missDiff);
-
-                    chartActivity.Data[static_cast<int>(ChartActivityDataRole::careerDiffableBestMissDiff)] =
-                        missDiffStr.c_str();
+                    auto diffIndex = static_cast<int>(ChartActivityDataRole::careerDiffableBestMissDiff);
+                    chartActivity.Data[diffIndex] = missDiffStr.c_str();
                 }
             }
 
@@ -312,7 +294,6 @@ const
     auto* activityAnalysisPtr = mGuiCore.GetScore2dxCore().FindVersionActivityAnalysis(iidxId.toStdString());
     if (!activityAnalysisPtr)
     {
-        qDebug() << "Cannot find ActivityAnalysis for player " << iidxId;
         return {};
     }
 
@@ -360,9 +341,9 @@ const
         return "Version: N/A";
     }
     auto versionIndex = findVersionIndex.value();
-    auto dateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
-    auto &begin = dateTimeRange.at(ies::RangeSide::Begin);
-    auto &end = dateTimeRange.at(ies::RangeSide::End);
+    auto &dateTimeRange = score2dx::GetVersionDateTimeRange(versionIndex);
+    auto &begin = dateTimeRange.Get(ies::RangeSide::Begin);
+    auto &end = dateTimeRange.Get(ies::RangeSide::End);
     auto text = "Version: "+score2dx::VersionNames.at(versionIndex)
                 +" ("+score2dx::ToVersionString(versionIndex)
                 +") ["+begin

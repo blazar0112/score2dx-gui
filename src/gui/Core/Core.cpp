@@ -18,6 +18,7 @@
 #include "ies/String/SplitString.hpp"
 #include "ies/Time/TimeUtilFormat.hxx"
 
+#include "score2dx/Core/ChromeDriver.hpp"
 #include "score2dx/Iidx/Definition.hpp"
 #include "score2dx/Iidx/Version.hpp"
 
@@ -54,6 +55,16 @@ Core(QObject *parent)
     {
         mDifficultyList << ToString(difficulty).c_str();
     }
+
+    auto chromeDriverVersion = score2dx::CheckChromeDriverVersion("chromedriver.exe");
+    auto chromeBrowserVersion = score2dx::CheckChromeBrowserVersion();
+    if (chromeDriverVersion==chromeBrowserVersion && chromeDriverVersion!=0)
+    {
+        mIsChromeDriverReady = true;
+    }
+
+    mChromeStatus = "Chrome driver: "+QString::number(chromeDriverVersion)
+                    +", browser: "+QString::number(chromeBrowserVersion);
 }
 
 QString
@@ -82,6 +93,14 @@ const
     //'' remove 'table/'.
     auto filename = path.right(path.size()-6);
     return filename;
+}
+
+QString
+Core::
+getChromeStatus()
+const
+{
+    return mChromeStatus;
 }
 
 bool
@@ -262,8 +281,8 @@ setActiveVersion(const QString &iidxId,
     mCore.SetActiveVersionIndex(activeVersionIndex.toULongLong());
     mCore.Analyze(iidxId.toStdString());
 
-    auto dateTimeRange = score2dx::GetVersionDateTimeRange(activeVersionIndex.toULongLong());
-    auto &begin = dateTimeRange.at(ies::RangeSide::Begin);
+    auto &dateTimeRange = score2dx::GetVersionDateTimeRange(activeVersionIndex.toULongLong());
+    auto &begin = dateTimeRange.Get(ies::RangeSide::Begin);
     auto tokens = ies::SplitString(" ", begin);
     if (tokens.empty()) { return {}; }
 

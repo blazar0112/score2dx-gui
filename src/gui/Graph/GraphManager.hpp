@@ -42,7 +42,8 @@ public:
         updatePlayerScore(const QString &iidxIdQStr,
                           const QString &playStyleQStr,
                           int musicId,
-                          const QString &difficultyQStr);
+                          const QString &difficultyQStr,
+                          const QString &activeVersionQStr);
 
         Q_INVOKABLE
         void

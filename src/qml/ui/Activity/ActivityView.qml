@@ -11,7 +11,7 @@ Item {
     id: root
     property alias activityListView: activityListView
 
-    readonly property string rightArrow: '➜'
+    readonly property string rightArrow: '\u279C'
 
     //'' Header:    | #Act  | Time(JST) | Ver | Title | PreviousPlayCount | -> | PlayCount |
     //'' AuxHeader: | Lv    | Previous Record | -> | New Record | Statistics |
