@@ -312,7 +312,9 @@ ApplicationWindow
                         font.family: 'Verdana'
                         font.pixelSize: 20
 
-                        enabled: comboBoxPlayer.currentText!='' && !Core.isDownloadingIst && !Core.isDownloadingMe
+                        enabled: comboBoxPlayer.currentText!=''
+                                 && Core.isChromeDriverReady
+                                 && !Core.isDownloadingIst && !Core.isDownloadingMe
 
                         onClicked: {
                             Core.downloadIst(comboBoxPlayer.currentText,
@@ -692,6 +694,34 @@ ApplicationWindow
         }
 
         Rectangle {
+            id: rectChromeStatus
+            anchors.left: parent.left
+            anchors.bottom: rectDbStatus.top
+
+            width: textChromeStatus.contentWidth
+            height: textChromeStatus.contentHeight
+
+            color: '#A0000000'
+            radius: 3
+
+            Text {
+                id: textChromeStatus
+                anchors.fill: parent
+
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+
+                font.family: 'Verdana'
+                font.pixelSize: 12
+                font.bold: true
+
+                text: Core.getChromeStatus()
+                color: Core.isChromeDriverReady ? 'MediumSeaGreen' : 'LightCoral'
+            }
+        }
+
+        Rectangle {
+            id: rectDbStatus
             anchors.left: parent.left
             anchors.bottom: parent.bottom
 
@@ -744,6 +774,7 @@ ApplicationWindow
 
     function updatePlayer()
     {
+        console.log('updatePlayer')
         updateMusicScore()
         updateActiveVersion()
     }

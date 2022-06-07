@@ -20,6 +20,7 @@ class Core : public QObject
     Q_PROPERTY(QStringList versionNameList READ getVersionNameList CONSTANT)
     Q_PROPERTY(bool isDownloadingIst MEMBER mIsDownloadingIst NOTIFY isDownloadingIstChanged)
     Q_PROPERTY(bool isDownloadingMe MEMBER mIsDownloadingMe NOTIFY isDownloadingMeChanged)
+    Q_PROPERTY(bool isChromeDriverReady MEMBER mIsChromeDriverReady NOTIFY isChromeDriverReadyChanged)
 
 public:
         explicit Core(QObject* parent=nullptr);
@@ -32,6 +33,11 @@ public:
         Q_INVOKABLE
         QString
         getDbFilename()
+        const;
+
+        Q_INVOKABLE
+        QString
+        getChromeStatus()
         const;
 
         Q_INVOKABLE
@@ -77,10 +83,12 @@ public:
         AnalyzeActivity(const std::string &iidxId,
                         const std::string &beginDateTime,
                         const std::string &endDateTime);
+
 signals:
         void playerListChanged();
         void isDownloadingIstChanged();
         void isDownloadingMeChanged();
+        void isChromeDriverReadyChanged();
 
 private:
     score2dx::Core mCore;
@@ -91,6 +99,9 @@ private:
 
     bool mIsDownloadingIst{false};
     bool mIsDownloadingMe{false};
+    bool mIsChromeDriverReady{false};
+
+    QString mChromeStatus;
 
         void
         UpdateChart(const std::map<std::string, const score2dx::Csv*> &csvs);

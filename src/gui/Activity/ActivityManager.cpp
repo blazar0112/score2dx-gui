@@ -55,7 +55,7 @@ updateActivity(const QString &iidxId,
     auto* activityAnalysisPtr = mGuiCore.GetScore2dxCore().FindActivityAnalysis(iidxId.toStdString());
     if (!activityAnalysisPtr)
     {
-        qDebug() << "Cannot find ActivityAnalysis for player " << iidxId;
+        qDebug() << "updateActivity: Cannot find ActivityAnalysis for player " << iidxId;
         return;
     }
 
@@ -294,7 +294,6 @@ const
     auto* activityAnalysisPtr = mGuiCore.GetScore2dxCore().FindVersionActivityAnalysis(iidxId.toStdString());
     if (!activityAnalysisPtr)
     {
-        qDebug() << "Cannot find ActivityAnalysis for player " << iidxId;
         return {};
     }
 
