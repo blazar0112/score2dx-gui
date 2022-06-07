@@ -69,7 +69,15 @@ ApplicationWindow
                         model: Core.playerList
 
                         onActivated: {
+                            console.log('onActivated')
                             updatePlayer()
+                        }
+
+                        Connections {
+                            target: Core
+                            function onPlayerListChanged() {
+                                updatePlayer()
+                            }
                         }
                     }
 
