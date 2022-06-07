@@ -1,6 +1,6 @@
 # Changelog of score2dx-gui
 
-- 1.7.0 [2022-06-06] (score2dx-3.1.1):
+- 1.7.0 [2022-06-08] (score2dx-3.1.1):
     - Update to score2dx 3.1.1 changes:
         - Optimize performance.
         - Update Music DB to 29086 [2022-06-08].
