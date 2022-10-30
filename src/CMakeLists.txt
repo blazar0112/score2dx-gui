@@ -4,19 +4,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(ENV{ies_DIR} $ENV{INSTALL_ROOT}/ies/latest/mingw64-11.2.0)
-find_package(ies REQUIRED)
-file(TO_CMAKE_PATH $ENV{ies_DIR} IES_PATH)
-message(STATUS "Found ies: " ${IES_PATH})
-
-set(ENV{score2dx_DIR} $ENV{INSTALL_ROOT}/score2dx/latest/mingw64-11.2.0)
-find_package(score2dx REQUIRED)
-file(TO_CMAKE_PATH $ENV{score2dx_DIR} SCORE_2DX_PATH)
-message(STATUS "Found score2dx: " ${SCORE_2DX_PATH})
-
-# Header only libraries
-set(FMT_INCLUDE_DIRS $ENV{FMT_ROOT}/include)
-set(JSON_INCLUDE_DIRS $ENV{JSON_ROOT}/include)
+find_package(fmt CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(ies CONFIG REQUIRED)
+find_package(score2dx CONFIG REQUIRED)
 
 set(MINGW_LIBRARY_NAMES
     gcc_s_seh-1 stdc++-6 winpthread-1
