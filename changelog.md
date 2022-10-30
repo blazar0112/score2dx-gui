@@ -1,5 +1,10 @@
 # Changelog of score2dx-gui
 
+- 1.8.0 [2022-10-30] (score2dx-3.2.0):
+    - Update to score2dx 3.2.0 changes:
+        - Cmake now use config mode find_package for ies and score2dx.
+        - Update Music DB to 29098 [2022-10-19].
+
 - 1.7.0 [2022-06-08] (score2dx-3.1.1):
     - Update to score2dx 3.1.1 changes:
         - Optimize performance.
