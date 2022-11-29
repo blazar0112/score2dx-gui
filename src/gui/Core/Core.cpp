@@ -156,7 +156,10 @@ downloadMe(const QString &meUserName)
             {
                 if (!errorMessage.isEmpty())
                 {
+                    mErrorMessage = errorMessage;
+                    mHasError = true;
                     qDebug() << "Download ME error: " << errorMessage;
+                    emit hasErrorChanged();
                 }
 
                 UpdatePlayerList();
@@ -289,6 +292,23 @@ setActiveVersion(const QString &iidxId,
     std::cout << std::flush;
 
     return tokens[0].c_str();
+}
+
+QString
+Core::
+getErrorMessage()
+const
+{
+    return mErrorMessage;
+}
+
+void
+Core::
+clearError()
+{
+    mErrorMessage = "";
+    mHasError = false;
+    emit hasErrorChanged();
 }
 
 const score2dx::Core &

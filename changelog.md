@@ -1,5 +1,12 @@
 # Changelog of score2dx-gui
 
+- 1.9.0 [2022-11-30] (score2dx-3.3.0):
+    - Update to score2dx 3.3.0 changes:
+        - Fix loading CSV30 and ME30 problem (score2dx and DB are still in 29 mode).
+        - Update Music DB 29 to 2022-11-29 with title fixes.
+    - Add error message dialog for download ME.
+        - Can copy error message in show detail.
+
 - 1.8.0 [2022-10-30] (score2dx-3.2.0):
     - Update to score2dx 3.2.0 changes:
         - Cmake now use config mode find_package for ies and score2dx.
