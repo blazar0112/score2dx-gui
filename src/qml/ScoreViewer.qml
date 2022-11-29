@@ -1,7 +1,7 @@
 import QtQuick 2.15
 import QtCharts 2.3
 import QtQuick.Controls 2.15
-import QtQuick.Dialogs 1.0
+import QtQuick.Dialogs 1.1
 import QtQuick.Layouts 1.12
 import QtQuick.Window 2.0
 
@@ -776,6 +776,36 @@ ApplicationWindow
         onAccepted: {
             Core.loadDirectory(fileDialog.fileUrl)
             updatePlayer()
+        }
+    }
+
+    MessageDialog {
+        id: errorDialog
+        visible: Core.hasError
+        text: 'Error'
+        informativeText: 'Download ME has exception.'
+        detailedText: 'detailText'
+        icon: StandardIcon.Critical
+        modality: Qt.ApplicationModal
+
+        onAccepted: clearError()
+        onRejected: clearError()
+
+        property bool firstVisible : true
+
+        onVisibleChanged: {
+            if (firstVisible)
+            {
+                firstVisible = false
+                setVisible(false)
+                detailedText = Core.getErrorMessage()
+                setVisible(true)
+            }
+        }
+
+        function clearError()
+        {
+            Core.clearError()
         }
     }
 
