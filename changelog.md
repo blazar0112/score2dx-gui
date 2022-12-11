@@ -1,5 +1,11 @@
 # Changelog of score2dx-gui
 
+- 1.10.0 [2022-12-12] (score2dx-4.1.0):
+    - Update to score2dx 4.1.0 changes:
+        - Update data model to IIDX30 RESIDENT.
+        - Update Music DB to 30058 [2022-12-11].
+        - Fix bug displayed in PDBS caused from incorrect CareerRecord set.
+
 - 1.9.0 [2022-11-30] (score2dx-3.3.0):
     - Update to score2dx 3.3.0 changes:
         - Fix loading CSV30 and ME30 problem (score2dx and DB are still in 29 mode).
